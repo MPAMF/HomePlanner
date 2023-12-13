@@ -2,14 +2,7 @@ import {Component, ElementRef, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterOutlet} from '@angular/router';
 import RBush from 'rbush';
-
-interface Wall {
-  minX: number;
-  minY: number;
-  maxX: number;
-  maxY: number;
-  id: string;
-}
+import {Wall} from "./models/wall";
 
 @Component({
   selector: 'app-root',
@@ -27,8 +20,9 @@ export class AppComponent {
   ngAfterViewInit() {
     this.context = (this.canvasRef.nativeElement as HTMLCanvasElement).getContext('2d');
     const canvas = this.canvasRef.nativeElement as HTMLCanvasElement;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+   // canvas.width = window.innerWidth;
+   // canvas.height = window.innerHeight;
+
     const walls: Wall[] = [
       {minX: 10, minY: 10, maxX: 20, maxY: 20, id: "1"},
       {minX: 15, minY: 15, maxX: 30, maxY: 30, id: "2"},
@@ -37,6 +31,7 @@ export class AppComponent {
     walls.forEach(wall => {
       this.context?.beginPath();
       this.context?.rect(wall.minX, wall.minY, (wall.maxX - wall.minX), (wall.maxY - wall.minY));
+      this.context?.fillText(wall.id, wall.minX + 5, wall.minY + 15);
       this.context?.stroke();
       this.context?.closePath();
     });

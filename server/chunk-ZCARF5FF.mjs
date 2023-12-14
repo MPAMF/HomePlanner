@@ -1,5 +1,0 @@
-import './polyfills.server.mjs';
-import{C as x,a,b as m,c as s,d as i,e as c,f,g as d,h as l,o as u,q as v,r as g,s as C,v as h,z as y}from"./chunk-DR56C3MG.mjs";var Q=["canvas"],R=(()=>{let t=class t{constructor(){this.title="HomePlanner"}ngAfterViewInit(){this.context=this.canvasRef.nativeElement.getContext("2d");let n=this.canvasRef.nativeElement}};t.\u0275fac=function(e){return new(e||t)},t.\u0275cmp=a({type:t,selectors:[["app-root"]],viewQuery:function(e,r){if(e&1&&d(Q,5),e&2){let p;f(p=l())&&(r.canvasRef=p.first)}},standalone:!0,features:[c],decls:5,vars:0,consts:[[1,"main"],[1,"content"],["width","700","height","300"],["canvas",""]],template:function(e,r){e&1&&(m(0,"main",0)(1,"div",1),i(2,"canvas",2,3),s()(),i(4,"router-outlet"))},dependencies:[v,y],styles:[`html[_ngcontent-%COMP%], body[_ngcontent-%COMP%] {
-    margin: 0 !important;
-    padding: 0 !important;
-  }`]});let o=t;return o})();var w=[];var A={providers:[x(w),C()]};var b={providers:[h()]},M=u(A,b);var E=()=>g(R,M),J=E;export{J as a};

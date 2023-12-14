@@ -20,7 +20,7 @@ jobs:
       - name: Install ⚙️
         run: npm ci
       - name: Build 🛠
-        run: npm run build
+        run: npm run build:ci
       # - name: Test 📋
       #   run: npm run test
       - name: Deploy 🚀

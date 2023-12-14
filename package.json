@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:ci": "ng build --prod --deploy-url /HomePlanner/ --base-href /HomePlanner/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

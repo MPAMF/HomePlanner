@@ -1,4 +1,4 @@
-import {Component, ElementRef, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HeaderComponent} from "./header/header.component";
 import {CommandInvoker} from "../../commands/command";
@@ -11,7 +11,7 @@ import {Board} from "../../models/board";
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.scss'
 })
-export class EditorComponent {
+export class EditorComponent implements AfterViewInit, OnInit {
 
   @ViewChild('canvas', {static: false}) canvasRef!: ElementRef;
   private context: CanvasRenderingContext2D | null | undefined;
@@ -24,7 +24,7 @@ export class EditorComponent {
     this.board = new Board();
   }
 
-  ngInit() {
+  ngOnInit(): void {
     this.cmdInvoker = new CommandInvoker();
   }
 

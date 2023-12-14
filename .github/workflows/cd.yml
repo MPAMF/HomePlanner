@@ -1,11 +1,11 @@
-name: CI/CD
+name: Angular CD
 on:
   push:
     branches:
       - main
 jobs:
   cd:
-    concurrency: ci-${{ github.ref }}
+    concurrency: cd-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout ✅

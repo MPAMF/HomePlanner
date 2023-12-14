@@ -1,0 +1,25 @@
+name: Angular CI
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  ci:
+    concurrency: ci-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ✅
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - name: Setup 🏗
+        uses: actions/setup-node@v2
+        with:
+          node-version: lts/*
+          cache: 'npm'
+      - name: Install ⚙️
+        run: npm ci
+      - name: Lint 🌞
+        run: npm lint
+      - name: Build 🛠
+        run: npm run build

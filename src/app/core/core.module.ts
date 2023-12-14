@@ -8,5 +8,5 @@ import {CommonModule} from '@angular/common';
     CommonModule
   ]
 })
-export class EditorModule {
+export class CoreModule {
 }

@@ -5,6 +5,7 @@ import {CommandInvoker} from "../../commands/command";
 import {Board} from "../../models/board";
 import {Wall} from "../../models/wall";
 import {Point} from "../../models/point";
+import {AddWallCommand, EditLastWallWithPointCommand} from "../../commands/wall-commands";
 
 @Component({
   selector: 'app-editor',
@@ -45,16 +46,13 @@ export class EditorComponent implements AfterViewInit, OnInit {
    * @param event
    */
   onMouseDown(event: MouseEvent) {
-    this.isDrawing = true;
-    if(this.canvas){
-      const startX = event.clientX - this.canvas.getBoundingClientRect().left;
-      const startY = event.clientY - this.canvas.getBoundingClientRect().top;
+    if(!this.canvas) return;
 
-      this.walls.push(new Wall(new Point(startX, startY), new Point(startX, startY), 2, 'black'));
-    }
-    else {
-      throw new Error("Canvas is null or undefined.");
-    }
+    const startX = event.clientX - this.canvas.getBoundingClientRect().left;
+    const startY = event.clientY - this.canvas.getBoundingClientRect().top;
+    const wall: Wall = new Wall(new Point(startX, startY), new Point(startX, startY), 2, 'black');
+
+    this.cmdInvoker.execute(new AddWallCommand(this.board, wall));
   }
 
   /**
@@ -62,41 +60,13 @@ export class EditorComponent implements AfterViewInit, OnInit {
    * @param event
    */
   onMouseMove(event: MouseEvent) {
-    if(this.isDrawing){
-      if(this.canvas){
-        const mouseX: number = event.clientX - this.canvas.getBoundingClientRect().left;
-        const mouseY: number  = event.clientY - this.canvas.getBoundingClientRect().top;
+    if(!this.canvas) return;
 
-        const currentWall: Wall = this.walls[this.walls.length - 1];
-        currentWall.p2.x = mouseX;
-        currentWall.p2.y = mouseY;
+    const mouseX: number = event.clientX - this.canvas.getBoundingClientRect().left;
+    const mouseY: number  = event.clientY - this.canvas.getBoundingClientRect().top;
+    const p2: Point = new Point(mouseX, mouseY);
 
-        this.drawWall();
-      }
-      else {
-        throw new Error("Canvas is null or undefined.");
-      }
-    }
-  }
-
-  private drawWall() {
-    if(this.context && this.canvas){
-      const drawContext: CanvasRenderingContext2D = this.context;
-      drawContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-      this.walls.forEach(wall => {
-        drawContext.beginPath();
-        drawContext.moveTo(wall.p1.x, wall.p1.y);
-        drawContext.lineTo(wall.p2.x, wall.p2.y);
-        drawContext.lineWidth = wall.thickness;
-        drawContext.strokeStyle = wall.color;
-        drawContext.stroke();
-      });
-
-    }
-    else {
-      throw new Error("Canvas is null or undefined.");
-    }
+    this.cmdInvoker.execute(new EditLastWallWithPointCommand(this.board, p2));
   }
 
   private addEscapeKeyListener() {
@@ -108,8 +78,9 @@ export class EditorComponent implements AfterViewInit, OnInit {
   }
 
   private onKeyDown(event: KeyboardEvent) {
-    //console.log(event.key);
+    console.log(event.key);
     if (event.key === 'Escape') {
+      console.log(this.isDrawing);
       this.isDrawing = false;
     }
   }

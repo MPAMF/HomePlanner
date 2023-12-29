@@ -53,6 +53,13 @@ export class Wall extends Comparable implements Drawable {
   draw(ctx: CanvasRenderingContext2D) {
     console.log(`Drawing Wall with thickness ${this.thickness}, color ${this.color}`);
     // TODO: implement
+    ctx.beginPath();
+    ctx.moveTo(this.p1.x, this.p1.y);
+    ctx.lineTo(this.p2.x, this.p2.y);
+    ctx.lineWidth = this.thickness;
+    ctx.strokeStyle = this.color;
+    ctx.stroke();
+
     this.elements.forEach(element => element.draw(ctx));
   }
 

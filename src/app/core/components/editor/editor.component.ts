@@ -14,30 +14,25 @@ import {AddWallCommand, EditLastWallWithPointCommand} from "../../commands/wall-
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.scss'
 })
-export class EditorComponent implements AfterViewInit, OnInit {
+export class EditorComponent implements AfterViewInit {
 
   @ViewChild('canvas', {static: false}) canvasRef!: ElementRef;
   private context: CanvasRenderingContext2D | null | undefined;
   private canvas: HTMLCanvasElement | null | undefined;
 
   private cmdInvoker: CommandInvoker;
-  private board: Board;
+  private readonly board: Board;
 
-  private isDrawing: boolean = false;
-  private walls: Wall[] = [];
 
   constructor() {
-    this.cmdInvoker = new CommandInvoker();
     this.board = new Board();
-  }
-
-  ngOnInit(): void {
-    this.cmdInvoker = new CommandInvoker();
+    this.cmdInvoker = new CommandInvoker(this.board);
   }
 
   ngAfterViewInit() {
     this.context = (this.canvasRef.nativeElement as HTMLCanvasElement).getContext('2d');
     this.canvas = (this.canvasRef.nativeElement as HTMLCanvasElement);
+    this.cmdInvoker.canvasCtx = this.context;
     this.addEscapeKeyListener();
   }
 
@@ -52,7 +47,7 @@ export class EditorComponent implements AfterViewInit, OnInit {
     const startY = event.clientY - this.canvas.getBoundingClientRect().top;
     const wall: Wall = new Wall(new Point(startX, startY), new Point(startX, startY), 2, 'black');
 
-    this.cmdInvoker.execute(new AddWallCommand(this.board, wall));
+    this.cmdInvoker.execute(new AddWallCommand(wall));
   }
 
   /**
@@ -60,13 +55,13 @@ export class EditorComponent implements AfterViewInit, OnInit {
    * @param event
    */
   onMouseMove(event: MouseEvent) {
-    if(!this.canvas) return;
+    if(!this.canvas || !this.board.isDrawingWalls) return;
 
     const mouseX: number = event.clientX - this.canvas.getBoundingClientRect().left;
     const mouseY: number  = event.clientY - this.canvas.getBoundingClientRect().top;
     const p2: Point = new Point(mouseX, mouseY);
 
-    this.cmdInvoker.execute(new EditLastWallWithPointCommand(this.board, p2));
+    this.cmdInvoker.execute(new EditLastWallWithPointCommand(p2), false);
   }
 
   private addEscapeKeyListener() {
@@ -80,8 +75,8 @@ export class EditorComponent implements AfterViewInit, OnInit {
   private onKeyDown(event: KeyboardEvent) {
     console.log(event.key);
     if (event.key === 'Escape') {
-      console.log(this.isDrawing);
-      this.isDrawing = false;
+      console.log(this.board.isDrawingWalls);
+      this.board.isDrawingWalls = false;
     }
   }
 }

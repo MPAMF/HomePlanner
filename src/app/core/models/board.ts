@@ -12,6 +12,21 @@ export class Board implements Drawable {
 
   draw(ctx: CanvasRenderingContext2D) {
     console.log("Drawing Board");
+    this.clear(ctx);
     this.walls.forEach(wall => wall.draw(ctx));
   }
+
+  private clear(ctx: CanvasRenderingContext2D, preserveTransform: boolean = false) {
+    if (preserveTransform) {
+      ctx.save();
+    }
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    if (preserveTransform) {
+      ctx.restore();
+    }
+  }
+
 }

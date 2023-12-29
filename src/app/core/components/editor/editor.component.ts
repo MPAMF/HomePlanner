@@ -65,7 +65,7 @@ export class EditorComponent implements AfterViewInit {
   }
 
   private addEscapeKeyListener() {
-    document.addEventListener('keydown', this.onKeyDown);
+    document.addEventListener('keydown', this.onKeyDown.bind(this));
   }
 
   private removeEscapeKeyListener() {

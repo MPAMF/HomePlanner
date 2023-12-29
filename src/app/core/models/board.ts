@@ -11,7 +11,6 @@ export class Board implements Drawable {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    console.log("Drawing Board");
     this.clear(ctx);
     this.walls.forEach(wall => wall.draw(ctx));
   }

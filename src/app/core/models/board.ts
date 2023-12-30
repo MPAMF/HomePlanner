@@ -1,13 +1,14 @@
 import {Wall} from "./wall";
 import {Drawable} from "./drawable";
+import {DrawState} from "./draw-state";
 
 export class Board implements Drawable {
-  public isDrawingWalls: boolean;
   public walls: Wall[];
+  public drawState: DrawState;
 
   constructor() {
-    this.isDrawingWalls = false;
     this.walls = [];
+    this.drawState = DrawState.None; // defaults to none
   }
 
   draw(ctx: CanvasRenderingContext2D) {

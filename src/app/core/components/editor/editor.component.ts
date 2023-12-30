@@ -1,16 +1,17 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {HeaderComponent} from "./header/header.component";
+import {ToolbarComponent} from "./toolbar/toolbar.component";
 import {CommandInvoker} from "../../commands/command";
 import {Board} from "../../models/board";
 import {Wall} from "../../models/wall";
 import {Point} from "../../models/point";
 import {AddWallCommand, EditLastWallWithPointCommand} from "../../commands/wall-commands";
+import {DrawState} from "../../models/draw-state";
 
 @Component({
   selector: 'app-editor',
   standalone: true,
-  imports: [CommonModule, HeaderComponent],
+  imports: [CommonModule, ToolbarComponent],
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.scss'
 })
@@ -20,9 +21,8 @@ export class EditorComponent implements AfterViewInit {
   private context: CanvasRenderingContext2D | null | undefined;
   private canvas: HTMLCanvasElement | null | undefined;
 
-  private cmdInvoker: CommandInvoker;
+  protected readonly cmdInvoker: CommandInvoker;
   private readonly board: Board;
-
 
   constructor() {
     this.board = new Board();
@@ -67,7 +67,7 @@ export class EditorComponent implements AfterViewInit {
    * @param event
    */
   onMouseMove(event: MouseEvent) {
-    if(!this.canvas || !this.board.isDrawingWalls) return;
+    if(!this.canvas || this.board.drawState !== DrawState.Wall) return;
 
     const mouseX = this.getMouseXPosition(event, this.canvas);
     const mouseY = this.getMouseYPosition(event, this.canvas);
@@ -87,8 +87,7 @@ export class EditorComponent implements AfterViewInit {
   private onKeyDown(event: KeyboardEvent) {
     console.log(event.key);
     if (event.key === 'Escape') {
-      console.log(this.board.isDrawingWalls);
-      this.board.isDrawingWalls = false;
+      this.board.drawState = DrawState.None;
     }
   }
 }

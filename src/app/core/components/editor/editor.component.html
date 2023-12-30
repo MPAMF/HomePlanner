@@ -1,5 +1,5 @@
 <div class="editor">
-  <app-header></app-header>
+  <app-toolbar [commandInvoker]="cmdInvoker"></app-toolbar>
   <canvas #canvas
           (mousedown)="onMouseDown($event)"
           (mousemove)="onMouseMove($event)"

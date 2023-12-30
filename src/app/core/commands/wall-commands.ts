@@ -1,7 +1,7 @@
 import {Command} from "./command";
-import {Board} from "../models/board";
 import {Wall} from "../models/wall";
 import {Point} from "../models/point";
+import {DrawState} from "../models/draw-state";
 
 export class AddWallCommand extends Command {
 
@@ -10,12 +10,12 @@ export class AddWallCommand extends Command {
   }
 
   override execute(): void {
-    this.board.isDrawingWalls = true;
+    this.board.drawState = DrawState.Wall;
     this.board.walls.push(this.wall);
   }
 
   override undo(): void {
-    this.board.isDrawingWalls = false;
+    this.board.drawState = DrawState.None; // TODO: maybe set to previous state
     const index = this.board.walls.indexOf(this.wall);
     if (index > -1) {
       this.board.walls.splice(index, 1);
@@ -52,7 +52,7 @@ export class EditLastWallWithPointCommand extends Command {
   }
 
   override execute(): void {
-    if (!this.board.isDrawingWalls) {
+    if (this.board.drawState !== DrawState.Wall) {
       return;
     }
     this.board.walls[this.board.walls.length - 1].p2 = this.p2;

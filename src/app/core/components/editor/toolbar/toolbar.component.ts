@@ -1,17 +1,17 @@
-import {Component} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {Point} from "../../../models/point";
-import {EditLastWallWithPointCommand} from "../../../commands/wall-commands";
+import {CommandInvoker} from "../../../commands/command";
 
 @Component({
-  selector: 'app-header',
+  selector: 'app-toolbar',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './header.component.html',
-  styleUrl: './header.component.scss'
+  templateUrl: './toolbar.component.html',
+  styleUrl: './toolbar.component.scss'
 })
-export class HeaderComponent {
+export class ToolbarComponent {
   private lastClickedButton: number = 0;
+  @Input() commandInvoker?: CommandInvoker;
 
   changeColor(buttonNumber: number) {
     this.lastClickedButton = buttonNumber;
@@ -43,5 +43,15 @@ export class HeaderComponent {
 
   onClickZoomOut(buttonNumber: number) {
     this.changeColor(buttonNumber);
+  }
+
+  onClickUndo() {
+    if (!this.commandInvoker || !this.commandInvoker.canUndo()) return;
+    this.commandInvoker.undo();
+  }
+
+  onClickRedo() {
+    if (!this.commandInvoker || !this.commandInvoker.canRedo()) return;
+    this.commandInvoker.redo();
   }
 }

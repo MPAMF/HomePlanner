@@ -15,7 +15,7 @@ import {DrawState} from "../../models/draw-state";
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.scss'
 })
-export class EditorComponent implements AfterViewInit {
+export class EditorComponent {
 
   @ViewChild('canvas', {static: false}) set canvasRef(content: ElementRef) {
     if (content) { // initially setter gets called with undefined
@@ -30,13 +30,10 @@ export class EditorComponent implements AfterViewInit {
   private readonly board: Board;
   protected readonly isBrowser: boolean;
 
-  constructor(@Inject(PLATFORM_ID) platformId: Object,) {
+  constructor(@Inject(PLATFORM_ID) platformId: object,) {
     this.board = new Board();
     this.cmdInvoker = new CommandInvoker(this.board);
     this.isBrowser = isPlatformBrowser(platformId);
-  }
-
-  ngAfterViewInit(): void {
   }
 
   private initCanvas(canvasRef: ElementRef) {

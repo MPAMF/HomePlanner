@@ -34,6 +34,18 @@ export class EditorComponent implements AfterViewInit {
     this.canvas = (this.canvasRef.nativeElement as HTMLCanvasElement);
     this.cmdInvoker.canvasCtx = this.context;
     this.addEscapeKeyListener();
+
+    // Correction of the Zoom from responsive size
+    this.canvas.width = this.canvas.getBoundingClientRect().width;
+    this.canvas.height = this.canvas.getBoundingClientRect().height;
+  }
+
+  getMouseXPosition(event: MouseEvent, canvas: HTMLCanvasElement) {
+    return (event.clientX - canvas.getBoundingClientRect().left) * (canvas.width / canvas.getBoundingClientRect().width);
+  }
+
+  getMouseYPosition(event: MouseEvent, canvas: HTMLCanvasElement) {
+    return (event.clientY - canvas.getBoundingClientRect().top) * (canvas.height / canvas.getBoundingClientRect().height);
   }
 
   /**
@@ -43,8 +55,8 @@ export class EditorComponent implements AfterViewInit {
   onMouseDown(event: MouseEvent) {
     if(!this.canvas) return;
 
-    const startX = event.clientX - this.canvas.getBoundingClientRect().left;
-    const startY = event.clientY - this.canvas.getBoundingClientRect().top;
+    const startX = this.getMouseXPosition(event, this.canvas);
+    const startY = this.getMouseYPosition(event, this.canvas);
     const wall: Wall = new Wall(new Point(startX, startY), new Point(startX, startY), 2, 'black');
 
     this.cmdInvoker.execute(new AddWallCommand(wall));
@@ -57,8 +69,8 @@ export class EditorComponent implements AfterViewInit {
   onMouseMove(event: MouseEvent) {
     if(!this.canvas || !this.board.isDrawingWalls) return;
 
-    const mouseX: number = event.clientX - this.canvas.getBoundingClientRect().left;
-    const mouseY: number  = event.clientY - this.canvas.getBoundingClientRect().top;
+    const mouseX = this.getMouseXPosition(event, this.canvas);
+    const mouseY = this.getMouseYPosition(event, this.canvas);
     const p2: Point = new Point(mouseX, mouseY);
 
     this.cmdInvoker.execute(new EditLastWallWithPointCommand(p2), false);

@@ -53,11 +53,7 @@ export class CommandInvoker {
 
     // redraw the board if needed
     if (command.redraw) {
-      if (this.canvasCtx) {
-        this.board.draw(this.canvasCtx);
-      } else {
-        throw new Error("Canvas context not set, cannot redraw");
-      }
+      this.redraw();
     }
 
     // save the command in the history if needed
@@ -99,6 +95,22 @@ export class CommandInvoker {
       throw new Error("Canvas context not set, cannot redraw");
     }
     this.board.draw(this.canvasCtx);
+  }
+
+  /**
+   * Check if the undo history is not empty
+   * @returns {boolean}
+   */
+  public canUndo(): boolean {
+    return this.historyIndex >= 0;
+  }
+
+  /**
+   * Check if the redo history is not empty
+   * @returns {boolean}
+   */
+  public canRedo(): boolean {
+    return this.historyIndex < this.history.length - 1;
   }
 
 

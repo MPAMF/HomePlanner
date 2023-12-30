@@ -1,37 +1,44 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {HeaderComponent} from "./header/header.component";
+import {AfterViewInit, Component, ElementRef, Inject, PLATFORM_ID, ViewChild} from '@angular/core';
+import {CommonModule, isPlatformBrowser} from '@angular/common';
+import {ToolbarComponent} from "./toolbar/toolbar.component";
 import {CommandInvoker} from "../../commands/command";
 import {Board} from "../../models/board";
 import {Wall} from "../../models/wall";
 import {Point} from "../../models/point";
 import {AddWallCommand, EditLastWallWithPointCommand} from "../../commands/wall-commands";
+import {DrawState} from "../../models/draw-state";
 
 @Component({
   selector: 'app-editor',
   standalone: true,
-  imports: [CommonModule, HeaderComponent],
+  imports: [CommonModule, ToolbarComponent],
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.scss'
 })
-export class EditorComponent implements AfterViewInit {
+export class EditorComponent {
 
-  @ViewChild('canvas', {static: false}) canvasRef!: ElementRef;
+  @ViewChild('canvas', {static: false}) set canvasRef(content: ElementRef) {
+    if (content) { // initially setter gets called with undefined
+      this.initCanvas(content);
+    }
+  }
+
   private context: CanvasRenderingContext2D | null | undefined;
   private canvas: HTMLCanvasElement | null | undefined;
 
-  private cmdInvoker: CommandInvoker;
+  protected readonly cmdInvoker: CommandInvoker;
   private readonly board: Board;
+  protected readonly isBrowser: boolean;
 
-
-  constructor() {
+  constructor(@Inject(PLATFORM_ID) platformId: object,) {
     this.board = new Board();
     this.cmdInvoker = new CommandInvoker(this.board);
+    this.isBrowser = isPlatformBrowser(platformId);
   }
 
-  ngAfterViewInit() {
-    this.context = (this.canvasRef.nativeElement as HTMLCanvasElement).getContext('2d');
-    this.canvas = (this.canvasRef.nativeElement as HTMLCanvasElement);
+  private initCanvas(canvasRef: ElementRef) {
+    this.context = (canvasRef.nativeElement as HTMLCanvasElement).getContext('2d');
+    this.canvas = (canvasRef.nativeElement as HTMLCanvasElement);
     this.cmdInvoker.canvasCtx = this.context;
     this.addEscapeKeyListener();
 
@@ -40,11 +47,11 @@ export class EditorComponent implements AfterViewInit {
     this.canvas.height = this.canvas.getBoundingClientRect().height;
   }
 
-  getMouseXPosition(event: MouseEvent, canvas: HTMLCanvasElement) {
+  private getMouseXPosition(event: MouseEvent, canvas: HTMLCanvasElement): number {
     return (event.clientX - canvas.getBoundingClientRect().left) * (canvas.width / canvas.getBoundingClientRect().width);
   }
 
-  getMouseYPosition(event: MouseEvent, canvas: HTMLCanvasElement) {
+  private getMouseYPosition(event: MouseEvent, canvas: HTMLCanvasElement): number {
     return (event.clientY - canvas.getBoundingClientRect().top) * (canvas.height / canvas.getBoundingClientRect().height);
   }
 
@@ -53,7 +60,7 @@ export class EditorComponent implements AfterViewInit {
    * @param event
    */
   onMouseDown(event: MouseEvent) {
-    if(!this.canvas) return;
+    if (!this.canvas) return;
 
     const startX = this.getMouseXPosition(event, this.canvas);
     const startY = this.getMouseYPosition(event, this.canvas);
@@ -67,7 +74,7 @@ export class EditorComponent implements AfterViewInit {
    * @param event
    */
   onMouseMove(event: MouseEvent) {
-    if(!this.canvas || !this.board.isDrawingWalls) return;
+    if (!this.canvas || this.board.drawState !== DrawState.Wall) return;
 
     const mouseX = this.getMouseXPosition(event, this.canvas);
     const mouseY = this.getMouseYPosition(event, this.canvas);
@@ -87,8 +94,7 @@ export class EditorComponent implements AfterViewInit {
   private onKeyDown(event: KeyboardEvent) {
     console.log(event.key);
     if (event.key === 'Escape') {
-      console.log(this.board.isDrawingWalls);
-      this.board.isDrawingWalls = false;
+      this.board.drawState = DrawState.None;
     }
   }
 }

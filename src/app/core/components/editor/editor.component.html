@@ -1,6 +1,6 @@
 <div class="editor">
-  <app-header></app-header>
-  <canvas #canvas
+  <app-toolbar [commandInvoker]="cmdInvoker"></app-toolbar>
+  <canvas *ngIf="isBrowser" #canvas
           (mousedown)="onMouseDown($event)"
           (mousemove)="onMouseMove($event)"
   ></canvas>

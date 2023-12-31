@@ -65,10 +65,12 @@ export class EditorComponent {
     const startX = this.getMouseXPosition(event, this.canvas);
     const startY = this.getMouseYPosition(event, this.canvas);
 
+    let p1: Point;
+    let wall: Wall;
     switch (this.board.drawState) {
       case DrawState.Wall:
-        const p1: Point = new Point(startX, startY);
-        const wall: Wall = new Wall(p1, p1, 2, 'black');
+        p1 = new Point(startX, startY);
+        wall = new Wall(p1, p1, 2, 'black');
         this.cmdInvoker.execute(new AddWallCommand(wall));
         break;
 
@@ -95,12 +97,13 @@ export class EditorComponent {
     const mouseX = this.getMouseXPosition(event, this.canvas);
     const mouseY = this.getMouseYPosition(event, this.canvas);
 
+    let p2: Point;
     switch (this.board.drawState) {
       case DrawState.None:
         break;
       case DrawState.Wall:
         if(this.board.walls.length != 0){
-          const p2: Point = new Point(mouseX, mouseY);
+          p2 = new Point(mouseX, mouseY);
           this.cmdInvoker.execute(new EditLastWallWithPointCommand(p2), false);
         }
         break;

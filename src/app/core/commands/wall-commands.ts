@@ -10,12 +10,11 @@ export class AddWallCommand extends Command {
   }
 
   override execute(): void {
-    this.board.drawState = DrawState.Wall;
     this.board.walls.push(this.wall);
   }
 
   override undo(): void {
-    this.board.drawState = DrawState.None; // TODO: maybe set to previous state
+    //this.board.drawState = DrawState.None; // TODO: maybe set to previous state
     const index = this.board.walls.indexOf(this.wall);
     if (index > -1) {
       this.board.walls.splice(index, 1);
@@ -23,7 +22,7 @@ export class AddWallCommand extends Command {
   }
 }
 
-class RemoveWallCommand extends Command {
+export class RemoveWallCommand extends Command {
   private removedWall: Wall | null = null;
 
   constructor(private wall: Wall) {
@@ -52,9 +51,6 @@ export class EditLastWallWithPointCommand extends Command {
   }
 
   override execute(): void {
-    if (this.board.drawState !== DrawState.Wall) {
-      return;
-    }
     this.board.walls[this.board.walls.length - 1].p2 = this.p2;
   }
 

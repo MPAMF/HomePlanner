@@ -5,8 +5,9 @@ import {CommandInvoker} from "../../commands/command";
 import {Board} from "../../models/board";
 import {Wall} from "../../models/wall";
 import {Point} from "../../models/point";
-import {AddWallCommand, EditLastWallWithPointCommand} from "../../commands/wall-commands";
+import {AddWallCommand, RemoveWallCommand, EditLastWallWithPointCommand} from "../../commands/wall-commands";
 import {DrawState} from "../../models/draw-state";
+import {EditorDrawStateCommands} from "../../commands/editor-commands";
 
 @Component({
   selector: 'app-editor',
@@ -61,12 +62,30 @@ export class EditorComponent {
    */
   onMouseDown(event: MouseEvent) {
     if (!this.canvas) return;
-
     const startX = this.getMouseXPosition(event, this.canvas);
     const startY = this.getMouseYPosition(event, this.canvas);
-    const wall: Wall = new Wall(new Point(startX, startY), new Point(startX, startY), 2, 'black');
 
-    this.cmdInvoker.execute(new AddWallCommand(wall));
+    let p1: Point;
+    let wall: Wall;
+    switch (this.board.drawState) {
+      case DrawState.Wall:
+        p1 = new Point(startX, startY);
+        wall = new Wall(p1, p1, 2, 'black');
+        this.cmdInvoker.execute(new AddWallCommand(wall));
+        break;
+
+      case DrawState.Move:
+        break;
+
+      case DrawState.Window:
+        break;
+
+      case DrawState.Door:
+        break;
+
+      default:
+        return;
+    }
   }
 
   /**
@@ -74,13 +93,33 @@ export class EditorComponent {
    * @param event
    */
   onMouseMove(event: MouseEvent) {
-    if (!this.canvas || this.board.drawState !== DrawState.Wall) return;
-
+    if (!this.canvas) return;
     const mouseX = this.getMouseXPosition(event, this.canvas);
     const mouseY = this.getMouseYPosition(event, this.canvas);
-    const p2: Point = new Point(mouseX, mouseY);
 
-    this.cmdInvoker.execute(new EditLastWallWithPointCommand(p2), false);
+    let p2: Point;
+    switch (this.board.drawState) {
+      case DrawState.None:
+        break;
+      case DrawState.Wall:
+        if(this.board.walls.length != 0){
+          p2 = new Point(mouseX, mouseY);
+          this.cmdInvoker.execute(new EditLastWallWithPointCommand(p2), false);
+        }
+        break;
+
+      case DrawState.Move:
+        break;
+
+      case DrawState.Window:
+        break;
+
+      case DrawState.Door:
+        break;
+
+      default:
+        return;
+    }
   }
 
   private addEscapeKeyListener() {
@@ -94,7 +133,8 @@ export class EditorComponent {
   private onKeyDown(event: KeyboardEvent) {
     console.log(event.key);
     if (event.key === 'Escape') {
-      this.board.drawState = DrawState.None;
+      this.cmdInvoker.execute(new EditorDrawStateCommands(DrawState.None));
+      this.cmdInvoker.execute(new RemoveWallCommand(this.board.walls[this.board.walls.length - 1]));
     }
   }
 }

@@ -1,6 +1,8 @@
 import {Component, Input} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {CommandInvoker} from "../../../commands/command";
+import {EditorDrawStateCommands} from "../../../commands/editor-commands";
+import {DrawState} from "../../../models/draw-state";
 
 @Component({
   selector: 'app-toolbar',
@@ -13,36 +15,38 @@ export class ToolbarComponent {
   private lastClickedButton: number = 0;
   @Input() commandInvoker?: CommandInvoker;
 
-  changeColor(buttonNumber: number) {
-    this.lastClickedButton = buttonNumber;
-  }
-
   isActive(buttonNumber: number): boolean {
     return this.lastClickedButton === buttonNumber;
   }
 
   onClickWalls(buttonNumber: number) {
-    this.changeColor(buttonNumber);
+    this.lastClickedButton = buttonNumber;
+    this.commandInvoker?.execute(new EditorDrawStateCommands(DrawState.Wall));
   }
 
   onClickWindows(buttonNumber: number) {
-    this.changeColor(buttonNumber);
+    this.lastClickedButton = buttonNumber;
+    this.commandInvoker?.execute(new EditorDrawStateCommands(DrawState.Window));
   }
 
   onClickDoors(buttonNumber: number) {
-    this.changeColor(buttonNumber);
+    this.lastClickedButton = buttonNumber;
+    this.commandInvoker?.execute(new EditorDrawStateCommands(DrawState.Door));
   }
 
   onClickBoard(buttonNumber: number) {
-    this.changeColor(buttonNumber);
+    this.lastClickedButton = buttonNumber;
+    this.commandInvoker?.execute(new EditorDrawStateCommands(DrawState.Move));
   }
 
   onClickZoomIn(buttonNumber: number) {
-    this.changeColor(buttonNumber);
+    this.lastClickedButton = buttonNumber;
+    this.commandInvoker?.execute(new EditorDrawStateCommands(DrawState.ZoomIn));
   }
 
   onClickZoomOut(buttonNumber: number) {
-    this.changeColor(buttonNumber);
+    this.lastClickedButton = buttonNumber;
+    this.commandInvoker?.execute(new EditorDrawStateCommands(DrawState.ZoomOut));
   }
 
   onClickUndo() {

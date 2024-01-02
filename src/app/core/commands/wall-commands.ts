@@ -1,7 +1,6 @@
 import {Command} from "./command";
 import {Wall} from "../models/wall";
 import {Point} from "../models/point";
-import {DrawState} from "../models/draw-state";
 
 export class AddWallCommand extends Command {
 
@@ -11,6 +10,7 @@ export class AddWallCommand extends Command {
 
   override execute(): void {
     this.board.walls.push(this.wall);
+    this.board.isEditing = true;
   }
 
   override undo(): void {

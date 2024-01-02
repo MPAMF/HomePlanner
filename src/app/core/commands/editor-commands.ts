@@ -1,7 +1,5 @@
 import {Command} from "./command";
-import {Wall} from "../models/wall";
 import {DrawState} from "../models/draw-state";
-
 
 export class EditorDrawStateCommands extends Command {
 
@@ -11,6 +9,7 @@ export class EditorDrawStateCommands extends Command {
 
   override execute(): void {
     this.board.drawState = this.drawState;
+    this.board.isEditing = false;
   }
 
   override undo(): void {

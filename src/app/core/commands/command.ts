@@ -8,6 +8,7 @@ export interface ICommand {
 
 export abstract class Command implements ICommand {
   private _board?: Board;
+  private _canvasCtx?: CanvasRenderingContext2D;
   public readonly redraw: boolean = false;
 
   set board(board: Board) {
@@ -19,6 +20,17 @@ export abstract class Command implements ICommand {
       throw new Error("Board not set");
     }
     return this._board;
+  }
+
+  set canvasCtx(canvas: CanvasRenderingContext2D) {
+    this._canvasCtx = canvas;
+  }
+
+  get canvasCtx(): CanvasRenderingContext2D {
+    if (!this._canvasCtx) {
+      throw new Error("Canvas not set");
+    }
+    return this._canvasCtx;
   }
 
   protected constructor(redraw: boolean = true) {
@@ -47,6 +59,7 @@ export class CommandInvoker {
   execute(command: Command, save: boolean = true) {
     // set board instance before executing the command
     command.board = this.board;
+    this.canvasCtx && (command.canvasCtx = this.canvasCtx);
 
     // execute the command
     command.execute();

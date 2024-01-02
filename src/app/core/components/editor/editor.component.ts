@@ -5,14 +5,9 @@ import {CommandInvoker} from "../../commands/command";
 import {Board} from "../../models/board";
 import {Wall} from "../../models/wall";
 import {Point} from "../../models/point";
-import {
-  AddWallCommand,
-  RemoveWallCommand,
-  EditLastWallWithPointCommand,
-  RemoveLastWallCommand, MoveWallCommand
-} from "../../commands/wall-commands";
+import {AddWallCommand, EditLastWallWithPointCommand} from "../../commands/wall-commands";
 import {DrawState} from "../../models/draw-state";
-import {EditorDrawStateCommands} from "../../commands/editor-commands";
+import {MoveElementCommand} from "../../commands/canvas-commands";
 
 @Component({
   selector: 'app-editor',
@@ -136,7 +131,7 @@ export class EditorComponent {
           this.panStart.x = event.clientX;
           this.panStart.y = event.clientY;
 
-          this.cmdInvoker.execute(new MoveWallCommand(new Point(dx, dy)));
+          this.cmdInvoker.execute(new MoveElementCommand(new Point(dx, dy)));
         }
         break;
 

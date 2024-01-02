@@ -4,6 +4,7 @@ import {CommandInvoker} from "../../../commands/command";
 import {EditorDrawStateCommands, EditorRemoveLastWallCommand} from "../../../commands/editor-commands";
 import {DrawState} from "../../../models/draw-state";
 import {RemoveLastWallCommand} from "../../../commands/wall-commands";
+import {DeZoomCommand, ZoomCommand} from "../../../commands/canvas-commands";
 
 @Component({
   selector: 'app-toolbar',
@@ -46,14 +47,12 @@ export class ToolbarComponent implements AfterViewInit {
     this.commandInvoker?.execute(new EditorDrawStateCommands(DrawState.Move));
   }
 
-  onClickZoomIn(buttonNumber: number) {
-    this.lastClickedButton = buttonNumber;
-    this.commandInvoker?.execute(new EditorDrawStateCommands(DrawState.ZoomIn));
+  onClickZoomIn() {
+    this.commandInvoker?.execute(new ZoomCommand(1.1));
   }
 
-  onClickZoomOut(buttonNumber: number) {
-    this.lastClickedButton = buttonNumber;
-    this.commandInvoker?.execute(new EditorDrawStateCommands(DrawState.ZoomOut));
+  onClickZoomOut() {
+    this.commandInvoker?.execute(new DeZoomCommand(1.1));
   }
 
   onClickUndo() {

@@ -80,20 +80,3 @@ export class EditLastWallWithPointCommand extends Command {
 
   }
 }
-
-export class MoveWallCommand extends Command {
-
-  constructor(private delta: Point) {
-    super();
-  }
-
-  override execute(): void {
-    this.board.offset.x += this.delta.x;
-    this.board.offset.y += this.delta.y;
-  }
-
-  override undo(): void {
-    this.board.offset.x -= this.delta.x;
-    this.board.offset.y -= this.delta.y;
-  }
-}

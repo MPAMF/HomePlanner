@@ -1,4 +1,4 @@
-<nav *ngIf="commandInvoker">
+<nav *ngIf="commandInvoker" #nav>
   <button [class.actualAction]="isActive(1)" (click)="onClickWalls(1)"> Create Walls</button>
   <button [class.actualAction]="isActive(2)" (click)="onClickWindows(2)"> Add Windows</button>
   <button [class.actualAction]="isActive(3)" (click)="onClickDoors(3)"> Add Doors</button>

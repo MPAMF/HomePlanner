@@ -44,6 +44,28 @@ export class RemoveWallCommand extends Command {
   }
 }
 
+export class RemoveLastWallCommand extends Command {
+  private removedWall: Wall | null = null;
+
+  constructor() {
+    super();
+  }
+
+  override execute(): void {
+    const index = this.board.walls.length - 1;
+    if (index > -1) {
+      this.removedWall = this.board.walls[index];
+      this.board.walls.splice(index, 1);
+    }
+  }
+
+  override undo(): void {
+    if (this.removedWall) {
+      this.board.walls.push(this.removedWall);
+    }
+  }
+}
+
 export class EditLastWallWithPointCommand extends Command {
 
   constructor(private p2: Point) {
@@ -56,5 +78,22 @@ export class EditLastWallWithPointCommand extends Command {
 
   override undo(): void {
 
+  }
+}
+
+export class MoveWallCommand extends Command {
+
+  constructor(private delta: Point) {
+    super();
+  }
+
+  override execute(): void {
+    this.board.offset.x += this.delta.x;
+    this.board.offset.y += this.delta.y;
+  }
+
+  override undo(): void {
+    this.board.offset.x -= this.delta.x;
+    this.board.offset.y -= this.delta.y;
   }
 }

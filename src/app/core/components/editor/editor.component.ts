@@ -5,7 +5,12 @@ import {CommandInvoker} from "../../commands/command";
 import {Board} from "../../models/board";
 import {Wall} from "../../models/wall";
 import {Point} from "../../models/point";
-import {AddWallCommand, RemoveWallCommand, EditLastWallWithPointCommand} from "../../commands/wall-commands";
+import {
+  AddWallCommand,
+  RemoveWallCommand,
+  EditLastWallWithPointCommand,
+  RemoveLastWallCommand, MoveWallCommand
+} from "../../commands/wall-commands";
 import {DrawState} from "../../models/draw-state";
 import {EditorDrawStateCommands} from "../../commands/editor-commands";
 
@@ -46,7 +51,6 @@ export class EditorComponent {
     this.context = (canvasRef.nativeElement as HTMLCanvasElement).getContext('2d');
     this.canvas = (canvasRef.nativeElement as HTMLCanvasElement);
     this.cmdInvoker.canvasCtx = this.context;
-    this.addEscapeKeyListener();
 
     // Correction of the Zoom from responsive size
     this.canvas.width = this.canvas.getBoundingClientRect().width;
@@ -129,14 +133,10 @@ export class EditorComponent {
         if (this.isPanning && this.context) {
           const dx = event.clientX - this.panStart.x;
           const dy = event.clientY - this.panStart.y;
-
-          this.board.offset.x += dx;
-          this.board.offset.y += dy;
-
-          this.board.draw(this.context);
-
           this.panStart.x = event.clientX;
           this.panStart.y = event.clientY;
+
+          this.cmdInvoker.execute(new MoveWallCommand(new Point(dx, dy)));
         }
         break;
 
@@ -148,22 +148,6 @@ export class EditorComponent {
 
       default:
         return;
-    }
-  }
-
-  private addEscapeKeyListener() {
-    document.addEventListener('keydown', this.onKeyDown.bind(this));
-  }
-
-  private removeEscapeKeyListener() {
-    document.removeEventListener('keydown', this.onKeyDown);
-  }
-
-  private onKeyDown(event: KeyboardEvent) {
-    console.log(event.key);
-    if (event.key === 'Escape') {
-      this.cmdInvoker.execute(new EditorDrawStateCommands(DrawState.None));
-      this.cmdInvoker.execute(new RemoveWallCommand(this.board.walls[this.board.walls.length - 1]));
     }
   }
 }

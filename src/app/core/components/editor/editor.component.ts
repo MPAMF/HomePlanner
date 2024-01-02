@@ -1,11 +1,16 @@
-import {AfterViewInit, Component, ElementRef, Inject, PLATFORM_ID, ViewChild} from '@angular/core';
+import {Component, ElementRef, Inject, PLATFORM_ID, ViewChild} from '@angular/core';
 import {CommonModule, isPlatformBrowser} from '@angular/common';
 import {ToolbarComponent} from "./toolbar/toolbar.component";
 import {CommandInvoker} from "../../commands/command";
 import {Board} from "../../models/board";
 import {Wall} from "../../models/wall";
 import {Point} from "../../models/point";
-import {AddWallCommand, RemoveWallCommand, EditLastWallWithPointCommand} from "../../commands/wall-commands";
+import {
+  AddWallCommand,
+  RemoveWallCommand,
+  EditLastWallWithPointCommand,
+  RemoveLastWallCommand, MoveWallCommand
+} from "../../commands/wall-commands";
 import {DrawState} from "../../models/draw-state";
 import {EditorDrawStateCommands} from "../../commands/editor-commands";
 
@@ -31,17 +36,21 @@ export class EditorComponent {
   private readonly board: Board;
   protected readonly isBrowser: boolean;
 
+  private isPanning: boolean;
+  private panStart: Point;
+
   constructor(@Inject(PLATFORM_ID) platformId: object,) {
     this.board = new Board();
     this.cmdInvoker = new CommandInvoker(this.board);
     this.isBrowser = isPlatformBrowser(platformId);
+    this.isPanning = false;
+    this.panStart = new Point(0, 0);
   }
 
   private initCanvas(canvasRef: ElementRef) {
     this.context = (canvasRef.nativeElement as HTMLCanvasElement).getContext('2d');
     this.canvas = (canvasRef.nativeElement as HTMLCanvasElement);
     this.cmdInvoker.canvasCtx = this.context;
-    this.addEscapeKeyListener();
 
     // Correction of the Zoom from responsive size
     this.canvas.width = this.canvas.getBoundingClientRect().width;
@@ -57,6 +66,13 @@ export class EditorComponent {
   }
 
   /**
+   * Method call went the user stop pressing the mouse on the canvas
+   */
+  onMouseUp() {
+    this.isPanning = false;
+  }
+
+  /**
    * Method call went the user press down the mouse on the canvas
    * @param event
    */
@@ -69,12 +85,17 @@ export class EditorComponent {
     let wall: Wall;
     switch (this.board.drawState) {
       case DrawState.Wall:
-        p1 = new Point(startX, startY);
+        p1 = new Point(startX - this.board.offset.x, startY - this.board.offset.y);
         wall = new Wall(p1, p1, 2, 'black');
         this.cmdInvoker.execute(new AddWallCommand(wall));
         break;
 
       case DrawState.Move:
+        if (event.button === 0) { //Left click
+          this.isPanning = true;
+          this.panStart.x = event.clientX;
+          this.panStart.y = event.clientY;
+        }
         break;
 
       case DrawState.Window:
@@ -102,13 +123,21 @@ export class EditorComponent {
       case DrawState.None:
         break;
       case DrawState.Wall:
-        if(this.board.walls.length != 0){
-          p2 = new Point(mouseX, mouseY);
+        if(this.board.isEditing){
+          p2 = new Point(mouseX - this.board.offset.x, mouseY - this.board.offset.y);
           this.cmdInvoker.execute(new EditLastWallWithPointCommand(p2), false);
         }
         break;
 
       case DrawState.Move:
+        if (this.isPanning && this.context) {
+          const dx = event.clientX - this.panStart.x;
+          const dy = event.clientY - this.panStart.y;
+          this.panStart.x = event.clientX;
+          this.panStart.y = event.clientY;
+
+          this.cmdInvoker.execute(new MoveWallCommand(new Point(dx, dy)));
+        }
         break;
 
       case DrawState.Window:
@@ -119,22 +148,6 @@ export class EditorComponent {
 
       default:
         return;
-    }
-  }
-
-  private addEscapeKeyListener() {
-    document.addEventListener('keydown', this.onKeyDown.bind(this));
-  }
-
-  private removeEscapeKeyListener() {
-    document.removeEventListener('keydown', this.onKeyDown);
-  }
-
-  private onKeyDown(event: KeyboardEvent) {
-    console.log(event.key);
-    if (event.key === 'Escape') {
-      this.cmdInvoker.execute(new EditorDrawStateCommands(DrawState.None));
-      this.cmdInvoker.execute(new RemoveWallCommand(this.board.walls[this.board.walls.length - 1]));
     }
   }
 }

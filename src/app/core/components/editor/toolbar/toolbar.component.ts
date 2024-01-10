@@ -1,9 +1,8 @@
 import {AfterViewInit, Component, Input} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {CommandInvoker} from "../../../commands/command";
-import {EditorDrawStateCommands, EditorRemoveLastWallCommand} from "../../../commands/editor-commands";
+import {EditorDrawStateCommands} from "../../../commands/editor-commands";
 import {DrawState} from "../../../models/draw-state";
-import {RemoveLastWallCommand} from "../../../commands/wall-commands";
 import {DeZoomCommand, ZoomCommand} from "../../../commands/canvas-commands";
 
 @Component({
@@ -13,15 +12,9 @@ import {DeZoomCommand, ZoomCommand} from "../../../commands/canvas-commands";
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.scss'
 })
-export class ToolbarComponent implements AfterViewInit {
-  private lastClickedButton: number = 0;
+export class ToolbarComponent {
   @Input() commandInvoker?: CommandInvoker;
-
-  ngAfterViewInit() {
-    if(typeof window !== 'undefined' && window.document){
-      this.addEscapeKeyListener();
-    }
-  }
+  private lastClickedButton: number = 0;
 
   isActive(buttonNumber: number): boolean {
     return this.lastClickedButton === buttonNumber;
@@ -65,22 +58,4 @@ export class ToolbarComponent implements AfterViewInit {
     this.commandInvoker.redo();
   }
 
-  private addEscapeKeyListener() {
-    document.addEventListener('keydown', this.onKeyDown.bind(this));
-  }
-
-  private removeEscapeKeyListener() {
-    document.removeEventListener('keydown', this.onKeyDown);
-  }
-
-  private onKeyDown(event: KeyboardEvent) {
-    console.log(event.key);
-    if(this.commandInvoker){
-      if (event.key === 'Escape') {
-        this.commandInvoker.execute(new EditorRemoveLastWallCommand());
-        this.commandInvoker.execute(new EditorDrawStateCommands(DrawState.None));
-        this.lastClickedButton = 0;
-      }
-    }
-  }
 }

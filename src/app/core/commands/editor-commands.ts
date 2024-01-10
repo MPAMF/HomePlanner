@@ -30,7 +30,7 @@ export class EditorRemoveLastWallCommand extends Command {
   }
 
   override execute(): void {
-    if(this.board.drawState == DrawState.Wall){
+    if (this.board.drawState == DrawState.Wall) {
       const index = this.board.walls.length - 1;
       if (index > -1) {
         this.removedWall = this.board.walls[index];

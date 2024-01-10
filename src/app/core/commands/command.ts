@@ -7,13 +7,13 @@ export interface ICommand {
 }
 
 export abstract class Command implements ICommand {
-  private _board?: Board;
-  private _canvasCtx?: CanvasRenderingContext2D;
   public readonly redraw: boolean = false;
 
-  set board(board: Board) {
-    this._board = board;
+  protected constructor(redraw: boolean = true) {
+    this.redraw = redraw;
   }
+
+  private _board?: Board;
 
   get board(): Board {
     if (!this._board) {
@@ -22,9 +22,11 @@ export abstract class Command implements ICommand {
     return this._board;
   }
 
-  set canvasCtx(canvas: CanvasRenderingContext2D) {
-    this._canvasCtx = canvas;
+  set board(board: Board) {
+    this._board = board;
   }
+
+  private _canvasCtx?: CanvasRenderingContext2D;
 
   get canvasCtx(): CanvasRenderingContext2D {
     if (!this._canvasCtx) {
@@ -33,8 +35,8 @@ export abstract class Command implements ICommand {
     return this._canvasCtx;
   }
 
-  protected constructor(redraw: boolean = true) {
-    this.redraw = redraw;
+  set canvasCtx(canvas: CanvasRenderingContext2D) {
+    this._canvasCtx = canvas;
   }
 
   execute(): void {
@@ -46,9 +48,9 @@ export abstract class Command implements ICommand {
 }
 
 export class CommandInvoker {
+  public canvasCtx?: CanvasRenderingContext2D | null | undefined;
   private history: Command[] = [];
   private historyIndex = -1;
-  public canvasCtx?: CanvasRenderingContext2D | null | undefined;
 
   constructor(private board: Board) {
   }
@@ -103,13 +105,6 @@ export class CommandInvoker {
     }
   }
 
-  private redraw() {
-    if (!this.canvasCtx) {
-      throw new Error("Canvas context not set, cannot redraw");
-    }
-    this.board.draw(this.canvasCtx);
-  }
-
   /**
    * Check if the undo history is not empty
    * @returns {boolean}
@@ -124,6 +119,13 @@ export class CommandInvoker {
    */
   public canRedo(): boolean {
     return this.historyIndex < this.history.length - 1;
+  }
+
+  private redraw() {
+    if (!this.canvasCtx) {
+      throw new Error("Canvas context not set, cannot redraw");
+    }
+    this.board.draw(this.canvasCtx);
   }
 
 

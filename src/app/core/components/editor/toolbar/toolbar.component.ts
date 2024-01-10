@@ -12,12 +12,9 @@ import {DeZoomCommand, ZoomCommand} from "../../../commands/canvas-commands";
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.scss'
 })
-export class ToolbarComponent implements AfterViewInit {
+export class ToolbarComponent {
   @Input() commandInvoker?: CommandInvoker;
   private lastClickedButton: number = 0;
-
-  ngAfterViewInit() {
-  }
 
   isActive(buttonNumber: number): boolean {
     return this.lastClickedButton === buttonNumber;

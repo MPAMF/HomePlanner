@@ -73,10 +73,51 @@ export class EditLastWallWithPointCommand extends Command {
   }
 
   override execute(): void {
-    this.board.walls[this.board.walls.length - 1].p2 = this.p2;
+    const closestPt = this.board.findClosestWallPoint(this.p2, 10, true);
+    const wall = this.board.walls[this.board.walls.length - 1];
+    wall.p2 = closestPt || this.p2;
   }
 
   override undo(): void {
 
+  }
+}
+
+export class FinaliseLastWallCommand extends Command {
+
+  constructor() {
+    super();
+  }
+
+  override execute(): void {
+    // const closestPt = this.board.findClosestWallPoint(this.p2, true);
+    // const wall = this.board.walls[this.board.walls.length - 1];
+    //
+    // this.lastPoint = wall.p2;
+    //
+    // if (closestPt && closestPt.distanceTo(this.p2) < 10) {
+    //   wall.p2 = closestPt;
+    //   console.log(closestPt.distanceTo(this.p2));
+    //   this.changedState = true;
+    // } else {
+    //   wall.p2 = this.p2;
+    // }
+
+    this.board.isEditing = false;
+
+  }
+
+  override undo(): void {
+    // if (!this.lastPoint) {
+    //   return;
+    // }
+    // const wall = this.board.walls[this.board.walls.length - 1];
+    // wall.p2 = this.lastPoint;
+    // if (this.changedState) {
+    //   this.board.isEditing = true;
+    //   this.changedState = false;
+    // }
+
+    this.board.isEditing = true;
   }
 }

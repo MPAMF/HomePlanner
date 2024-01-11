@@ -129,5 +129,4 @@ export class CommandInvoker {
     this.board.draw(this.canvas);
   }
 
-
 }

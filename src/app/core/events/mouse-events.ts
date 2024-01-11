@@ -1,8 +1,7 @@
 import {Point} from "../models/point";
 import {Wall} from "../models/wall";
 import {DrawState} from "../models/draw-state";
-import {AddWallCommand, EditLastWallWithPointCommand} from "../commands/wall-commands";
-import {Board} from "../models/board";
+import {AddWallCommand, EditLastWallWithPointCommand, FinaliseLastWallCommand} from "../commands/wall-commands";
 import {CommandInvoker} from "../commands/command";
 import {MoveElementCommand} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
@@ -21,17 +20,19 @@ export class MouseEvents extends BaseEvent {
    */
   onMouseMove(event: MouseEvent) {
     if (!this.canvas) return;
+
     const mouseX = this.getMouseXPosition(event);
     const mouseY = this.getMouseYPosition(event);
+    this.board.mousePosition = new Point(mouseX - this.board.offset.x, mouseY - this.board.offset.y);
+    this.cmdInvoker.redraw();
 
-    let p2: Point;
     switch (this.board.drawState) {
       case DrawState.None:
         break;
       case DrawState.Wall:
         if (this.board.isEditing) {
-          p2 = new Point(mouseX - this.board.offset.x, mouseY - this.board.offset.y);
-          this.cmdInvoker.execute(new EditLastWallWithPointCommand(p2), false);
+          const pt = new Point(mouseX - this.board.offset.x, mouseY - this.board.offset.y);
+          this.cmdInvoker.execute(new EditLastWallWithPointCommand(pt), false);
         }
         break;
 
@@ -66,13 +67,22 @@ export class MouseEvents extends BaseEvent {
     const startX = this.getMouseXPosition(event);
     const startY = this.getMouseYPosition(event);
 
-    let p1: Point;
-    let wall: Wall;
     switch (this.board.drawState) {
       case DrawState.Wall:
-        p1 = new Point(startX - this.board.offset.x, startY - this.board.offset.y);
-        wall = new Wall(p1, p1, 2, 'black');
+        const pt = new Point(startX - this.board.offset.x, startY - this.board.offset.y);
+
+        if (this.board.isEditing) {
+          const closestPt = this.board.findClosestWallPoint(pt, 10, true);
+
+          if (closestPt) {
+            this.cmdInvoker.execute(new FinaliseLastWallCommand());
+            return;
+          }
+        }
+
+        let wall = new Wall(pt, pt, 2, 'black');
         this.cmdInvoker.execute(new AddWallCommand(wall));
+
         break;
 
       case DrawState.Move:

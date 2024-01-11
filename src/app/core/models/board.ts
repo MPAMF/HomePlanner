@@ -3,13 +3,16 @@ import {Drawable} from "./drawable";
 import {DrawState} from "./draw-state";
 import {Point} from "./point";
 import {Canvas} from "./canvas";
+import {afterNextRender} from "@angular/core";
 
 export class Board implements Drawable {
   public walls: Wall[];
   public drawState: DrawState;
   public isEditing: boolean;
   public offset: Point;
+  public mousePosition: Point;
   public isPanning: boolean;
+  private image?: HTMLImageElement;
 
   constructor() {
     this.walls = [];
@@ -17,24 +20,86 @@ export class Board implements Drawable {
     this.isEditing = false;
     this.isPanning = false;
     this.offset = new Point(0, 0);
+    this.mousePosition = new Point(0, 0);
+
+    afterNextRender(() => {
+      this.image = new Image();
+      this.image.src = "assets/svg/edit-pen.svg";
+    });
+
   }
 
   draw(canvas: Canvas) {
     this.clear(canvas.context);
+    this.drawCursor(canvas);
+    this.walls.forEach(wall => wall.draw(canvas));
+  }
+
+  private drawCursor(canvas: Canvas) {
     canvas.canvas.style.cursor = this.findCursor();
 
-    this.walls.forEach(wall => wall.draw(canvas));
+    if (this.drawState === DrawState.Wall && this.image) {
+      const lastWall = this.getLastWall();
+
+      if (this.isEditing && lastWall) {
+        canvas.context.drawImage(this.image, lastWall.p2.x, lastWall.p2.y - 30, 30, 30);
+      } else {
+        canvas.context.drawImage(this.image, this.mousePosition.x, this.mousePosition.y - 30, 30, 30);
+      }
+    }
   }
 
   private findCursor(): string {
     switch (this.drawState) {
       case DrawState.Wall:
-        return "crosshair";
+        return "none";
       case DrawState.Move:
         return this.isPanning ? "grabbing" : "grab";
       default:
-        return "pointer";
+        return "cursor";
     }
+  }
+
+  public getLastWall(): Wall | undefined {
+    if (this.walls.length === 0) {
+      return undefined;
+    }
+    return this.walls[this.walls.length - 1];
+  }
+
+  public findClosestWallPoint(point: Point, maxDistance: number = -1, excludeLastWall: boolean = false): Point | undefined {
+    let closestPoint: Point | undefined;
+    let closestDistance = Number.MAX_SAFE_INTEGER;
+
+    for (let i = 0; i < this.walls.length; i++) {
+      if (excludeLastWall && i === this.walls.length - 1) {
+        continue;
+      }
+      const wall = this.walls[i];
+      let pt: Point;
+      let distance: number;
+      const p1Distance = wall.p1.distanceTo(point);
+      const p2Distance = wall.p2.distanceTo(point);
+
+      if (p1Distance < p2Distance) {
+        pt = wall.p1;
+        distance = p1Distance;
+      } else {
+        pt = wall.p2;
+        distance = p2Distance;
+      }
+
+      if (maxDistance > 0 && distance > maxDistance) {
+        continue;
+      }
+
+      if (distance < closestDistance) {
+        closestPoint = pt;
+        closestDistance = distance;
+      }
+    }
+
+    return closestPoint;
   }
 
   private clear(ctx: CanvasRenderingContext2D, preserveTransform: boolean = false) {

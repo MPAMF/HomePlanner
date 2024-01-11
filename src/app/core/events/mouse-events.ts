@@ -66,10 +66,10 @@ export class MouseEvents extends BaseEvent {
     if (!this.canvas) return;
     const startX = this.getMouseXPosition(event);
     const startY = this.getMouseYPosition(event);
+    const pt = new Point(startX - this.board.offset.x, startY - this.board.offset.y);
 
     switch (this.board.drawState) {
       case DrawState.Wall:
-        const pt = new Point(startX - this.board.offset.x, startY - this.board.offset.y);
 
         if (this.board.isEditing) {
           const closestPt = this.board.findClosestWallPoint(pt, 10, true);
@@ -80,8 +80,7 @@ export class MouseEvents extends BaseEvent {
           }
         }
 
-        let wall = new Wall(pt, pt, 2, 'black');
-        this.cmdInvoker.execute(new AddWallCommand(wall));
+        this.cmdInvoker.execute(new AddWallCommand(new Wall(pt, pt, 2, 'black')));
 
         break;
 

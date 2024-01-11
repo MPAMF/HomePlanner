@@ -25,15 +25,11 @@ export class ZoomCommand extends Command {
   }
 
   override execute(): void {
-    if (this.canvasCtx) {
-      this.canvasCtx.scale(this.scaleFactor, this.scaleFactor);
-    }
+    this.canvas.context.scale(this.scaleFactor, this.scaleFactor);
   }
 
   override undo(): void {
-    if (this.canvasCtx) {
-      this.canvasCtx.scale(1 / this.scaleFactor, 1 / this.scaleFactor);
-    }
+    this.canvas.context.scale(1 / this.scaleFactor, 1 / this.scaleFactor);
   }
 }
 
@@ -44,14 +40,10 @@ export class DeZoomCommand extends Command {
   }
 
   override execute(): void {
-    if (this.canvasCtx) {
-      this.canvasCtx.scale(1 / this.scaleFactor, 1 / this.scaleFactor);
-    }
+    this.canvas.context.scale(1 / this.scaleFactor, 1 / this.scaleFactor);
   }
 
   override undo(): void {
-    if (this.canvasCtx) {
-      this.canvasCtx.scale(this.scaleFactor, this.scaleFactor);
-    }
+    this.canvas.context.scale(this.scaleFactor, this.scaleFactor);
   }
 }

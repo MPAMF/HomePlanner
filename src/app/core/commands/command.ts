@@ -1,4 +1,5 @@
 import {Board} from "../models/board";
+import {Canvas} from "../models/canvas";
 
 export interface ICommand {
   execute(): void;
@@ -26,17 +27,17 @@ export abstract class Command implements ICommand {
     this._board = board;
   }
 
-  private _canvasCtx?: CanvasRenderingContext2D;
+  private _canvas?: Canvas;
 
-  get canvasCtx(): CanvasRenderingContext2D {
-    if (!this._canvasCtx) {
+  get canvas(): Canvas {
+    if (!this._canvas) {
       throw new Error("Canvas not set");
     }
-    return this._canvasCtx;
+    return this._canvas;
   }
 
-  set canvasCtx(canvas: CanvasRenderingContext2D) {
-    this._canvasCtx = canvas;
+  set canvas(canvas: Canvas) {
+    this._canvas = canvas;
   }
 
   execute(): void {
@@ -48,11 +49,11 @@ export abstract class Command implements ICommand {
 }
 
 export class CommandInvoker {
-  public canvasCtx?: CanvasRenderingContext2D | null | undefined;
+  public canvas?: Canvas;
   private history: Command[] = [];
   private historyIndex = -1;
 
-  constructor(private board: Board) {
+  constructor(public board: Board) {
   }
 
 // TODO: maybe add a limit to the history size
@@ -61,7 +62,7 @@ export class CommandInvoker {
   execute(command: Command, save: boolean = true) {
     // set board instance before executing the command
     command.board = this.board;
-    this.canvasCtx && (command.canvasCtx = this.canvasCtx);
+    this.canvas && (command.canvas = this.canvas);
 
     // execute the command
     command.execute();
@@ -121,11 +122,11 @@ export class CommandInvoker {
     return this.historyIndex < this.history.length - 1;
   }
 
-  private redraw() {
-    if (!this.canvasCtx) {
+  public redraw() {
+    if (!this.canvas) {
       throw new Error("Canvas context not set, cannot redraw");
     }
-    this.board.draw(this.canvasCtx);
+    this.board.draw(this.canvas);
   }
 
 

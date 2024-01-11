@@ -6,8 +6,8 @@ import {DrawState} from "../models/draw-state";
 
 export class KeyboardEvents extends BaseEvent {
 
-  constructor(canvas: HTMLCanvasElement, board: Board, cmdInvoker: CommandInvoker) {
-    super(canvas, board, cmdInvoker);
+  constructor(cmdInvoker: CommandInvoker) {
+    super(cmdInvoker);
   }
 
   onKeyDown(event: KeyboardEvent) {

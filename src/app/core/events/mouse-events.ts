@@ -7,29 +7,12 @@ import {CommandInvoker} from "../commands/command";
 import {MoveElementCommand} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
 
-export interface MouseDownEvent {
-  canvas?: HTMLCanvasElement;
-  board: Board;
-  cmdInvoker: CommandInvoker;
-  event: MouseEvent;
-}
-
-/**
- * Method call went the user press down the mouse on the canvas
- * @param event
- */
-
 export class MouseEvents extends BaseEvent {
-  private isPanning: boolean;
   private panStart: Point;
 
-  constructor(canvas: HTMLCanvasElement, board: Board, cmdInvoker: CommandInvoker) {
-    super(canvas, board, cmdInvoker);
-    this.isPanning = false;
+  constructor(cmdInvoker: CommandInvoker) {
+    super(cmdInvoker);
     this.panStart = new Point(0, 0);
-    this.canvas = canvas;
-    this.board = board;
-    this.cmdInvoker = cmdInvoker;
   }
 
   /**
@@ -53,7 +36,7 @@ export class MouseEvents extends BaseEvent {
         break;
 
       case DrawState.Move:
-        if (this.isPanning && this.canvas) {
+        if (this.board.isPanning && this.canvas) {
           const dx = event.clientX - this.panStart.x;
           const dy = event.clientY - this.panStart.y;
           this.panStart.x = event.clientX;
@@ -94,7 +77,8 @@ export class MouseEvents extends BaseEvent {
 
       case DrawState.Move:
         if (event.button === 0) { //Left click
-          this.isPanning = true;
+          this.board.isPanning = true;
+          this.cmdInvoker.redraw();
           this.panStart.x = event.clientX;
           this.panStart.y = event.clientY;
         }
@@ -115,28 +99,53 @@ export class MouseEvents extends BaseEvent {
    * Method call went the user stop pressing the mouse on the canvas
    */
   onMouseUp() {
-    this.isPanning = false;
+    if (!this.canvas) return;
+
+    if (this.board.isPanning) {
+      this.board.isPanning = false;
+      this.cmdInvoker.redraw();
+    }
+
+    switch (this.board.drawState) {
+      case DrawState.None:
+        break;
+      case DrawState.Wall:
+        break;
+      case DrawState.Move:
+        break;
+      case DrawState.Window:
+        break;
+      case DrawState.Door:
+        break;
+      default:
+        return;
+    }
+  }
+
+  onContextMenu(event: MouseEvent) {
+    event.preventDefault();
   }
 
   private getMouseXPosition(event: MouseEvent): number {
-    return (event.clientX - this.canvas.getBoundingClientRect().left) * (this.canvas.width / this.canvas.getBoundingClientRect().width);
+    return (event.clientX - this.canvas.canvas.getBoundingClientRect().left) * (this.canvas.canvas.width / this.canvas.canvas.getBoundingClientRect().width);
   }
 
   private getMouseYPosition(event: MouseEvent): number {
-    return (event.clientY - this.canvas.getBoundingClientRect().top) * (this.canvas.height / this.canvas.getBoundingClientRect().height);
+    return (event.clientY - this.canvas.canvas.getBoundingClientRect().top) * (this.canvas.canvas.height / this.canvas.canvas.getBoundingClientRect().height);
   }
 
-
   override bind() {
-    this.canvas?.addEventListener('mousedown', this.onMouseDown.bind(this));
-    this.canvas?.addEventListener('mousemove', this.onMouseMove.bind(this));
-    this.canvas?.addEventListener('mouseup', this.onMouseUp.bind(this));
+    this.canvas.canvas.addEventListener('mousedown', this.onMouseDown.bind(this));
+    this.canvas.canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
+    this.canvas.canvas.addEventListener('mouseup', this.onMouseUp.bind(this));
+    this.canvas.canvas.addEventListener('contextmenu', this.onContextMenu.bind(this));
   }
 
   override unbind() {
-    this.canvas?.removeEventListener('mousedown', this.onMouseDown.bind(this));
-    this.canvas?.removeEventListener('mousemove', this.onMouseMove.bind(this));
-    this.canvas?.removeEventListener('mouseup', this.onMouseUp.bind(this));
+    this.canvas.canvas.removeEventListener('mousedown', this.onMouseDown.bind(this));
+    this.canvas.canvas.removeEventListener('mousemove', this.onMouseMove.bind(this));
+    this.canvas.canvas.removeEventListener('mouseup', this.onMouseUp.bind(this));
+    this.canvas.canvas.removeEventListener('contextmenu', this.onContextMenu.bind(this));
   }
 }
 

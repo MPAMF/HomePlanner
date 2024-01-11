@@ -2,23 +2,39 @@ import {Wall} from "./wall";
 import {Drawable} from "./drawable";
 import {DrawState} from "./draw-state";
 import {Point} from "./point";
+import {Canvas} from "./canvas";
 
 export class Board implements Drawable {
   public walls: Wall[];
   public drawState: DrawState;
   public isEditing: boolean;
   public offset: Point;
+  public isPanning: boolean;
 
   constructor() {
     this.walls = [];
     this.drawState = DrawState.None; // defaults to none
     this.isEditing = false;
+    this.isPanning = false;
     this.offset = new Point(0, 0);
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
-    this.clear(ctx);
-    this.walls.forEach(wall => wall.draw(ctx, this.offset));
+  draw(canvas: Canvas) {
+    this.clear(canvas.context);
+    canvas.canvas.style.cursor = this.findCursor();
+
+    this.walls.forEach(wall => wall.draw(canvas));
+  }
+
+  private findCursor(): string {
+    switch (this.drawState) {
+      case DrawState.Wall:
+        return "crosshair";
+      case DrawState.Move:
+        return this.isPanning ? "grabbing" : "grab";
+      default:
+        return "pointer";
+    }
   }
 
   private clear(ctx: CanvasRenderingContext2D, preserveTransform: boolean = false) {

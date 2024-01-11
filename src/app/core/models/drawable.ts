@@ -1,5 +1,5 @@
-import {Point} from "./point";
+import {Canvas} from "./canvas";
 
 export interface Drawable {
-  draw(ctx: CanvasRenderingContext2D, offset: Point): void;
+  draw(canvas: Canvas): void;
 }

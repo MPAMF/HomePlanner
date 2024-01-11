@@ -4,6 +4,8 @@ import {ToolbarComponent} from "./toolbar/toolbar.component";
 import {CommandInvoker} from "../../commands/command";
 import {Board} from "../../models/board";
 import {EventHandler} from "../../events/event-handler";
+import {Canvas} from "../../models/canvas";
+import {Point} from "../../models/point";
 
 @Component({
   selector: 'app-editor',
@@ -36,12 +38,12 @@ export class EditorComponent {
   private initCanvas(canvasRef: ElementRef) {
     this.context = (canvasRef.nativeElement as HTMLCanvasElement).getContext('2d');
     this.canvas = (canvasRef.nativeElement as HTMLCanvasElement);
-    this.cmdInvoker.canvasCtx = this.context;
+    this.cmdInvoker.canvas = {context: this.context, canvas: this.canvas, offset: this.board.offset} as Canvas;
 
     // Correction of the Zoom from responsive size
     this.canvas.width = this.canvas.getBoundingClientRect().width;
     this.canvas.height = this.canvas.getBoundingClientRect().height;
-    this.eventHandler = new EventHandler(this.canvas, this.board, this.cmdInvoker);
+    this.eventHandler = new EventHandler(this.cmdInvoker);
   }
 
 }

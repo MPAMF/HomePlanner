@@ -1,15 +1,14 @@
 import {MouseEvents} from "./mouse-events";
 import {CommandInvoker} from "../commands/command";
-import {Board} from "../models/board";
 import {KeyboardEvents} from "./keyboard-events";
 
 export class EventHandler {
   public readonly mouseEvents: MouseEvents;
   public readonly keyboardEvents: KeyboardEvents;
 
-  constructor(canvas: HTMLCanvasElement, board: Board, cmdInvoker: CommandInvoker) {
-    this.mouseEvents = new MouseEvents(canvas, board, cmdInvoker);
-    this.keyboardEvents = new KeyboardEvents(canvas, board, cmdInvoker);
+  constructor(cmdInvoker: CommandInvoker) {
+    this.mouseEvents = new MouseEvents(cmdInvoker);
+    this.keyboardEvents = new KeyboardEvents(cmdInvoker);
     this.bind();
   }
 

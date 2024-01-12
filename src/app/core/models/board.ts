@@ -38,11 +38,12 @@ export class Board implements Drawable {
   private drawCursor(canvas: Canvas) {
     canvas.canvas.style.cursor = this.findCursor();
 
-    if (this.drawState === DrawState.Wall && this.image) {
+    if (!this.isPanning && this.drawState === DrawState.Wall && this.image) {
       const lastWall = this.getLastWall();
 
       if (this.isEditing && lastWall) {
-        canvas.context.drawImage(this.image, lastWall.p2.x, lastWall.p2.y - 30, 30, 30);
+        const pt = this.normalisePoint(lastWall.p2);
+        canvas.context.drawImage(this.image, pt.x, pt.y - 30, 30, 30);
       } else {
         canvas.context.drawImage(this.image, this.mousePosition.x, this.mousePosition.y - 30, 30, 30);
       }
@@ -50,11 +51,14 @@ export class Board implements Drawable {
   }
 
   private findCursor(): string {
+    if (this.isPanning) {
+      return "grabbing";
+    }
     switch (this.drawState) {
       case DrawState.Wall:
         return "none";
       case DrawState.Move:
-        return this.isPanning ? "grabbing" : "grab";
+        return "grab";
       default:
         return "cursor";
     }
@@ -65,6 +69,14 @@ export class Board implements Drawable {
       return undefined;
     }
     return this.walls[this.walls.length - 1];
+  }
+
+  public getRelativePoint(point: Point): Point {
+    return new Point(point.x - this.offset.x, point.y - this.offset.y);
+  }
+
+  public normalisePoint(point: Point): Point {
+    return new Point(point.x + this.offset.x, point.y + this.offset.y);
   }
 
   public findClosestWallPoint(point: Point, maxDistance: number = -1, excludeLastWall: boolean = false): Point | undefined {

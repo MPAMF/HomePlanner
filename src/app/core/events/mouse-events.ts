@@ -23,8 +23,18 @@ export class MouseEvents extends BaseEvent {
 
     const mouseX = this.getMouseXPosition(event);
     const mouseY = this.getMouseYPosition(event);
-    this.board.mousePosition = new Point(mouseX - this.board.offset.x, mouseY - this.board.offset.y);
+    this.board.mousePosition = new Point(mouseX, mouseY);
     this.cmdInvoker.redraw();
+
+    if (this.board.isPanning) {
+      const dx = event.clientX - this.panStart.x;
+      const dy = event.clientY - this.panStart.y;
+      this.panStart.x = event.clientX;
+      this.panStart.y = event.clientY;
+
+      this.cmdInvoker.execute(new MoveElementCommand(new Point(dx, dy)));//Right click
+      return;
+    }
 
     switch (this.board.drawState) {
       case DrawState.None:
@@ -33,17 +43,6 @@ export class MouseEvents extends BaseEvent {
         if (this.board.isEditing) {
           const pt = new Point(mouseX - this.board.offset.x, mouseY - this.board.offset.y);
           this.cmdInvoker.execute(new EditLastWallWithPointCommand(pt), false);
-        }
-        break;
-
-      case DrawState.Move:
-        if (this.board.isPanning && this.canvas) {
-          const dx = event.clientX - this.panStart.x;
-          const dy = event.clientY - this.panStart.y;
-          this.panStart.x = event.clientX;
-          this.panStart.y = event.clientY;
-
-          this.cmdInvoker.execute(new MoveElementCommand(new Point(dx, dy)));
         }
         break;
 
@@ -67,6 +66,21 @@ export class MouseEvents extends BaseEvent {
     const startX = this.getMouseXPosition(event);
     const startY = this.getMouseYPosition(event);
     const pt = new Point(startX - this.board.offset.x, startY - this.board.offset.y);
+
+    /**
+     * 0 = Left click
+     * 1 = Middle click
+     * 2 = Right click
+     */
+    console.log(event.button);
+    if (event.button === 2) { //Left click
+      console.log('Panning');
+      this.board.isPanning = true;
+      this.cmdInvoker.redraw();
+      this.panStart.x = event.clientX;
+      this.panStart.y = event.clientY;
+      return;
+    }
 
     switch (this.board.drawState) {
       case DrawState.Wall:
@@ -107,7 +121,7 @@ export class MouseEvents extends BaseEvent {
   /**
    * Method call went the user stop pressing the mouse on the canvas
    */
-  onMouseUp() {
+  onMouseUp(event: MouseEvent) {
     if (!this.canvas) return;
 
     if (this.board.isPanning) {

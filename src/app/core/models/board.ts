@@ -2,14 +2,13 @@ import {Wall} from "./wall";
 import {Drawable} from "./drawable";
 import {DrawState} from "./draw-state";
 import {Point} from "./point";
-import {Canvas} from "./canvas";
+import {drawImage, transformPoint} from "./canvas";
 import {afterNextRender} from "@angular/core";
 
 export class Board implements Drawable {
   public walls: Wall[];
   public drawState: DrawState;
   public isEditing: boolean;
-  public offset: Point;
   public mousePosition: Point;
   public isPanning: boolean;
   private image?: HTMLImageElement;
@@ -19,7 +18,6 @@ export class Board implements Drawable {
     this.drawState = DrawState.None; // defaults to none
     this.isEditing = false;
     this.isPanning = false;
-    this.offset = new Point(0, 0);
     this.mousePosition = new Point(0, 0);
 
     afterNextRender(() => {
@@ -29,24 +27,20 @@ export class Board implements Drawable {
 
   }
 
-  draw(canvas: Canvas) {
-    this.clear(canvas.context);
-    this.drawCursor(canvas);
-    this.walls.forEach(wall => wall.draw(canvas));
+  draw(ctx: CanvasRenderingContext2D) {
+    this.clear(ctx, true);
+    this.drawCursor(ctx);
+    this.walls.forEach(wall => wall.draw(ctx));
   }
 
-  private drawCursor(canvas: Canvas) {
-    canvas.canvas.style.cursor = this.findCursor();
+  private drawCursor(ctx: CanvasRenderingContext2D) {
+    ctx.canvas.style.cursor = this.findCursor();
 
     if (!this.isPanning && this.drawState === DrawState.Wall && this.image) {
       const lastWall = this.getLastWall();
-
-      if (this.isEditing && lastWall) {
-        const pt = this.normalisePoint(lastWall.p2);
-        canvas.context.drawImage(this.image, pt.x, pt.y - 30, 30, 30);
-      } else {
-        canvas.context.drawImage(this.image, this.mousePosition.x, this.mousePosition.y - 30, 30, 30);
-      }
+      const pt =  this.isEditing && lastWall ? lastWall.p2 : this.mousePosition;// transformPoint(ctx, this.isEditing && lastWall ? lastWall.p2 : this.mousePosition);
+      drawImage(ctx, this.image, new Point(pt.x, pt.y - 30), 30, 30);
+      // ctx.drawImage(this.image, pt.x, pt.y - 30, 30, 30);
     }
   }
 
@@ -69,14 +63,6 @@ export class Board implements Drawable {
       return undefined;
     }
     return this.walls[this.walls.length - 1];
-  }
-
-  public getRelativePoint(point: Point): Point {
-    return new Point(point.x - this.offset.x, point.y - this.offset.y);
-  }
-
-  public normalisePoint(point: Point): Point {
-    return new Point(point.x + this.offset.x, point.y + this.offset.y);
   }
 
   public findClosestWallPoint(point: Point, maxDistance: number = -1, excludeLastWall: boolean = false): Point | undefined {
@@ -124,6 +110,15 @@ export class Board implements Drawable {
     if (preserveTransform) {
       ctx.restore();
     }
+  }
+
+  public zoom(ctx: CanvasRenderingContext2D, pt: Point, scaleFactor: number) {
+    let matrix = DOMMatrix.fromMatrix(ctx.getTransform());
+    matrix = matrix.translate(pt.x, pt.y);
+    matrix = matrix.scale(scaleFactor, scaleFactor);
+    matrix = matrix.translate(-pt.x, -pt.y);
+    matrix = matrix.multiply(matrix);
+    ctx.setTransform(matrix);
   }
 
   private reset(ctx: CanvasRenderingContext2D, preserveTransform: boolean = false) {

@@ -41,11 +41,11 @@ export class ToolbarComponent {
   }
 
   onClickZoomIn() {
-    this.commandInvoker?.execute(new ZoomCommand(1.1));
+   // this.commandInvoker?.execute(new ZoomCommand(1.1));
   }
 
   onClickZoomOut() {
-    this.commandInvoker?.execute(new DeZoomCommand(1.1));
+   // this.commandInvoker?.execute(new DeZoomCommand(1.1));
   }
 
   onClickUndo() {

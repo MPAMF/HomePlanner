@@ -3,7 +3,7 @@ import {Wall} from "../models/wall";
 import {DrawState} from "../models/draw-state";
 import {AddWallCommand, EditLastWallWithPointCommand, FinaliseLastWallCommand} from "../commands/wall-commands";
 import {CommandInvoker} from "../commands/command";
-import {MoveElementCommand} from "../commands/canvas-commands";
+import {MoveCommand, ZoomCommand} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
 
 export class MouseEvents extends BaseEvent {
@@ -32,7 +32,7 @@ export class MouseEvents extends BaseEvent {
       this.panStart.x = event.clientX;
       this.panStart.y = event.clientY;
 
-      this.cmdInvoker.execute(new MoveElementCommand(new Point(dx, dy)));//Right click
+      this.cmdInvoker.execute(new MoveCommand(new Point(dx, dy)));//Right click
       return;
     }
 
@@ -41,7 +41,7 @@ export class MouseEvents extends BaseEvent {
         break;
       case DrawState.Wall:
         if (this.board.isEditing) {
-          const pt = new Point(mouseX - this.board.offset.x, mouseY - this.board.offset.y);
+          const pt = new Point(mouseX, mouseY);
           this.cmdInvoker.execute(new EditLastWallWithPointCommand(pt), false);
         }
         break;
@@ -65,7 +65,7 @@ export class MouseEvents extends BaseEvent {
     if (!this.canvas) return;
     const startX = this.getMouseXPosition(event);
     const startY = this.getMouseYPosition(event);
-    const pt = new Point(startX - this.board.offset.x, startY - this.board.offset.y);
+    const pt = new Point(startX, startY);
 
     /**
      * 0 = Left click
@@ -149,6 +149,18 @@ export class MouseEvents extends BaseEvent {
     event.preventDefault();
   }
 
+  onWheel(event: WheelEvent) {
+    event.preventDefault();
+    const mousex = event.clientX - this.canvas.canvas.offsetLeft;
+    const mousey = event.clientY - this.canvas.canvas.offsetTop;
+    // Normalize mouse wheel movement to +1 or -1 to avoid unusual jumps.
+    const wheel = event.deltaY < 0 ? 1 : -1;
+
+    // Compute zoom factor.
+    const zoom = Math.exp(wheel * 1.1);
+    this.cmdInvoker.execute(new ZoomCommand(new Point(mousex, mousey), zoom));
+  }
+
   private getMouseXPosition(event: MouseEvent): number {
     return (event.clientX - this.canvas.canvas.getBoundingClientRect().left) * (this.canvas.canvas.width / this.canvas.canvas.getBoundingClientRect().width);
   }
@@ -162,6 +174,7 @@ export class MouseEvents extends BaseEvent {
     this.canvas.canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
     this.canvas.canvas.addEventListener('mouseup', this.onMouseUp.bind(this));
     this.canvas.canvas.addEventListener('contextmenu', this.onContextMenu.bind(this));
+    this.canvas.canvas.addEventListener('wheel', this.onWheel.bind(this));
   }
 
   override unbind() {
@@ -169,6 +182,7 @@ export class MouseEvents extends BaseEvent {
     this.canvas.canvas.removeEventListener('mousemove', this.onMouseMove.bind(this));
     this.canvas.canvas.removeEventListener('mouseup', this.onMouseUp.bind(this));
     this.canvas.canvas.removeEventListener('contextmenu', this.onContextMenu.bind(this));
+    this.canvas.canvas.removeEventListener('wheel', this.onWheel.bind(this));
   }
 }
 

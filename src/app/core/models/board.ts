@@ -2,7 +2,7 @@ import {Wall} from "./wall";
 import {Drawable} from "./drawable";
 import {DrawState} from "./draw-state";
 import {Point} from "./point";
-import {drawImage, transformPoint} from "./canvas";
+import {clearCanvas, drawImage, transformPoint, zoomCanvas} from "./canvas";
 import {afterNextRender} from "@angular/core";
 
 export class Board implements Drawable {
@@ -28,7 +28,7 @@ export class Board implements Drawable {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    this.clear(ctx, true);
+    clearCanvas(ctx);
     this.drawCursor(ctx);
     this.walls.forEach(wall => wall.draw(ctx));
   }
@@ -54,7 +54,7 @@ export class Board implements Drawable {
       case DrawState.Move:
         return "grab";
       default:
-        return "cursor";
+        return "default";
     }
   }
 
@@ -98,40 +98,6 @@ export class Board implements Drawable {
     }
 
     return closestPoint;
-  }
-
-  private clear(ctx: CanvasRenderingContext2D, preserveTransform: boolean = false) {
-    if (preserveTransform) {
-      ctx.save();
-    }
-
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-    if (preserveTransform) {
-      ctx.restore();
-    }
-  }
-
-  public zoom(ctx: CanvasRenderingContext2D, pt: Point, scaleFactor: number) {
-    let matrix = DOMMatrix.fromMatrix(ctx.getTransform());
-    matrix = matrix.translate(pt.x, pt.y);
-    matrix = matrix.scale(scaleFactor, scaleFactor);
-    matrix = matrix.translate(-pt.x, -pt.y);
-    matrix = matrix.multiply(matrix);
-    ctx.setTransform(matrix);
-  }
-
-  private reset(ctx: CanvasRenderingContext2D, preserveTransform: boolean = false) {
-    if (preserveTransform) {
-      ctx.save();
-    }
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-    if (preserveTransform) {
-      ctx.restore();
-    }
   }
 
 }

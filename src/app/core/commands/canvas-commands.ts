@@ -1,6 +1,6 @@
 import {Command} from "./command";
 import {Point} from "../models/point";
-import {moveCanvas} from "../models/canvas";
+import {moveCanvas, zoomCanvas} from "../models/canvas";
 
 export class MoveCommand extends Command {
   constructor(private delta: Point) {
@@ -23,12 +23,12 @@ export class ZoomCommand extends Command {
   }
 
   override execute(): void {
-    this.board.zoom(this.canvasCtx, this.pt, this.scaleFactor);
+    zoomCanvas(this.canvasCtx, this.pt, this.scaleFactor);
     // this.canvas.context.scale(this.scaleFactor, this.scaleFactor);
   }
 
   override undo(): void {
-    this.board.zoom(this.canvasCtx, this.pt, -this.scaleFactor);
+    zoomCanvas(this.canvasCtx, this.pt, -this.scaleFactor);
     // this.canvas.context.scale(1 / this.scaleFactor, 1 / this.scaleFactor);
   }
 }

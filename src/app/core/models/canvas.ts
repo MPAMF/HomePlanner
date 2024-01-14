@@ -49,7 +49,7 @@ export function zoomCanvas(ctx: CanvasRenderingContext2D, pt: Point, scaleFactor
   matrix = matrix.translate(pt.x, pt.y);
   matrix = matrix.scale(scaleFactor, scaleFactor);
   matrix = matrix.translate(-pt.x, -pt.y);
-  matrix = matrix.multiply(matrix);
+ // matrix = matrix.multiply(matrix);
   ctx.setTransform(matrix);
 }
 

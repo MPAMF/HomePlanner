@@ -24,8 +24,8 @@ export class MouseEvents extends BaseEvent {
 
     const mouseX = this.getMouseXPosition(event);
     const mouseY = this.getMouseYPosition(event);
-    const pt = this.board.mousePosition = inverseTransformPoint(this.canvasCtx, new Point(mouseX, mouseY));
-    this.board.mousePosition = pt;
+    const pt = new Point(mouseX, mouseY);
+    this.board.mousePosition = inverseTransformPoint(this.canvasCtx,  pt);
     this.cmdInvoker.redraw();
 
     if (this.board.isPanning) {
@@ -66,7 +66,7 @@ export class MouseEvents extends BaseEvent {
     if (!this.canvasCtx) return;
     const startX = this.getMouseXPosition(event);
     const startY = this.getMouseYPosition(event);
-    const pt = new Point(startX, startY);
+    const pt = transformPoint(this.canvasCtx, new Point(startX, startY));
 
     /**
      * 0 = Left click
@@ -160,11 +160,11 @@ export class MouseEvents extends BaseEvent {
   }
 
   private getMouseXPosition(event: MouseEvent): number {
-    return (event.clientX - this.canvasCtx.canvas.getBoundingClientRect().left) * (this.canvasCtx.canvas.width / this.canvasCtx.canvas.getBoundingClientRect().width);
+    return event.clientX - this.canvasCtx.canvas.getBoundingClientRect().left;
   }
 
   private getMouseYPosition(event: MouseEvent): number {
-    return (event.clientY - this.canvasCtx.canvas.getBoundingClientRect().top) * (this.canvasCtx.canvas.height / this.canvasCtx.canvas.getBoundingClientRect().height);
+    return event.clientY - this.canvasCtx.canvas.getBoundingClientRect().top;
   }
 
   override bind() {

@@ -1,10 +1,4 @@
 <nav #nav *ngIf="commandInvoker">
-  <button (click)="onClickWalls(1)" [class.actualAction]="isActive(1)"> Create Walls</button>
-  <button (click)="onClickWindows(2)" [class.actualAction]="isActive(2)"> Add Windows</button>
-  <button (click)="onClickDoors(3)" [class.actualAction]="isActive(3)"> Add Doors</button>
-  <button (click)="onClickBoard(4)" [class.actualAction]="isActive(4)"> Move on Board</button>
-  <button (click)="onClickZoomIn()"> Zoom In</button>
-  <button (click)="onClickZoomOut()"> Zoom Out</button>
   <button (click)="onClickUndo()" [disabled]="!commandInvoker.canUndo()"> Undo</button>
   <button (click)="onClickRedo()" [disabled]="!commandInvoker.canRedo()"> Redo</button>
 </nav>

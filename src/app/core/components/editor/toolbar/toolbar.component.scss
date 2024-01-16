@@ -2,6 +2,7 @@ nav {
   display: flex;
   justify-content: space-around;
   align-items: center;
+  height: var(--header-height);
 }
 
 .actualAction {

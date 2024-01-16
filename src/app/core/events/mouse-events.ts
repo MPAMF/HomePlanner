@@ -3,16 +3,20 @@ import {Wall} from "../models/wall";
 import {DrawState} from "../models/draw-state";
 import {AddWallCommand, EditLastWallWithPointCommand, FinaliseLastWallCommand} from "../commands/wall-commands";
 import {CommandInvoker} from "../commands/command";
-import {MoveCommand, ZoomCommand} from "../commands/canvas-commands";
+import {MoveCommand} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
-import {inverseTransformPoint, transformPoint, zoomCanvas} from "../models/canvas";
+import {getScale, inverseTransformPoint, zoomCanvas} from "../models/canvas";
 
 export class MouseEvents extends BaseEvent {
   private panStart: Point;
+  private readonly maxZoom: number;
+  private readonly minZoom: number;
 
   constructor(cmdInvoker: CommandInvoker) {
     super(cmdInvoker);
     this.panStart = new Point(0, 0);
+    this.maxZoom = 5;
+    this.minZoom = 0.1;
   }
 
   /**
@@ -149,12 +153,15 @@ export class MouseEvents extends BaseEvent {
 
   onWheel(event: WheelEvent) {
     event.preventDefault();
-    const pt = new Point(this.getMouseXPosition(event), this.getMouseYPosition(event));
+    const pt = inverseTransformPoint(this.canvasCtx, new Point(this.getMouseXPosition(event), this.getMouseYPosition(event)));
 
     // Compute zoom factor.
     const wheel = event.deltaY / 120;
     const zoom = Math.pow(1 + Math.abs(wheel) / 2, wheel < 0 ? 1 : -1);
-    zoomCanvas(this.canvasCtx, inverseTransformPoint(this.canvasCtx, pt), zoom);
+    const currentScale = getScale(this.canvasCtx);
+    if (currentScale.x * zoom < this.minZoom || currentScale.x * zoom > this.maxZoom) return;
+
+    zoomCanvas(this.canvasCtx, pt, zoom);
     this.board.mousePosition = inverseTransformPoint(this.canvasCtx, pt);
     this.cmdInvoker.redraw();
   }
@@ -165,6 +172,11 @@ export class MouseEvents extends BaseEvent {
 
   private getMouseYPosition(event: MouseEvent): number {
     return event.clientY - this.canvasCtx.canvas.getBoundingClientRect().top;
+  }
+
+  private setMousePosition(event: MouseEvent) {
+    const pt = new Point(event.clientX, event.clientY);
+    this.board.mousePosition = inverseTransformPoint(this.canvasCtx, pt);
   }
 
   override bind() {

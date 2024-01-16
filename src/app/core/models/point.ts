@@ -1,7 +1,9 @@
 export class Point {
 
-  constructor(public x: number = 0, public y: number = 0) {
-  }
+  constructor(
+    public x: number = 0,
+    public y: number = 0
+  ) {}
 
   // Calculate the distance between two points
   distanceTo(other: Point): number {

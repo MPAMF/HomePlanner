@@ -3,7 +3,6 @@ import {CommonModule} from '@angular/common';
 import {CommandInvoker} from "../../../commands/command";
 import {EditorDrawStateCommands} from "../../../commands/editor-commands";
 import {DrawState} from "../../../models/draw-state";
-import {DeZoomCommand, ZoomCommand} from "../../../commands/canvas-commands";
 
 @Component({
   selector: 'app-toolbar',

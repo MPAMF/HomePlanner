@@ -24,8 +24,7 @@ export class MouseEvents extends BaseEvent {
 
     const mouseX = this.getMouseXPosition(event);
     const mouseY = this.getMouseYPosition(event);
-    const pt = new Point(mouseX, mouseY);
-    this.board.mousePosition = inverseTransformPoint(this.canvasCtx,  pt);
+    const pt = this.board.mousePosition = inverseTransformPoint(this.canvasCtx, new Point(mouseX, mouseY));
     this.cmdInvoker.redraw();
 
     if (this.board.isPanning) {
@@ -66,7 +65,7 @@ export class MouseEvents extends BaseEvent {
     if (!this.canvasCtx) return;
     const startX = this.getMouseXPosition(event);
     const startY = this.getMouseYPosition(event);
-    const pt = transformPoint(this.canvasCtx, new Point(startX, startY));
+    const pt = inverseTransformPoint(this.canvasCtx, new Point(startX, startY));
 
     /**
      * 0 = Left click
@@ -155,7 +154,7 @@ export class MouseEvents extends BaseEvent {
 
     // Compute zoom factor.
     const wheel = event.deltaY / 120;
-    const zoom = Math.pow(1 + Math.abs(wheel) / 2, wheel > 0 ? 1 : -1);
+    const zoom = Math.pow(1 + Math.abs(wheel) / 2, wheel < 0 ? 1 : -1);
     this.cmdInvoker.execute(new ZoomCommand(new Point(mousex, mousey), zoom));
   }
 

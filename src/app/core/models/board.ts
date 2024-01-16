@@ -38,9 +38,9 @@ export class Board implements Drawable {
 
     if (!this.isPanning && this.drawState === DrawState.Wall && this.image) {
       const lastWall = this.getLastWall();
-      const pt =  this.isEditing && lastWall ? lastWall.p2 : this.mousePosition;// transformPoint(ctx, this.isEditing && lastWall ? lastWall.p2 : this.mousePosition);
-      drawImage(ctx, this.image, new Point(pt.x, pt.y - 30), 30, 30);
-      // ctx.drawImage(this.image, pt.x, pt.y - 30, 30, 30);
+      const pt =  this.isEditing && lastWall ? lastWall.p2 : this.mousePosition;
+      const scaleY = ctx.getTransform().d;
+      drawImage(ctx, this.image, new Point(pt.x, pt.y - 30 / scaleY), 30, 30);
     }
   }
 

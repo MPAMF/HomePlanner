@@ -5,7 +5,7 @@ import {AddWallCommand, EditLastWallWithPointCommand, FinaliseLastWallCommand} f
 import {CommandInvoker} from "../commands/command";
 import {MoveCommand, ZoomCommand} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
-import {inverseTransformPoint, transformPoint} from "../models/canvas";
+import {inverseTransformPoint, transformPoint, zoomCanvas} from "../models/canvas";
 
 export class MouseEvents extends BaseEvent {
   private panStart: Point;
@@ -149,13 +149,14 @@ export class MouseEvents extends BaseEvent {
 
   onWheel(event: WheelEvent) {
     event.preventDefault();
-    const mousex = this.getMouseXPosition(event);
-    const mousey = this.getMouseYPosition(event);
+    const pt = new Point(this.getMouseXPosition(event), this.getMouseYPosition(event));
 
     // Compute zoom factor.
     const wheel = event.deltaY / 120;
     const zoom = Math.pow(1 + Math.abs(wheel) / 2, wheel < 0 ? 1 : -1);
-    this.cmdInvoker.execute(new ZoomCommand(new Point(mousex, mousey), zoom));
+    zoomCanvas(this.canvasCtx, inverseTransformPoint(this.canvasCtx, pt), zoom);
+    this.board.mousePosition = inverseTransformPoint(this.canvasCtx, pt);
+    this.cmdInvoker.redraw();
   }
 
   private getMouseXPosition(event: MouseEvent): number {

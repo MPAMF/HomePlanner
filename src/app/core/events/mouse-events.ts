@@ -3,8 +3,9 @@ import {Wall} from "../models/wall";
 import {DrawState} from "../models/draw-state";
 import {AddWallCommand, EditLastWallWithPointCommand, FinaliseLastWallCommand} from "../commands/wall-commands";
 import {CommandInvoker} from "../commands/command";
-import {MoveElementCommand} from "../commands/canvas-commands";
+import {MoveCommand, ZoomCommand} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
+import {inverseTransformPoint, transformPoint} from "../models/canvas";
 
 export class MouseEvents extends BaseEvent {
   private panStart: Point;
@@ -19,11 +20,12 @@ export class MouseEvents extends BaseEvent {
    * @param event
    */
   onMouseMove(event: MouseEvent) {
-    if (!this.canvas) return;
+    if (!this.canvasCtx) return;
 
     const mouseX = this.getMouseXPosition(event);
     const mouseY = this.getMouseYPosition(event);
-    this.board.mousePosition = new Point(mouseX, mouseY);
+    const pt = this.board.mousePosition = inverseTransformPoint(this.canvasCtx, new Point(mouseX, mouseY));
+    this.board.mousePosition = pt;
     this.cmdInvoker.redraw();
 
     if (this.board.isPanning) {
@@ -32,7 +34,7 @@ export class MouseEvents extends BaseEvent {
       this.panStart.x = event.clientX;
       this.panStart.y = event.clientY;
 
-      this.cmdInvoker.execute(new MoveElementCommand(new Point(dx, dy)));//Right click
+      this.cmdInvoker.execute(new MoveCommand(new Point(dx, dy)));//Right click
       return;
     }
 
@@ -41,7 +43,6 @@ export class MouseEvents extends BaseEvent {
         break;
       case DrawState.Wall:
         if (this.board.isEditing) {
-          const pt = new Point(mouseX - this.board.offset.x, mouseY - this.board.offset.y);
           this.cmdInvoker.execute(new EditLastWallWithPointCommand(pt), false);
         }
         break;
@@ -62,19 +63,17 @@ export class MouseEvents extends BaseEvent {
    * @param event
    */
   onMouseDown(event: MouseEvent) {
-    if (!this.canvas) return;
+    if (!this.canvasCtx) return;
     const startX = this.getMouseXPosition(event);
     const startY = this.getMouseYPosition(event);
-    const pt = new Point(startX - this.board.offset.x, startY - this.board.offset.y);
+    const pt = new Point(startX, startY);
 
     /**
      * 0 = Left click
      * 1 = Middle click
      * 2 = Right click
      */
-    console.log(event.button);
     if (event.button === 2) { //Left click
-      console.log('Panning');
       this.board.isPanning = true;
       this.cmdInvoker.redraw();
       this.panStart.x = event.clientX;
@@ -122,7 +121,7 @@ export class MouseEvents extends BaseEvent {
    * Method call went the user stop pressing the mouse on the canvas
    */
   onMouseUp(event: MouseEvent) {
-    if (!this.canvas) return;
+    if (!this.canvasCtx) return;
 
     if (this.board.isPanning) {
       this.board.isPanning = false;
@@ -149,26 +148,39 @@ export class MouseEvents extends BaseEvent {
     event.preventDefault();
   }
 
+  onWheel(event: WheelEvent) {
+    event.preventDefault();
+    const mousex = this.getMouseXPosition(event);
+    const mousey = this.getMouseYPosition(event);
+
+    // Compute zoom factor.
+    const wheel = event.deltaY / 120;
+    const zoom = Math.pow(1 + Math.abs(wheel) / 2, wheel > 0 ? 1 : -1);
+    this.cmdInvoker.execute(new ZoomCommand(new Point(mousex, mousey), zoom));
+  }
+
   private getMouseXPosition(event: MouseEvent): number {
-    return (event.clientX - this.canvas.canvas.getBoundingClientRect().left) * (this.canvas.canvas.width / this.canvas.canvas.getBoundingClientRect().width);
+    return (event.clientX - this.canvasCtx.canvas.getBoundingClientRect().left) * (this.canvasCtx.canvas.width / this.canvasCtx.canvas.getBoundingClientRect().width);
   }
 
   private getMouseYPosition(event: MouseEvent): number {
-    return (event.clientY - this.canvas.canvas.getBoundingClientRect().top) * (this.canvas.canvas.height / this.canvas.canvas.getBoundingClientRect().height);
+    return (event.clientY - this.canvasCtx.canvas.getBoundingClientRect().top) * (this.canvasCtx.canvas.height / this.canvasCtx.canvas.getBoundingClientRect().height);
   }
 
   override bind() {
-    this.canvas.canvas.addEventListener('mousedown', this.onMouseDown.bind(this));
-    this.canvas.canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
-    this.canvas.canvas.addEventListener('mouseup', this.onMouseUp.bind(this));
-    this.canvas.canvas.addEventListener('contextmenu', this.onContextMenu.bind(this));
+    this.canvasCtx.canvas.addEventListener('mousedown', this.onMouseDown.bind(this));
+    this.canvasCtx.canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
+    this.canvasCtx.canvas.addEventListener('mouseup', this.onMouseUp.bind(this));
+    this.canvasCtx.canvas.addEventListener('contextmenu', this.onContextMenu.bind(this));
+    this.canvasCtx.canvas.addEventListener('wheel', this.onWheel.bind(this));
   }
 
   override unbind() {
-    this.canvas.canvas.removeEventListener('mousedown', this.onMouseDown.bind(this));
-    this.canvas.canvas.removeEventListener('mousemove', this.onMouseMove.bind(this));
-    this.canvas.canvas.removeEventListener('mouseup', this.onMouseUp.bind(this));
-    this.canvas.canvas.removeEventListener('contextmenu', this.onContextMenu.bind(this));
+    this.canvasCtx.canvas.removeEventListener('mousedown', this.onMouseDown.bind(this));
+    this.canvasCtx.canvas.removeEventListener('mousemove', this.onMouseMove.bind(this));
+    this.canvasCtx.canvas.removeEventListener('mouseup', this.onMouseUp.bind(this));
+    this.canvasCtx.canvas.removeEventListener('contextmenu', this.onContextMenu.bind(this));
+    this.canvasCtx.canvas.removeEventListener('wheel', this.onWheel.bind(this));
   }
 }
 

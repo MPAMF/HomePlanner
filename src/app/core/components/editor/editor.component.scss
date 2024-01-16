@@ -5,9 +5,9 @@
 canvas {
   border-radius: 10px; // Rounded border
   border: 1px solid black; // Thin black border
-  width: calc(100vw - 20px);
-  height: calc(100vh - 60px);
+  width: calc(100% - 20px);
   background-image: linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px); // Checkered background
   background-size: 50px 50px; // Size of the checkered squares
   margin-top: 20px;
+  object-fit: contain;
 }

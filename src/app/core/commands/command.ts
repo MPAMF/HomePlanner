@@ -1,5 +1,4 @@
 import {Board} from "../models/board";
-import {Canvas} from "../models/canvas";
 
 export interface ICommand {
   execute(): void;
@@ -27,17 +26,17 @@ export abstract class Command implements ICommand {
     this._board = board;
   }
 
-  private _canvas?: Canvas;
+  private _canvasCtx?: CanvasRenderingContext2D;
 
-  get canvas(): Canvas {
-    if (!this._canvas) {
+  get canvasCtx(): CanvasRenderingContext2D {
+    if (!this._canvasCtx) {
       throw new Error("Canvas not set");
     }
-    return this._canvas;
+    return this._canvasCtx;
   }
 
-  set canvas(canvas: Canvas) {
-    this._canvas = canvas;
+  set canvasCtx(canvas: CanvasRenderingContext2D) {
+    this._canvasCtx = canvas;
   }
 
   execute(): void {
@@ -49,7 +48,7 @@ export abstract class Command implements ICommand {
 }
 
 export class CommandInvoker {
-  public canvas?: Canvas;
+  public ctx?: CanvasRenderingContext2D;
   private history: Command[] = [];
   private historyIndex = -1;
 
@@ -62,7 +61,7 @@ export class CommandInvoker {
   execute(command: Command, save: boolean = true) {
     // set board instance before executing the command
     command.board = this.board;
-    this.canvas && (command.canvas = this.canvas);
+    this.ctx && (command.canvasCtx = this.ctx);
 
     // execute the command
     command.execute();
@@ -123,10 +122,10 @@ export class CommandInvoker {
   }
 
   public redraw() {
-    if (!this.canvas) {
+    if (!this.ctx) {
       throw new Error("Canvas context not set, cannot redraw");
     }
-    this.board.draw(this.canvas);
+    this.board.draw(this.ctx);
   }
 
 }

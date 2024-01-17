@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {CommonModule} from '@angular/common';
 import {CommandInvoker} from "../../../commands/command";
 import {EditorDrawStateCommands} from "../../../commands/editor-commands";
 import {DrawState} from "../../../models/draw-state";

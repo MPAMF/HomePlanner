@@ -153,7 +153,7 @@ export class MouseEvents extends BaseEvent {
 
   onWheel(event: WheelEvent) {
     event.preventDefault();
-    const pt = inverseTransformPoint(this.canvasCtx, new Point(this.getMouseXPosition(event), this.getMouseYPosition(event)));
+    const pt = new Point(this.getMouseXPosition(event), this.getMouseYPosition(event));
 
     // Compute zoom factor.
     const wheel = event.deltaY / 120;
@@ -161,9 +161,16 @@ export class MouseEvents extends BaseEvent {
     const currentScale = getScale(this.canvasCtx);
     if (currentScale.x * zoom < this.minZoom || currentScale.x * zoom > this.maxZoom) return;
 
-    zoomCanvas(this.canvasCtx, pt, zoom);
+    zoomCanvas(this.canvasCtx, inverseTransformPoint(this.canvasCtx, pt), zoom);
     this.board.mousePosition = inverseTransformPoint(this.canvasCtx, pt);
     this.cmdInvoker.redraw();
+  }
+
+  onMouseOut(event: MouseEvent) {
+    if (this.board.isPanning) {
+      this.board.isPanning = false;
+      this.cmdInvoker.redraw();
+    }
   }
 
   private getMouseXPosition(event: MouseEvent): number {
@@ -185,6 +192,7 @@ export class MouseEvents extends BaseEvent {
     this.canvasCtx.canvas.addEventListener('mouseup', this.onMouseUp.bind(this));
     this.canvasCtx.canvas.addEventListener('contextmenu', this.onContextMenu.bind(this));
     this.canvasCtx.canvas.addEventListener('wheel', this.onWheel.bind(this));
+    this.canvasCtx.canvas.addEventListener('mouseout', this.onMouseOut.bind(this));
   }
 
   override unbind() {
@@ -193,6 +201,7 @@ export class MouseEvents extends BaseEvent {
     this.canvasCtx.canvas.removeEventListener('mouseup', this.onMouseUp.bind(this));
     this.canvasCtx.canvas.removeEventListener('contextmenu', this.onContextMenu.bind(this));
     this.canvasCtx.canvas.removeEventListener('wheel', this.onWheel.bind(this));
+    this.canvasCtx.canvas.removeEventListener('mouseout', this.onMouseOut.bind(this));
   }
 }
 

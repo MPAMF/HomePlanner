@@ -4,11 +4,13 @@ import {ToolbarComponent} from "./toolbar/toolbar.component";
 import {CommandInvoker} from "../../commands/command";
 import {Board} from "../../models/board";
 import {EventHandler} from "../../events/event-handler";
+import {ControlsComponent} from "./controls/controls.component";
+import {DrawState} from "../../models/draw-state";
 
 @Component({
   selector: 'app-editor',
   standalone: true,
-  imports: [CommonModule, ToolbarComponent],
+  imports: [CommonModule, ToolbarComponent, ControlsComponent],
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.scss'
 })
@@ -20,6 +22,7 @@ export class EditorComponent {
   private canvas: HTMLCanvasElement | null | undefined;
   private readonly board: Board;
   protected eventHandler?: EventHandler;
+  protected activeCommand: DrawState = DrawState.None;
 
   constructor(@Inject(PLATFORM_ID) platformId: object,) {
     this.board = new Board();

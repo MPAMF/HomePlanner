@@ -93,7 +93,14 @@ export function drawWithoutTransform(ctx: CanvasRenderingContext2D, drawFn: (ctx
  * @param height
  */
 export function drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, point: Point, width: number, height: number) {
-  const scaleX = ctx.getTransform().a;
-  const scaleY = ctx.getTransform().d;
-  ctx.drawImage(image, point.x, point.y, width / scaleX, height / scaleY);
+  const scale = getScale(ctx);
+  ctx.drawImage(image, point.x, point.y, width / scale.x, height / scale.y);
+}
+
+/**
+ * Get the scale of the canvas
+ * @param ctx Canvas context
+ */
+export function getScale(ctx: CanvasRenderingContext2D): Point {
+  return new Point(ctx.getTransform().a, ctx.getTransform().d);
 }

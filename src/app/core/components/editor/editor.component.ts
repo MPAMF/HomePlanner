@@ -45,8 +45,7 @@ export class EditorComponent {
 
     // Correction of the Zoom from responsive size
     this.canvas.width = this.canvas.getBoundingClientRect().width;
-    this.canvas.height = window.innerHeight * 0.8;
-    // this.canvas.height = this.canvas.width * 0.5;
+    this.canvas.height = this.canvas.getBoundingClientRect().height;
     this.eventHandler = new EventHandler(this.cmdInvoker);
   }
 

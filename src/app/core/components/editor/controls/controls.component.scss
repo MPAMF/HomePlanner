@@ -42,9 +42,13 @@
 }
 
 .active-control-button {
-  background-color: lightgreen;
+  background-color: #F8B680;
 }
 
 .controls-group button:not(.active-control-button):hover, {
   background: #CDC9C3;
+}
+
+.controls-group button:focus-visible {
+  outline: none;
 }

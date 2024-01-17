@@ -13,15 +13,13 @@ import {DrawState} from "../../../models/draw-state";
 })
 export class ControlsComponent {
   @Input() commandInvoker?: CommandInvoker;
-  @Input() activeCommand?: DrawState;
 
-  isActiveCommand(stateId: DrawState): boolean {
-    return this.activeCommand === stateId;
+  isActiveCommand(drawState: DrawState): boolean {
+    return this.commandInvoker?.board?.drawState === drawState;
   }
 
-  onActionCommand(stateId: DrawState) {
-    this.activeCommand = stateId;
-    this.commandInvoker?.execute(new EditorDrawStateCommands(stateId));
+  onActionCommand(drawState: DrawState) {
+    this.commandInvoker?.execute(new EditorDrawStateCommands(drawState));
   }
 
   onClickZoomIn() {

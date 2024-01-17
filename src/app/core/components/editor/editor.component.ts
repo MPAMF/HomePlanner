@@ -22,7 +22,6 @@ export class EditorComponent {
   private canvas: HTMLCanvasElement | null | undefined;
   private readonly board: Board;
   protected eventHandler?: EventHandler;
-  protected activeCommand: DrawState = DrawState.None;
 
   constructor(@Inject(PLATFORM_ID) platformId: object,) {
     this.board = new Board();

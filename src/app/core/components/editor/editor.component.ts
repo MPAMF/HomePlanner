@@ -4,6 +4,7 @@ import {ToolbarComponent} from "./toolbar/toolbar.component";
 import {CommandInvoker} from "../../commands/command";
 import {Board} from "../../models/board";
 import {EventHandler} from "../../events/event-handler";
+import {Canvas} from "../../models/canvas";
 
 @Component({
   selector: 'app-editor',
@@ -39,7 +40,8 @@ export class EditorComponent {
     if (!this.context || !this.canvas) {
       throw new Error("Canvas not found");
     }
-    this.cmdInvoker.ctx = this.context;
+    // TODO: add new canvas snappingLine
+    this.cmdInvoker.canvas = {background: this.context, snappingLine: this.context} as Canvas;
 
     // Correction of the Zoom from responsive size
     this.canvas.width = this.canvas.getBoundingClientRect().width;

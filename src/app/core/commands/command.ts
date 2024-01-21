@@ -1,4 +1,5 @@
 import {Board} from "../models/board";
+import {Canvas, DrawOn} from "../models/canvas";
 
 export interface ICommand {
   execute(): void;
@@ -7,10 +8,14 @@ export interface ICommand {
 }
 
 export abstract class Command implements ICommand {
-  public readonly redraw: boolean = false;
+  public readonly redrawOn?: DrawOn;
 
-  protected constructor(redraw: boolean = true) {
-    this.redraw = redraw;
+  /**
+   * @protected
+   * @param redrawOn When to redraw the board after executing the command
+   */
+  protected constructor(redrawOn: DrawOn = DrawOn.All) {
+    this.redrawOn = redrawOn;
   }
 
   private _board?: Board;
@@ -26,17 +31,17 @@ export abstract class Command implements ICommand {
     this._board = board;
   }
 
-  private _canvasCtx?: CanvasRenderingContext2D;
+  private _canvas?: Canvas;
 
-  get canvasCtx(): CanvasRenderingContext2D {
-    if (!this._canvasCtx) {
+  get canvas(): Canvas {
+    if (!this._canvas) {
       throw new Error("Canvas not set");
     }
-    return this._canvasCtx;
+    return this._canvas;
   }
 
-  set canvasCtx(canvas: CanvasRenderingContext2D) {
-    this._canvasCtx = canvas;
+  set canvas(canvas: Canvas) {
+    this._canvas = canvas;
   }
 
   execute(): void {
@@ -48,7 +53,7 @@ export abstract class Command implements ICommand {
 }
 
 export class CommandInvoker {
-  public ctx?: CanvasRenderingContext2D;
+  public canvas?: Canvas;
   private history: Command[] = [];
   private historyIndex = -1;
 
@@ -61,14 +66,14 @@ export class CommandInvoker {
   execute(command: Command, save: boolean = true) {
     // set board instance before executing the command
     command.board = this.board;
-    this.ctx && (command.canvasCtx = this.ctx);
+    this.canvas && (command.canvas = this.canvas);
 
     // execute the command
     command.execute();
 
     // redraw the board if needed
-    if (command.redraw) {
-      this.redraw();
+    if (command.redrawOn) {
+      this.redraw(command.redrawOn);
     }
 
     // save the command in the history if needed
@@ -86,8 +91,8 @@ export class CommandInvoker {
     if (this.historyIndex >= 0) {
       const command = this.history[this.historyIndex];
       command.undo();
-      if (command.redraw) {
-        this.redraw();
+      if (command.redrawOn) {
+        this.redraw(command.redrawOn);
       }
       this.historyIndex--;
     }
@@ -99,8 +104,8 @@ export class CommandInvoker {
       this.historyIndex++;
       const command = this.history[this.historyIndex];
       command.execute();
-      if (command.redraw) {
-        this.redraw();
+      if (command.redrawOn) {
+        this.redraw(command.redrawOn);
       }
     }
   }
@@ -121,11 +126,11 @@ export class CommandInvoker {
     return this.historyIndex < this.history.length - 1;
   }
 
-  public redraw() {
-    if (!this.ctx) {
+  public redraw(on: DrawOn) {
+    if (!this.canvas) {
       throw new Error("Canvas context not set, cannot redraw");
     }
-    this.board.draw(this.ctx);
+    this.board.draw(this.canvas, on);
   }
 
 }

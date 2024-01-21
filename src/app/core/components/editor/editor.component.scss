@@ -1,13 +1,22 @@
 .editor {
-
+  display: flex;
 }
 
 canvas {
-  border-radius: 10px; // Rounded border
-  border: 1px solid black; // Thin black border
-  width: calc(100% - 20px);
+  object-fit: contain;
+  position: absolute;
+  width: 100%;
+  height: calc(100% - var(--header-height)); /* Use calc to subtract --header-height */
+  top: var(--header-height);
+  z-index: -1;
+}
+
+canvas.main {
+  background-color: #F3EEEA;
   background-image: linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px); // Checkered background
   background-size: 50px 50px; // Size of the checkered squares
-  margin-top: 20px;
-  object-fit: contain;
+}
+
+canvas.spectrum {
+  background-color: transparent;
 }

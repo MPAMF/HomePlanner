@@ -5,11 +5,12 @@ import {CommandInvoker} from "../../commands/command";
 import {Board} from "../../models/board";
 import {EventHandler} from "../../events/event-handler";
 import {Canvas} from "../../models/canvas";
+import {ControlsComponent} from "./controls/controls.component";
 
 @Component({
   selector: 'app-editor',
   standalone: true,
-  imports: [CommonModule, ToolbarComponent],
+  imports: [CommonModule, ToolbarComponent, ControlsComponent],
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.scss'
 })
@@ -45,8 +46,7 @@ export class EditorComponent {
 
     // Correction of the Zoom from responsive size
     this.canvas.width = this.canvas.getBoundingClientRect().width;
-    this.canvas.height = window.innerHeight * 0.8;
-    // this.canvas.height = this.canvas.width * 0.5;
+    this.canvas.height = this.canvas.getBoundingClientRect().height;
     this.eventHandler = new EventHandler(this.cmdInvoker);
   }
 

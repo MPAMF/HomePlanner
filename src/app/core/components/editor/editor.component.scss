@@ -3,21 +3,20 @@
 }
 
 canvas {
-  background-image: linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px); // Checkered background
-  background-size: 50px 50px; // Size of the checkered squares
   object-fit: contain;
   position: absolute;
   width: 100%;
   height: calc(100% - var(--header-height)); /* Use calc to subtract --header-height */
   top: var(--header-height);
-}
-
-canvas.main {
-  background-color: transparent;
   z-index: -1;
 }
 
-canvas.spectrum {
+canvas.main {
   background-color: #F3EEEA;
-  z-index: -2;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px); // Checkered background
+  background-size: 50px 50px; // Size of the checkered squares
+}
+
+canvas.spectrum {
+  background-color: transparent;
 }

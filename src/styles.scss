@@ -1,1 +1,20 @@
 /* You can add global styles to this file, and also import other style files */
+
+:root {
+  --header-height: 3rem;
+}
+
+*, ::before, ::after {
+  box-sizing: inherit;
+}
+
+html {
+  box-sizing: border-box;
+  overflow: initial;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+

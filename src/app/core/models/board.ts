@@ -5,6 +5,7 @@ import {Point} from "./point";
 import {clearCanvas, drawImage, getScale} from "./canvas";
 import {afterNextRender} from "@angular/core";
 import {BoardConfig} from "./board-config";
+import {Clickable} from "./clickable";
 
 export class Board implements Drawable {
   public walls: Wall[];
@@ -41,14 +42,23 @@ export class Board implements Drawable {
     this.walls.forEach(wall => wall.draw(ctx));
   }
 
-  onClickNextToElement(ctx: CanvasRenderingContext2D, point: Point): void {
-    let isWallClick: boolean = false;
-    for (const wall of this.walls) {
-      const isTheNearestWall = wall.isPointNear(ctx, point, isWallClick);
+  onClick(ctx: CanvasRenderingContext2D, point: Point): void {
+    //Next to wall section
+    this.applyOnAllClickable(ctx, (clickable: Clickable): boolean => {
+      const hasChange: boolean = clickable.resetSelectedState();
+      hasChange && clickable.draw(ctx);
+      return true;
+    });
+
+    this.applyOnAllClickable(ctx, (clickable: Clickable) : boolean => {
+      const isTheNearestWall = clickable.isPointOnElement(point);
       if(isTheNearestWall){
-        isWallClick = isTheNearestWall;
+        clickable.isSelected = isTheNearestWall;
+        this.draw(ctx);
       }
-    }
+
+      return !isTheNearestWall;
+    });
   }
 
   private drawCursor(ctx: CanvasRenderingContext2D) {
@@ -117,4 +127,10 @@ export class Board implements Drawable {
     return closestPoint;
   }
 
+  public applyOnAllClickable(ctx: CanvasRenderingContext2D, fn: (clickable: Clickable) => boolean){
+    for (const wall of this.walls) {
+      const mustExecutionContinue: boolean = wall.applyOnAllClickable(ctx, fn)
+      if(!mustExecutionContinue) return;
+    }
+  }
 }

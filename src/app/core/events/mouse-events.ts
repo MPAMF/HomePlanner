@@ -5,7 +5,7 @@ import {
   AddWallCommand,
   EditLastWallWithPointCommand,
   FinaliseLastWallCommand,
-  OnClickNearWallCommand
+  OnClickCommand
 } from "../commands/wall-commands";
 import {CommandInvoker} from "../commands/command";
 import {MoveCommand} from "../commands/canvas-commands";
@@ -122,7 +122,7 @@ export class MouseEvents extends BaseEvent {
         break;
 
       default:
-        this.actionCmdInvoker.execute(new OnClickNearWallCommand(pt));
+        this.actionCmdInvoker.execute(new OnClickCommand(pt));
         return;
     }
   }

@@ -1,18 +1,21 @@
-import {Clickable, Drawable} from "./drawable";
 import {Point} from "./point";
-import {Comparable} from "./comparable";
+import {Clickable} from "./clickable";
 
-export class WallElement extends Comparable implements Drawable, Clickable {
+export class WallElement extends Clickable {
 
-  constructor(public p1: Point, public p2: Point) {
-    super();
+  constructor(
+    public p1: Point,
+    public p2: Point,
+    isSelected: boolean = false
+  ) {
+    super(isSelected);
   }
 
-  isPointNear(ctx: CanvasRenderingContext2D, point: Point, isAWallSelected: boolean): boolean {
+  isPointOnElement(point: Point): boolean {
     return false;
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
+  override draw(ctx: CanvasRenderingContext2D) {
     // should be implemented in subclasses
     throw new Error("Method not implemented.");
   }
@@ -27,9 +30,13 @@ export class WallElement extends Comparable implements Drawable, Clickable {
     return new WallElement(this.p1, this.p2);
   }
 
+  applyOnAllClickable(ctx: CanvasRenderingContext2D, fn: (clickable: Clickable) => boolean): boolean {
+    return fn(this);
+  }
+
 }
 
-export class Wall extends Comparable implements Drawable, Clickable {
+export class Wall extends Clickable {
 
   constructor(
     public p1: Point,
@@ -40,10 +47,10 @@ export class Wall extends Comparable implements Drawable, Clickable {
     private thickness?: number,
     private color?: string,
     private selectedColor?: string,
-    private isSelected: boolean = false,
-    public elements: WallElement[] = []
+    public elements: WallElement[] = [],
+    isSelected: boolean = false,
   ) {
-    super();
+    super(isSelected);
   }
 
   /**
@@ -77,14 +84,6 @@ export class Wall extends Comparable implements Drawable, Clickable {
   }
 
   /**
-   * Set is the wall selected
-   * @param isSelected the boolean
-   */
-  setIsSelected (isSelected: boolean): void {
-    this.isSelected = isSelected;
-  }
-
-  /**
    * Add a wall element to the wall
    * @param element the new ellement to add
    */
@@ -103,7 +102,7 @@ export class Wall extends Comparable implements Drawable, Clickable {
     }
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
+  override draw(ctx: CanvasRenderingContext2D) {
     ctx.beginPath();
     ctx.moveTo(this.p1.x, this.p1.y);
     ctx.lineTo(this.p2.x, this.p2.y);
@@ -112,29 +111,6 @@ export class Wall extends Comparable implements Drawable, Clickable {
     ctx.stroke();
 
     this.elements.forEach(element => element.draw(ctx));
-  }
-
-  isPointNear(ctx: CanvasRenderingContext2D, point: Point, isAWallSelected: boolean): boolean {
-    // Firstly, check wall children
-    let isWallNear: boolean = false;
-    if(!isAWallSelected){
-      let isWallElementNearest: boolean = false;
-      this.elements.forEach(element => {
-        isWallElementNearest = element.isPointNear(ctx, point, isAWallSelected)
-      });
-
-      if(!isWallElementNearest){
-        isWallNear = this.containsPoint(point);
-      }
-    }
-
-    const hasDifferentSelectedState: boolean = this.isSelected != isWallNear;
-    if(hasDifferentSelectedState){
-      this.setIsSelected(isWallNear);
-      this.draw(ctx);
-    }
-
-    return isWallNear;
   }
 
   /**
@@ -174,11 +150,7 @@ export class Wall extends Comparable implements Drawable, Clickable {
     return Math.abs(crossProduct) < Number.EPSILON;
   }
 
-  /**
-   * Check if a point is on the wall
-   * @param point The position to check
-   */
-  containsPoint(point: Point): boolean {
+  isPointOnElement(point: Point): boolean {
     const delta: number = this.getThickness()/2;
     const isP1OverP2: boolean = this.p1.y < this.p2.y;
     const isP1LeftP2: boolean = this.p1.x < this.p2.x;
@@ -201,6 +173,15 @@ export class Wall extends Comparable implements Drawable, Clickable {
    */
   clone(): Wall {
     return new Wall(this.p1, this.p2, this.defaultThickness, this.defaultColor, this.defaultSelectedColor, this.thickness,
-      this.color, this.selectedColor, this.isSelected, this.elements.map(el => el.clone()));
+      this.color, this.selectedColor, this.elements.map(el => el.clone()), this.isSelected);
+  }
+
+  applyOnAllClickable(ctx: CanvasRenderingContext2D, fn: (clickable: Clickable) => boolean): boolean {
+    for (const element of this.elements) {
+      const mustExecutionContinue: boolean = element.applyOnAllClickable(ctx, fn)
+      if(!mustExecutionContinue) return false;
+    }
+
+    return fn(this);
   }
 }

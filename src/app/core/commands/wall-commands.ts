@@ -122,14 +122,14 @@ export class FinaliseLastWallCommand extends Command {
   }
 }
 
-export class OnClickNearWallCommand extends Command {
+export class OnClickCommand extends Command {
 
   constructor(private clickPosition: Point) {
     super();
   }
 
   override execute(): void {
-    this.board.onClickNextToElement(this.canvasCtx, this.clickPosition);
+    this.board.onClick(this.canvasCtx, this.clickPosition);
   }
 
   override undo(): void {

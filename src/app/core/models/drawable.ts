@@ -1,3 +1,5 @@
+import {Canvas, DrawOn} from "./canvas";
+
 export interface Drawable {
-  draw(ctx: CanvasRenderingContext2D): void;
+  draw(canvas: Canvas, on: DrawOn): void;
 }

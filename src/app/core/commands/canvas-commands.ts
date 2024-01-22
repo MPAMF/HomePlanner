@@ -1,6 +1,6 @@
 import {Command} from "./command";
 import {Point} from "../models/point";
-import {moveCanvas} from "../models/canvas";
+import {applyToCanvas, moveCanvas} from "../models/canvas";
 
 export class MoveCommand extends Command {
   constructor(private delta: Point) {
@@ -8,10 +8,10 @@ export class MoveCommand extends Command {
   }
 
   override execute(): void {
-    moveCanvas(this.canvasCtx, this.delta);
+    applyToCanvas(this.canvas, (ctx) => moveCanvas(ctx, this.delta));
   }
 
   override undo(): void {
-    moveCanvas(this.canvasCtx, new Point(-this.delta.x, -this.delta.y));
+    applyToCanvas(this.canvas, (ctx) => moveCanvas(ctx, new Point(-this.delta.x, -this.delta.y)));
   }
 }

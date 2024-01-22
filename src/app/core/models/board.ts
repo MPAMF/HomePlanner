@@ -1,22 +1,21 @@
-import {Wall} from "./wall";
 import {Drawable} from "./drawable";
-import {DrawState} from "./draw-state";
+import {DrawState, isWallDrawState} from "./draw-state";
 import {Point} from "./point";
-import {clearCanvas, drawImage, getScale, transformPoint, zoomCanvas} from "./canvas";
+import {applyToCanvas, Canvas, clearCanvas, drawImage, DrawOn, getScale} from "./canvas";
 import {afterNextRender} from "@angular/core";
+import {Room} from "./room";
 
 export class Board implements Drawable {
-  public walls: Wall[];
+  public rooms: Room[];
   public drawState: DrawState;
-  public isEditing: boolean;
   public mousePosition: Point;
-  public isPanning: boolean;
+  public isPanning: boolean; // Whether the user is panning the canvas (moving the canvas around)
   private image?: HTMLImageElement;
+  public currentRoom?: Room; // This room is the room that is currently being edited
 
   constructor() {
-    this.walls = [];
+    this.rooms = [];
     this.drawState = DrawState.None; // defaults to none
-    this.isEditing = false;
     this.isPanning = false;
     this.mousePosition = new Point(0, 0);
 
@@ -27,20 +26,44 @@ export class Board implements Drawable {
 
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
-    clearCanvas(ctx);
-    this.drawCursor(ctx);
-    this.walls.forEach(wall => wall.draw(ctx));
+  draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
+    // Clear the canvas
+    switch (on) {
+      case DrawOn.Background:
+        clearCanvas(canvas.background);
+        clearCanvas(canvas.snappingLine);
+        break;
+      case DrawOn.SnappingLine:
+        clearCanvas(canvas.snappingLine);
+        break;
+      case DrawOn.All:
+        applyToCanvas(canvas, ctx => clearCanvas(ctx));
+        break;
+      default:
+        break;
+    }
+
+    // Cursor only on top of everything
+    this.drawCursor(canvas.snappingLine);
+
+    // Draw the current not finalized room
+    this.currentRoom?.draw(canvas, on);
+
+    // Draw all the rooms
+    this.rooms.forEach(room => room.draw(canvas, on));
   }
 
   private drawCursor(ctx: CanvasRenderingContext2D) {
     ctx.canvas.style.cursor = this.findCursor();
 
-    if (!this.isPanning && this.drawState === DrawState.Wall && this.image) {
-      const lastWall = this.getLastWall();
-      const pt =  this.isEditing && lastWall ? lastWall.p2 : this.mousePosition;
-      drawImage(ctx, this.image, new Point(pt.x, pt.y - 30 / getScale(ctx).y), 30, 30);
+    // Return if the user is panning or if there is no image
+    if (this.isPanning || !this.image || !isWallDrawState(this.drawState)) {
+      return;
     }
+
+    const lastWall = this.currentRoom ? this.currentRoom.getLastWall() : undefined;
+    const pt = this.drawState === DrawState.WallCreation && lastWall ? lastWall.p2 : this.mousePosition;
+    drawImage(ctx, this.image, new Point(pt.x, pt.y - 30 / getScale(ctx).y), 30, 30);
   }
 
   private findCursor(): string {
@@ -48,6 +71,7 @@ export class Board implements Drawable {
       return "grabbing";
     }
     switch (this.drawState) {
+      case DrawState.WallCreation:
       case DrawState.Wall:
         return "none";
       case DrawState.Move:
@@ -57,46 +81,41 @@ export class Board implements Drawable {
     }
   }
 
-  public getLastWall(): Wall | undefined {
-    if (this.walls.length === 0) {
-      return undefined;
-    }
-    return this.walls[this.walls.length - 1];
-  }
-
-  public findClosestWallPoint(point: Point, maxDistance: number = -1, excludeLastWall: boolean = false): Point | undefined {
+  /**
+   * Find the closest wall point to the given point
+   * @param point Point to find the closest wall point to
+   * @param maxDistance Maximum distance to search for a wall point
+   * @param excludeLastWall Exclude the last wall from the search
+   * @returns The closest wall point and whether the point is on the current room or not
+   */
+  public findClosestWallPoint(point: Point, maxDistance: number = -1, excludeLastWall: boolean = false): [Point, boolean] | undefined {
     let closestPoint: Point | undefined;
     let closestDistance = Number.MAX_SAFE_INTEGER;
+    let isOnCurrentRoom = false;
 
-    for (let i = 0; i < this.walls.length; i++) {
-      if (excludeLastWall && i === this.walls.length - 1) {
+    const tempRooms = this.currentRoom ? [...this.rooms, this.currentRoom] : this.rooms;
+
+    for (let i = 0; i < tempRooms.length; i++) {
+
+      const room = tempRooms[i];
+
+      const closestWallPoint = tempRooms[i].findClosestWallPoint(point, maxDistance, excludeLastWall && room === this.currentRoom);
+
+      if (!closestWallPoint) {
         continue;
       }
-      const wall = this.walls[i];
-      let pt: Point;
-      let distance: number;
-      const p1Distance = wall.p1.distanceTo(point);
-      const p2Distance = wall.p2.distanceTo(point);
 
-      if (p1Distance < p2Distance) {
-        pt = wall.p1;
-        distance = p1Distance;
-      } else {
-        pt = wall.p2;
-        distance = p2Distance;
-      }
-
-      if (maxDistance > 0 && distance > maxDistance) {
-        continue;
-      }
+      const [pt, distance] = closestWallPoint;
 
       if (distance < closestDistance) {
         closestPoint = pt;
         closestDistance = distance;
+        isOnCurrentRoom = room === this.currentRoom;
       }
+
     }
 
-    return closestPoint;
+    return closestPoint ? [closestPoint, isOnCurrentRoom] : undefined;
   }
 
 }

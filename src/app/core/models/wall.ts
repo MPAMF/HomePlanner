@@ -1,6 +1,7 @@
 import {Drawable} from "./drawable";
 import {Point} from "./point";
 import {Comparable} from "./comparable";
+import {Canvas, DrawOn} from "./canvas";
 
 export class WallElement extends Comparable implements Drawable {
 
@@ -8,7 +9,7 @@ export class WallElement extends Comparable implements Drawable {
     super();
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
+  draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
     // should be implemented in subclasses
     throw new Error("Method not implemented.");
   }
@@ -32,7 +33,8 @@ export class Wall extends Comparable implements Drawable {
     public p2: Point,
     public thickness: number = 1,
     public color: string = 'white',
-    public elements: WallElement[] = []
+    public elements: WallElement[] = [],
+    public isFinalized: boolean = false
   ) {
     super();
   }
@@ -50,7 +52,8 @@ export class Wall extends Comparable implements Drawable {
     }
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
+  draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
+    const ctx = !this.isFinalized ? canvas.snappingLine : canvas.background;
     ctx.beginPath();
     ctx.moveTo(this.p1.x, this.p1.y);
     ctx.lineTo(this.p2.x, this.p2.y);
@@ -58,7 +61,7 @@ export class Wall extends Comparable implements Drawable {
     ctx.strokeStyle = this.color;
     ctx.stroke();
 
-    this.elements.forEach(element => element.draw(ctx));
+    this.elements.forEach(element => element.draw(canvas, on));
   }
 
   // Calculate the angle with another wall

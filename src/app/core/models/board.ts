@@ -31,18 +31,25 @@ export class Board implements Drawable {
     switch (on) {
       case DrawOn.Background:
         clearCanvas(canvas.background);
+        clearCanvas(canvas.snappingLine);
         break;
       case DrawOn.SnappingLine:
         clearCanvas(canvas.snappingLine);
         break;
-      default:
+      case DrawOn.All:
         applyToCanvas(canvas, ctx => clearCanvas(ctx));
+        break;
+      default:
         break;
     }
 
     // Cursor only on top of everything
     this.drawCursor(canvas.snappingLine);
 
+    // Draw the current not finalized room
+    this.currentRoom?.draw(canvas, on);
+
+    // Draw all the rooms
     this.rooms.forEach(room => room.draw(canvas, on));
   }
 
@@ -64,6 +71,7 @@ export class Board implements Drawable {
       return "grabbing";
     }
     switch (this.drawState) {
+      case DrawState.WallCreation:
       case DrawState.Wall:
         return "none";
       case DrawState.Move:
@@ -73,15 +81,25 @@ export class Board implements Drawable {
     }
   }
 
-  public findClosestWallPoint(point: Point, maxDistance: number = -1, excludeLastWall: boolean = false): Point | undefined {
+  /**
+   * Find the closest wall point to the given point
+   * @param point Point to find the closest wall point to
+   * @param maxDistance Maximum distance to search for a wall point
+   * @param excludeLastWall Exclude the last wall from the search
+   * @returns The closest wall point and whether the point is on the current room or not
+   */
+  public findClosestWallPoint(point: Point, maxDistance: number = -1, excludeLastWall: boolean = false): [Point, boolean] | undefined {
     let closestPoint: Point | undefined;
     let closestDistance = Number.MAX_SAFE_INTEGER;
+    let isOnCurrentRoom = false;
 
-    for (let i = 0; i < this.rooms.length; i++) {
+    const tempRooms = this.currentRoom ? [...this.rooms, this.currentRoom] : this.rooms;
 
-      const room = this.rooms[i];
+    for (let i = 0; i < tempRooms.length; i++) {
 
-      const closestWallPoint = this.rooms[i].findClosestWallPoint(point, maxDistance, excludeLastWall && room === this.currentRoom);
+      const room = tempRooms[i];
+
+      const closestWallPoint = tempRooms[i].findClosestWallPoint(point, maxDistance, excludeLastWall && room === this.currentRoom);
 
       if (!closestWallPoint) {
         continue;
@@ -92,11 +110,12 @@ export class Board implements Drawable {
       if (distance < closestDistance) {
         closestPoint = pt;
         closestDistance = distance;
+        isOnCurrentRoom = room === this.currentRoom;
       }
 
     }
 
-    return closestPoint;
+    return closestPoint ? [closestPoint, isOnCurrentRoom] : undefined;
   }
 
 }

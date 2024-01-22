@@ -3,7 +3,7 @@ import {Wall} from "../models/wall";
 import {Point} from "../models/point";
 import {Room} from "../models/room";
 import {DrawState} from "../models/draw-state";
-import {DrawOn} from "../models/canvas";
+import {clearCanvas, DrawOn} from "../models/canvas";
 
 export class AddWallCommand extends Command {
 
@@ -91,15 +91,20 @@ export class EditLastWallWithPointCommand extends Command {
     if (this.board.drawState !== DrawState.WallCreation || !this.board.currentRoom) {
       return;
     }
-    const closestPt = this.board.findClosestWallPoint(this.p2, 10, true);
     const wall = this.board.currentRoom.getLastWall();
-    if (wall) {
-      wall.p2 = closestPt || this.p2;
+    if (!wall) return;
+
+    const closestPt = this.board.findClosestWallPoint(this.p2, 10, true);
+    if (!closestPt) {
+      wall.p2 = this.p2;
+      return;
     }
+
+    wall.p2 = closestPt[0];
   }
 
   override undo(): void {
-
+    throw new Error("Method not implemented (please dont save it into cmd invoker history).");
   }
 }
 

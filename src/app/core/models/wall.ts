@@ -53,7 +53,7 @@ export class Wall extends Comparable implements Drawable {
   }
 
   draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
-    const ctx = this.isFinalized ? canvas.snappingLine : canvas.background;
+    const ctx = !this.isFinalized ? canvas.snappingLine : canvas.background;
     ctx.beginPath();
     ctx.moveTo(this.p1.x, this.p1.y);
     ctx.lineTo(this.p2.x, this.p2.y);

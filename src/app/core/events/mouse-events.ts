@@ -29,7 +29,6 @@ export class MouseEvents extends BaseEvent {
     const mouseX = this.getMouseXPosition(event);
     const mouseY = this.getMouseYPosition(event);
     const pt = this.board.mousePosition = inverseTransformPoint(this.canvas.background, new Point(mouseX, mouseY));
-    this.cmdInvoker.redraw(DrawOn.SnappingLine);
 
     if (this.board.isPanning) {
       const dx = event.clientX - this.panStart.x;
@@ -45,6 +44,7 @@ export class MouseEvents extends BaseEvent {
       case DrawState.None:
         break;
       case DrawState.Wall:
+        this.cmdInvoker.redraw(DrawOn.SnappingLine);
         break;
       case DrawState.WallCreation:
         this.cmdInvoker.execute(new EditLastWallWithPointCommand(pt), false);
@@ -75,7 +75,7 @@ export class MouseEvents extends BaseEvent {
      * 1 = Middle click
      * 2 = Right click
      */
-    if (event.button === 2) { //Left click
+    if (this.board.drawState !== DrawState.WallCreation && event.button === 2) { //Left click
       this.board.isPanning = true;
       this.cmdInvoker.redraw(DrawOn.All);
       this.panStart.x = event.clientX;
@@ -91,8 +91,14 @@ export class MouseEvents extends BaseEvent {
         const closestPt = this.board.findClosestWallPoint(pt, 10, true);
 
         if (closestPt) {
-          this.cmdInvoker.execute(new FinaliseLastWallCommand());
-          return;
+          const [pt, isCurrentRoom] = closestPt;
+          if (isCurrentRoom) {
+            this.cmdInvoker.execute(new FinaliseLastWallCommand());
+            return;
+          }
+
+          this.cmdInvoker.execute(new AddWallCommand(new Wall(pt, pt, 2, 'black')));
+          return
         }
 
         this.cmdInvoker.execute(new AddWallCommand(new Wall(pt, pt, 2, 'black')));

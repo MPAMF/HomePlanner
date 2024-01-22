@@ -14,7 +14,8 @@ export interface Canvas {
 export enum DrawOn {
   All,
   SnappingLine,
-  Background
+  Background,
+  None
 }
 
 /**

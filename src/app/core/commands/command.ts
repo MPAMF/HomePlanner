@@ -72,7 +72,7 @@ export class CommandInvoker {
     command.execute();
 
     // redraw the board if needed
-    if (command.redrawOn) {
+    if (command.redrawOn !== undefined) {
       this.redraw(command.redrawOn);
     }
 
@@ -91,7 +91,7 @@ export class CommandInvoker {
     if (this.historyIndex >= 0) {
       const command = this.history[this.historyIndex];
       command.undo();
-      if (command.redrawOn) {
+      if (command.redrawOn !== undefined) {
         this.redraw(command.redrawOn);
       }
       this.historyIndex--;
@@ -104,7 +104,7 @@ export class CommandInvoker {
       this.historyIndex++;
       const command = this.history[this.historyIndex];
       command.execute();
-      if (command.redrawOn) {
+      if (command.redrawOn !== undefined) {
         this.redraw(command.redrawOn);
       }
     }

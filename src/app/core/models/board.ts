@@ -22,15 +22,16 @@ export class Board implements Drawable {
 
     afterNextRender(() => {
       this.image = new Image();
-      this.image.src = "assets/svg/edit-pen.svg";
+      this.image.src = "assets/svg/pen.png";
     });
 
   }
 
   draw(ctx: CanvasRenderingContext2D) {
     clearCanvas(ctx);
-    this.drawCursor(ctx);
     this.walls.forEach(wall => wall.draw(ctx));
+    // drawing cursor last
+    this.drawCursor(ctx);
   }
 
   private drawCursor(ctx: CanvasRenderingContext2D) {

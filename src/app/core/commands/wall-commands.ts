@@ -14,7 +14,13 @@ export class AddWallCommand extends Command {
   override execute(): void {
     if (!this.board.currentRoom) {
       this.board.currentRoom = new Room("Room 1"); // TODO: replace hardcoded name
+    } else {
+      const lastWall = this.board.currentRoom.getLastWall();
+      if (lastWall) {
+        lastWall.isFinalized = true;
+      }
     }
+
     this.board.drawState = DrawState.WallCreation;
     this.board.currentRoom.addWall(this.wall);
   }
@@ -25,9 +31,15 @@ export class AddWallCommand extends Command {
       return;
     }
     this.board.currentRoom.removeWall(this.wall);
+
     // Remove the room if there are no walls left
     if (!this.board.currentRoom.hasAnyWalls()) {
       this.board.currentRoom = undefined;
+    } else {
+      const lastWall = this.board.currentRoom.getLastWall();
+      if (lastWall) {
+        lastWall.isFinalized = false;
+      }
     }
   }
 }

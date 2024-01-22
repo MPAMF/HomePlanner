@@ -50,5 +50,17 @@ export class Point {
   clone(): Point {
     return new Point(this.x, this.y);
   }
+
+  /**
+    Fonction auxiliaire pour vérifier si un point est à gauche d'une ligne
+   */
+  isLeft(p1: Point, p2: Point): boolean {
+    const dxc: number = this.x - p1.x;
+    const dyc: number = this.y - p1.y;
+    const dxl: number = p2.x - p1.x;
+    const dyl: number = p2.y - p1.y;
+
+    return (dxc*dyl - dyc*dxl) > 0;
+  }
 }
 

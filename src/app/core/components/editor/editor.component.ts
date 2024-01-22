@@ -15,6 +15,7 @@ import {EventHandler} from "../../events/event-handler";
 export class EditorComponent {
 
   protected readonly cmdInvoker: CommandInvoker;
+  protected readonly actionsCmdInvoker: CommandInvoker;
   protected readonly isBrowser: boolean;
   private context: CanvasRenderingContext2D | null | undefined;
   private canvas: HTMLCanvasElement | null | undefined;
@@ -24,6 +25,7 @@ export class EditorComponent {
   constructor(@Inject(PLATFORM_ID) platformId: object,) {
     this.board = new Board();
     this.cmdInvoker = new CommandInvoker(this.board);
+    this.actionsCmdInvoker = new CommandInvoker(this.board);
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
@@ -40,6 +42,7 @@ export class EditorComponent {
       throw new Error("Canvas not found");
     }
     this.cmdInvoker.ctx = this.context;
+    this.actionsCmdInvoker.ctx = this.context;
 
     // Correction of the Zoom from responsive size
     this.canvas.width = this.canvas.getBoundingClientRect().width;

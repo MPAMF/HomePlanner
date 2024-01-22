@@ -2,8 +2,9 @@ import {Wall} from "./wall";
 import {Drawable} from "./drawable";
 import {DrawState} from "./draw-state";
 import {Point} from "./point";
-import {clearCanvas, drawImage, transformPoint, zoomCanvas} from "./canvas";
+import {clearCanvas, drawImage} from "./canvas";
 import {afterNextRender} from "@angular/core";
+import {BoardConfig} from "./board-config";
 
 export class Board implements Drawable {
   public walls: Wall[];
@@ -11,6 +12,12 @@ export class Board implements Drawable {
   public isEditing: boolean;
   public mousePosition: Point;
   public isPanning: boolean;
+
+  /**
+   * Configs of the board
+   */
+  public boardConfig: BoardConfig;
+
   private image?: HTMLImageElement;
 
   constructor() {
@@ -19,6 +26,7 @@ export class Board implements Drawable {
     this.isEditing = false;
     this.isPanning = false;
     this.mousePosition = new Point(0, 0);
+    this.boardConfig = new BoardConfig();
 
     afterNextRender(() => {
       this.image = new Image();
@@ -31,6 +39,16 @@ export class Board implements Drawable {
     clearCanvas(ctx);
     this.drawCursor(ctx);
     this.walls.forEach(wall => wall.draw(ctx));
+  }
+
+  onClickNextToElement(ctx: CanvasRenderingContext2D, point: Point): void {
+    let isWallClick: boolean = false;
+    for (const wall of this.walls) {
+      const isTheNearestWall = wall.isPointNear(ctx, point, isWallClick);
+      if(isTheNearestWall){
+        isWallClick = isTheNearestWall;
+      }
+    }
   }
 
   private drawCursor(ctx: CanvasRenderingContext2D) {

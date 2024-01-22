@@ -14,6 +14,7 @@ import {DeZoomCommand, ZoomCommand} from "../../../commands/canvas-commands";
 })
 export class ToolbarComponent {
   @Input() commandInvoker?: CommandInvoker;
+  @Input() actionsCommandInvoker?: CommandInvoker;
   private lastClickedButton: number = 0;
 
   isActive(buttonNumber: number): boolean {
@@ -22,22 +23,22 @@ export class ToolbarComponent {
 
   onClickWalls(buttonNumber: number) {
     this.lastClickedButton = buttonNumber;
-    this.commandInvoker?.execute(new EditorDrawStateCommands(DrawState.Wall));
+    this.actionsCommandInvoker?.execute(new EditorDrawStateCommands(DrawState.Wall));
   }
 
   onClickWindows(buttonNumber: number) {
     this.lastClickedButton = buttonNumber;
-    this.commandInvoker?.execute(new EditorDrawStateCommands(DrawState.Window));
+    this.actionsCommandInvoker?.execute(new EditorDrawStateCommands(DrawState.Window));
   }
 
   onClickDoors(buttonNumber: number) {
     this.lastClickedButton = buttonNumber;
-    this.commandInvoker?.execute(new EditorDrawStateCommands(DrawState.Door));
+    this.actionsCommandInvoker?.execute(new EditorDrawStateCommands(DrawState.Door));
   }
 
   onClickBoard(buttonNumber: number) {
     this.lastClickedButton = buttonNumber;
-    this.commandInvoker?.execute(new EditorDrawStateCommands(DrawState.Move));
+    this.actionsCommandInvoker?.execute(new EditorDrawStateCommands(DrawState.Move));
   }
 
   onClickZoomIn() {

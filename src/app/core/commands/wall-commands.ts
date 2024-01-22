@@ -121,3 +121,17 @@ export class FinaliseLastWallCommand extends Command {
     this.board.isEditing = true;
   }
 }
+
+export class OnClickNearWallCommand extends Command {
+
+  constructor(private clickPosition: Point) {
+    super();
+  }
+
+  override execute(): void {
+    this.board.onClickNextToElement(this.canvasCtx, this.clickPosition);
+  }
+
+  override undo(): void {
+  }
+}

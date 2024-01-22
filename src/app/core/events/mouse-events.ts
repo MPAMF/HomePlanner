@@ -1,7 +1,12 @@
 import {Point} from "../models/point";
 import {Wall} from "../models/wall";
 import {DrawState} from "../models/draw-state";
-import {AddWallCommand, EditLastWallWithPointCommand, FinaliseLastWallCommand} from "../commands/wall-commands";
+import {
+  AddWallCommand,
+  EditLastWallWithPointCommand,
+  FinaliseLastWallCommand,
+  OnClickNearWallCommand
+} from "../commands/wall-commands";
 import {CommandInvoker} from "../commands/command";
 import {MoveCommand, ZoomCommand} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
@@ -92,7 +97,8 @@ export class MouseEvents extends BaseEvent {
           }
         }
 
-        this.cmdInvoker.execute(new AddWallCommand(new Wall(pt, pt, 2, 'black')));
+        this.cmdInvoker.execute(new AddWallCommand(new Wall(pt, pt, this.board.boardConfig.wallThickness,
+          this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor)));
 
         break;
 
@@ -112,6 +118,7 @@ export class MouseEvents extends BaseEvent {
         break;
 
       default:
+        this.cmdInvoker.execute(new OnClickNearWallCommand(pt));
         return;
     }
   }

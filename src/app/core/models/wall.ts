@@ -1,11 +1,15 @@
-import {Drawable} from "./drawable";
+import {Clickable, Drawable} from "./drawable";
 import {Point} from "./point";
 import {Comparable} from "./comparable";
 
-export class WallElement extends Comparable implements Drawable {
+export class WallElement extends Comparable implements Drawable, Clickable {
 
   constructor(public p1: Point, public p2: Point) {
     super();
+  }
+
+  isPointNear(ctx: CanvasRenderingContext2D, point: Point, isAWallSelected: boolean): boolean {
+    return false;
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -25,24 +29,73 @@ export class WallElement extends Comparable implements Drawable {
 
 }
 
-export class Wall extends Comparable implements Drawable {
+export class Wall extends Comparable implements Drawable, Clickable {
 
   constructor(
     public p1: Point,
     public p2: Point,
-    public thickness: number = 1,
-    public color: string = 'white',
+    private defaultThickness: number,
+    private defaultColor: string,
+    private defaultSelectedColor: string,
+    private thickness?: number,
+    private color?: string,
+    private selectedColor?: string,
+    private isSelected: boolean = false,
     public elements: WallElement[] = []
   ) {
     super();
   }
 
-  // Add a wall element to the wall
+  /**
+   * Get the wall thickness or the default one
+   */
+  getThickness (): number {
+    return this.thickness ?? this.defaultThickness;
+  }
+
+  /**
+   * Set the thickness of the wall
+   * @param newThickness the new thickness of the wall
+   */
+  setThickness (newThickness: number): void {
+    this.thickness = newThickness;
+  }
+
+  /**
+   * Get the wall color or the default one
+   */
+  getColor (): string {
+    return  this.isSelected ? this.selectedColor ?? this.defaultSelectedColor : this.color ?? this.defaultColor;
+  }
+
+  /**
+   * Set the color of the wall
+   * @param newColor the new color
+   */
+  setColor (newColor: string): void {
+    this.color = newColor;
+  }
+
+  /**
+   * Set is the wall selected
+   * @param isSelected the boolean
+   */
+  setIsSelected (isSelected: boolean): void {
+    this.isSelected = isSelected;
+  }
+
+  /**
+   * Add a wall element to the wall
+   * @param element the new ellement to add
+   */
   addElement(element: WallElement): void {
     this.elements.push(element);
   }
 
-  // Remove a wall element from the wall
+  /**
+   * Remove a wall element from the wall
+   * @param element the wall to remove
+   */
   removeElement(element: WallElement): void {
     const index = this.elements.findIndex(el => el.equals(element));
     if (index !== -1) {
@@ -54,14 +107,40 @@ export class Wall extends Comparable implements Drawable {
     ctx.beginPath();
     ctx.moveTo(this.p1.x, this.p1.y);
     ctx.lineTo(this.p2.x, this.p2.y);
-    ctx.lineWidth = this.thickness;
-    ctx.strokeStyle = this.color;
+    ctx.lineWidth = this.getThickness();
+    ctx.strokeStyle = this.getColor();
     ctx.stroke();
 
     this.elements.forEach(element => element.draw(ctx));
   }
 
-  // Calculate the angle with another wall
+  isPointNear(ctx: CanvasRenderingContext2D, point: Point, isAWallSelected: boolean): boolean {
+    // Firstly, check wall children
+    let isWallNear: boolean = false;
+    if(!isAWallSelected){
+      let isWallElementNearest: boolean = false;
+      this.elements.forEach(element => {
+        isWallElementNearest = element.isPointNear(ctx, point, isAWallSelected)
+      });
+
+      if(!isWallElementNearest){
+        isWallNear = this.containsPoint(point);
+      }
+    }
+
+    const hasDifferentSelectedState: boolean = this.isSelected != isWallNear;
+    if(hasDifferentSelectedState){
+      this.setIsSelected(isWallNear);
+      this.draw(ctx);
+    }
+
+    return isWallNear;
+  }
+
+  /**
+   * Calculate the angle with another wall
+   * @param otherWall The second wall use to calculate the angle
+   */
   calculateAngleWith(otherWall: Wall): number {
     const vector1 = new Point(this.p2.x - this.p1.x, this.p2.y - this.p1.y);
     const vector2 = new Point(otherWall.p2.x - otherWall.p1.x, otherWall.p2.y - otherWall.p1.y);
@@ -71,36 +150,57 @@ export class Wall extends Comparable implements Drawable {
     return (Math.acos(cosineTheta) * 180) / Math.PI;
   }
 
-  // Calculate the length of the wall
+  /**
+   * Calculate the length of the wall
+   */
   length(): number {
     return this.p1.distanceTo(this.p2);
   }
 
-  // Calculate the midpoint of the wall
+  /**
+   * Calculate the midpoint of the wall
+   */
   midpoint(): Point {
     return new Point((this.p1.x + this.p2.x) / 2, (this.p1.y + this.p2.y) / 2);
   }
 
-  // Check if two walls are collinear
+  /**
+   * Check if two walls are collinear
+   * @param other the possible wall which is collinear
+   */
   isCollinearWith(other: Wall): boolean {
     const crossProduct =
       (this.p2.y - this.p1.y) * (other.p2.x - other.p1.x) - (this.p2.x - this.p1.x) * (other.p2.y - other.p1.y);
     return Math.abs(crossProduct) < Number.EPSILON;
   }
 
-  // Check if a point is on the wall
+  /**
+   * Check if a point is on the wall
+   * @param point The position to check
+   */
   containsPoint(point: Point): boolean {
-    return (
-      point.x >= Math.min(this.p1.x, this.p2.x) &&
-      point.x <= Math.max(this.p1.x, this.p2.x) &&
-      point.y >= Math.min(this.p1.y, this.p2.y) &&
-      point.y <= Math.max(this.p1.y, this.p2.y)
-    );
+    const delta: number = this.getThickness()/2;
+    const isP1OverP2: boolean = this.p1.y < this.p2.y;
+    const isP1LeftP2: boolean = this.p1.x < this.p2.x;
+
+    const deltaA: number = (isP1OverP2 && isP1LeftP2) || (!isP1OverP2 && !isP1LeftP2) ? delta : -delta;
+    const A: Point = new Point(this.p1.x + deltaA, this.p1.y - delta);
+    const B: Point = new Point(this.p1.x - deltaA, this.p1.y + delta);
+    const C: Point = new Point(this.p2.x - deltaA, this.p2.y + delta);
+    const D: Point = new Point(this.p2.x + deltaA, this.p2.y - delta);
+
+    if(isP1LeftP2){
+      return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
+    }
+
+    return (point.isLeft(B, A) && point.isLeft(C, B) && point.isLeft(D, C) && point.isLeft(A, D));
   }
 
-  // Clone the wall to create a new instance with the same points
+  /**
+   * Clone the wall to create a new instance with the same points
+   */
   clone(): Wall {
-    return new Wall(this.p1, this.p2, this.thickness, this.color, this.elements.map(el => el.clone()));
+    return new Wall(this.p1, this.p2, this.defaultThickness, this.defaultColor, this.defaultSelectedColor, this.thickness,
+      this.color, this.selectedColor, this.isSelected, this.elements.map(el => el.clone()));
   }
-
 }

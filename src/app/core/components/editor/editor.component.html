@@ -1,4 +1,6 @@
 <div class="editor">
-  <app-toolbar [commandInvoker]="cmdInvoker" [actionsCommandInvoker]="actionsCmdInvoker"></app-toolbar>
-  <canvas #canvas *ngIf="isBrowser"></canvas>
+  <app-toolbar [commandInvoker]="cmdInvoker" [actionsCommandInvoker]="actionsCmdInvoker"/>
+  <app-controls [commandInvoker]="cmdInvoker" [actionsCommandInvoker]="actionsCmdInvoker"/>
+  <canvas class="main" *ngIf="isBrowser"></canvas>
+  <canvas class="spectrum" #canvas *ngIf="isBrowser"></canvas>
 </div>

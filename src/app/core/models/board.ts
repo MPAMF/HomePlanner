@@ -2,7 +2,7 @@ import {Wall} from "./wall";
 import {Drawable} from "./drawable";
 import {DrawState} from "./draw-state";
 import {Point} from "./point";
-import {clearCanvas, drawImage} from "./canvas";
+import {clearCanvas, drawImage, getScale} from "./canvas";
 import {afterNextRender} from "@angular/core";
 import {BoardConfig} from "./board-config";
 
@@ -57,8 +57,7 @@ export class Board implements Drawable {
     if (!this.isPanning && this.drawState === DrawState.Wall && this.image) {
       const lastWall = this.getLastWall();
       const pt =  this.isEditing && lastWall ? lastWall.p2 : this.mousePosition;
-      const scaleY = ctx.getTransform().d;
-      drawImage(ctx, this.image, new Point(pt.x, pt.y - 30 / scaleY), 30, 30);
+      drawImage(ctx, this.image, new Point(pt.x, pt.y - 30 / getScale(ctx).y), 30, 30);
     }
   }
 

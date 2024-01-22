@@ -5,9 +5,11 @@ export abstract class BaseEvent {
   protected canvasCtx: CanvasRenderingContext2D;
   protected board: Board;
   protected cmdInvoker: CommandInvoker;
+  protected actionCmdInvoker: CommandInvoker;
 
-  protected constructor(cmdInvoker: CommandInvoker) {
+  protected constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker) {
     this.cmdInvoker = cmdInvoker;
+    this.actionCmdInvoker = actionCmdInvoker;
     this.canvasCtx = cmdInvoker.ctx!;
     this.board = cmdInvoker.board;
   }

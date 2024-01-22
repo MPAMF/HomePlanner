@@ -8,16 +8,20 @@ import {
   OnClickNearWallCommand
 } from "../commands/wall-commands";
 import {CommandInvoker} from "../commands/command";
-import {MoveCommand, ZoomCommand} from "../commands/canvas-commands";
+import {MoveCommand} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
-import {inverseTransformPoint, transformPoint, zoomCanvas} from "../models/canvas";
+import {getScale, inverseTransformPoint, zoomCanvas} from "../models/canvas";
 
 export class MouseEvents extends BaseEvent {
   private panStart: Point;
+  private readonly maxZoom: number;
+  private readonly minZoom: number;
 
-  constructor(cmdInvoker: CommandInvoker) {
-    super(cmdInvoker);
+  constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker) {
+    super(cmdInvoker, actionCmdInvoker);
     this.panStart = new Point(0, 0);
+    this.maxZoom = 5;
+    this.minZoom = 0.1;
   }
 
   /**
@@ -118,7 +122,7 @@ export class MouseEvents extends BaseEvent {
         break;
 
       default:
-        this.cmdInvoker.execute(new OnClickNearWallCommand(pt));
+        this.actionCmdInvoker.execute(new OnClickNearWallCommand(pt));
         return;
     }
   }
@@ -161,9 +165,19 @@ export class MouseEvents extends BaseEvent {
     // Compute zoom factor.
     const wheel = event.deltaY / 120;
     const zoom = Math.pow(1 + Math.abs(wheel) / 2, wheel < 0 ? 1 : -1);
+    const currentScale = getScale(this.canvasCtx);
+    if (currentScale.x * zoom < this.minZoom || currentScale.x * zoom > this.maxZoom) return;
+
     zoomCanvas(this.canvasCtx, inverseTransformPoint(this.canvasCtx, pt), zoom);
     this.board.mousePosition = inverseTransformPoint(this.canvasCtx, pt);
     this.cmdInvoker.redraw();
+  }
+
+  onMouseOut(event: MouseEvent) {
+    if (this.board.isPanning) {
+      this.board.isPanning = false;
+      this.cmdInvoker.redraw();
+    }
   }
 
   private getMouseXPosition(event: MouseEvent): number {
@@ -174,12 +188,18 @@ export class MouseEvents extends BaseEvent {
     return event.clientY - this.canvasCtx.canvas.getBoundingClientRect().top;
   }
 
+  private setMousePosition(event: MouseEvent) {
+    const pt = new Point(event.clientX, event.clientY);
+    this.board.mousePosition = inverseTransformPoint(this.canvasCtx, pt);
+  }
+
   override bind() {
     this.canvasCtx.canvas.addEventListener('mousedown', this.onMouseDown.bind(this));
     this.canvasCtx.canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
     this.canvasCtx.canvas.addEventListener('mouseup', this.onMouseUp.bind(this));
     this.canvasCtx.canvas.addEventListener('contextmenu', this.onContextMenu.bind(this));
     this.canvasCtx.canvas.addEventListener('wheel', this.onWheel.bind(this));
+    this.canvasCtx.canvas.addEventListener('mouseout', this.onMouseOut.bind(this));
   }
 
   override unbind() {
@@ -188,6 +208,7 @@ export class MouseEvents extends BaseEvent {
     this.canvasCtx.canvas.removeEventListener('mouseup', this.onMouseUp.bind(this));
     this.canvasCtx.canvas.removeEventListener('contextmenu', this.onContextMenu.bind(this));
     this.canvasCtx.canvas.removeEventListener('wheel', this.onWheel.bind(this));
+    this.canvasCtx.canvas.removeEventListener('mouseout', this.onMouseOut.bind(this));
   }
 }
 

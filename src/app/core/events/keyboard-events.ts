@@ -47,9 +47,7 @@ export class KeyboardEvents extends BaseEvent {
 
     }
 
-
   }
-
 
   override bind() {
     document.addEventListener('keydown', this.onKeyDown.bind(this));

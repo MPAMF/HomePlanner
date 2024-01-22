@@ -92,12 +92,21 @@ export class MouseEvents extends BaseEvent {
 
         if (closestPt) {
           const [pt, isCurrentRoom] = closestPt;
-          if (isCurrentRoom) {
-            this.cmdInvoker.execute(new FinaliseLastWallCommand());
+
+          const addWallCommand = new AddWallCommand(new Wall(pt, pt, 2, 'black'));
+
+          if (isCurrentRoom && this.board.currentRoom && this.board.currentRoom.hasAnyWalls()) {
+              const firstWall = this.board.currentRoom.walls[0];
+              if (firstWall.p1.equals(pt) || firstWall.p2.equals(pt)) {
+                this.cmdInvoker.execute(new FinaliseLastWallCommand());
+                return;
+              }
+
+            this.cmdInvoker.execute(addWallCommand);
             return;
           }
 
-          this.cmdInvoker.execute(new AddWallCommand(new Wall(pt, pt, 2, 'black')));
+          this.cmdInvoker.execute(addWallCommand);
           return
         }
 

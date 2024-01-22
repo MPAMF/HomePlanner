@@ -1,6 +1,10 @@
 <header>
   <nav #nav *ngIf="commandInvoker">
-    <button (click)="onClickUndo()" [disabled]="!commandInvoker.canUndo()"> Undo</button>
-    <button (click)="onClickRedo()" [disabled]="!commandInvoker.canRedo()"> Redo</button>
+    <button (click)="onClickUndo()" [disabled]="!commandInvoker.canUndo()" title="Undo">
+      <mat-icon>undo</mat-icon>
+    </button>
+    <button (click)="onClickRedo()" [disabled]="!commandInvoker.canRedo()" title="Redo">
+      <mat-icon>redo</mat-icon>
+    </button>
   </nav>
 </header>

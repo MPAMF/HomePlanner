@@ -1,6 +1,7 @@
 import {Comparable} from "./comparable";
 import {Point} from "./point";
 import {Drawable} from "./drawable";
+import {Canvas, DrawOn} from "./canvas";
 
 export abstract class Clickable extends Comparable implements Drawable {
   protected constructor(
@@ -17,11 +18,11 @@ export abstract class Clickable extends Comparable implements Drawable {
 
   /**
    * Apply a function on the children and the current element
-   * @param ctx the canvas
+   * @param canvas the canvas
    * @param fn the function
    * @return false if the execution must stop
    */
-  abstract applyOnAllClickable(ctx: CanvasRenderingContext2D, fn: (clickable: Clickable) => boolean): boolean;
+  abstract applyOnAllClickable(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean;
 
   /**
    * Reset the attribute isSelected
@@ -36,6 +37,6 @@ export abstract class Clickable extends Comparable implements Drawable {
     return false;
   }
 
-  draw(ctx: CanvasRenderingContext2D): void {
+  draw(canvas: Canvas, on: DrawOn): void {
   }
 }

@@ -1,9 +1,11 @@
+import {Canvas, DrawOn} from "./canvas";
 
 export interface Drawable {
 
   /**
    * Draw the element on the canvas
-   * @param ctx The rendering canvas which is modified
+   * @param canvas The rendering canvas which is modified
+   * @param on The state which specify on which canvas to draw
    */
-  draw(ctx: CanvasRenderingContext2D): void;
+  draw(canvas: Canvas, on: DrawOn): void;
 }

@@ -1,5 +1,6 @@
 import {Point} from "./point";
 import {Clickable} from "./clickable";
+import {Canvas, DrawOn} from "./canvas";
 
 export class WallElement extends Clickable {
 
@@ -15,7 +16,7 @@ export class WallElement extends Clickable {
     return false;
   }
 
-  override draw(ctx: CanvasRenderingContext2D) {
+  override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
     // should be implemented in subclasses
     throw new Error("Method not implemented.");
   }
@@ -30,7 +31,7 @@ export class WallElement extends Clickable {
     return new WallElement(this.p1, this.p2);
   }
 
-  applyOnAllClickable(ctx: CanvasRenderingContext2D, fn: (clickable: Clickable) => boolean): boolean {
+  applyOnAllClickable(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
     return fn(this);
   }
 
@@ -49,6 +50,7 @@ export class Wall extends Clickable {
     private selectedColor?: string,
     public elements: WallElement[] = [],
     isSelected: boolean = false,
+    public isFinalized: boolean = false
   ) {
     super(isSelected);
   }
@@ -102,7 +104,9 @@ export class Wall extends Clickable {
     }
   }
 
-  override draw(ctx: CanvasRenderingContext2D) {
+  override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
+    const ctx = !this.isFinalized ? canvas.snappingLine : canvas.background;
+
     ctx.beginPath();
     ctx.moveTo(this.p1.x, this.p1.y);
     ctx.lineTo(this.p2.x, this.p2.y);
@@ -110,7 +114,7 @@ export class Wall extends Clickable {
     ctx.strokeStyle = this.getColor();
     ctx.stroke();
 
-    this.elements.forEach(element => element.draw(ctx));
+    this.elements.forEach(element => element.draw(canvas, on));
   }
 
   /**
@@ -176,9 +180,9 @@ export class Wall extends Clickable {
       this.color, this.selectedColor, this.elements.map(el => el.clone()), this.isSelected);
   }
 
-  applyOnAllClickable(ctx: CanvasRenderingContext2D, fn: (clickable: Clickable) => boolean): boolean {
+  applyOnAllClickable(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
     for (const element of this.elements) {
-      const mustExecutionContinue: boolean = element.applyOnAllClickable(ctx, fn)
+      const mustExecutionContinue: boolean = element.applyOnAllClickable(canvas, fn)
       if(!mustExecutionContinue) return false;
     }
 

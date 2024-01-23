@@ -14,7 +14,7 @@ export abstract class Clickable extends Comparable implements Drawable {
    * Return true if the point is near to the element
    * @param point The point to check
    */
-   abstract isPointOnElement(point: Point): boolean;
+  abstract isPointOnElement(point: Point): boolean;
 
   /**
    * Apply a function on the children and the current element
@@ -29,7 +29,7 @@ export abstract class Clickable extends Comparable implements Drawable {
    * @retrun true if the state is changed
    */
   public resetSelectedState(): boolean {
-    if(this.isSelected){
+    if (this.isSelected) {
       this.isSelected = false;
       return true;
     }

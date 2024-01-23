@@ -91,7 +91,7 @@ export class Room extends Clickable {
   applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
     for (const wall of this.walls) {
       const mustExecutionContinue: boolean = wall.applyOnClickableRecursive(canvas, fn)
-      if(!mustExecutionContinue) return false;
+      if (!mustExecutionContinue) return false;
     }
 
     return fn(this);

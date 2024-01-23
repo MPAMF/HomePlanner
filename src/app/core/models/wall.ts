@@ -58,7 +58,7 @@ export class Wall extends Clickable {
   /**
    * Get the wall thickness or the default one
    */
-  getThickness (): number {
+  getThickness(): number {
     return this.thickness ?? this.defaultThickness;
   }
 
@@ -66,22 +66,22 @@ export class Wall extends Clickable {
    * Set the thickness of the wall
    * @param newThickness the new thickness of the wall
    */
-  setThickness (newThickness: number): void {
+  setThickness(newThickness: number): void {
     this.thickness = newThickness;
   }
 
   /**
    * Get the wall color or the default one
    */
-  getColor (): string {
-    return  this.isSelected ? this.selectedColor ?? this.defaultSelectedColor : this.color ?? this.defaultColor;
+  getColor(): string {
+    return this.isSelected ? this.selectedColor ?? this.defaultSelectedColor : this.color ?? this.defaultColor;
   }
 
   /**
    * Set the color of the wall
    * @param newColor the new color
    */
-  setColor (newColor: string): void {
+  setColor(newColor: string): void {
     this.color = newColor;
   }
 
@@ -155,7 +155,7 @@ export class Wall extends Clickable {
   }
 
   isPointOnElement(point: Point): boolean {
-    const delta: number = this.getThickness()/2;
+    const delta: number = this.getThickness() / 2;
     const isP1OverP2: boolean = this.p1.y < this.p2.y;
     const isP1LeftP2: boolean = this.p1.x < this.p2.x;
 
@@ -165,7 +165,7 @@ export class Wall extends Clickable {
     const C: Point = new Point(this.p2.x - deltaA, this.p2.y + delta);
     const D: Point = new Point(this.p2.x + deltaA, this.p2.y - delta);
 
-    if(isP1LeftP2){
+    if (isP1LeftP2) {
       return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
     }
 
@@ -183,7 +183,7 @@ export class Wall extends Clickable {
   applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
     for (const element of this.elements) {
       const mustExecutionContinue: boolean = element.applyOnClickableRecursive(canvas, fn)
-      if(!mustExecutionContinue) return false;
+      if (!mustExecutionContinue) return false;
     }
 
     return fn(this);

@@ -3,7 +3,8 @@ export class Point {
   constructor(
     public x: number = 0,
     public y: number = 0
-  ) {}
+  ) {
+  }
 
   // Calculate the distance between two points
   distanceTo(other: Point): number {
@@ -62,7 +63,7 @@ export class Point {
     const dxl: number = p2.x - p1.x;
     const dyl: number = p2.y - p1.y;
 
-    return (dxc*dyl - dyc*dxl) >= 0;
+    return (dxc * dyl - dyc * dxl) >= 0;
   }
 
   /**
@@ -74,7 +75,7 @@ export class Point {
     const dxl: number = p2.x - p1.x;
     const dyl: number = p2.y - p1.y;
 
-    return (dxc*dyl - dyc*dxl) <= 0;
+    return (dxc * dyl - dyc * dxl) <= 0;
   }
 }
 

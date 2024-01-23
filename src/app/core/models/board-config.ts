@@ -22,8 +22,8 @@ export class BoardConfig {
   public wallThickness: number;
 
   constructor(
-    wallColor : string = '#2c2b2b',
-    selectWallColor :string = '#417c28',
+    wallColor: string = '#2c2b2b',
+    selectWallColor: string = '#417c28',
     wallThickness: number = 10,
   ) {
     this.wallColor = wallColor;

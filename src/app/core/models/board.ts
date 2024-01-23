@@ -23,7 +23,7 @@ export class Board implements Drawable {
 
     afterNextRender(() => {
       this.image = new Image();
-      this.image.src = "assets/svg/edit-pen.svg";
+      this.image.src = "assets/png/pen.png";
     });
 
   }

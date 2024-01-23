@@ -2,6 +2,10 @@
   display: flex;
 }
 
+app-toolbar {
+  width: 100%;
+}
+
 canvas {
   object-fit: contain;
   position: absolute;

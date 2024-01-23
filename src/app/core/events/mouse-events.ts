@@ -1,12 +1,7 @@
 import {Point} from "../models/point";
 import {Wall} from "../models/wall";
 import {DrawState} from "../models/draw-state";
-import {
-  AddWallCommand,
-  EditLastWallWithPointCommand,
-  FinaliseLastWallCommand,
-  OnClickCommand
-} from "../commands/wall-commands";
+import {AddWallCommand, EditLastWallWithPointCommand, FinaliseLastWallCommand,} from "../commands/wall-commands";
 import {CommandInvoker} from "../commands/command";
 import {MoveCommand} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
@@ -47,6 +42,7 @@ export class MouseEvents extends BaseEvent {
 
     switch (this.board.drawState) {
       case DrawState.None:
+        this.board.onMove(this.canvas, pt);
         break;
       case DrawState.Wall:
         this.cmdInvoker.redraw(DrawOn.SnappingLine);
@@ -138,8 +134,11 @@ export class MouseEvents extends BaseEvent {
       case DrawState.Door:
         break;
 
+      case DrawState.None:
+        this.board.onClick(this.canvas, pt);
+        break;
+
       default:
-        this.actionCmdInvoker.execute(new OnClickCommand(pt));
         return;
     }
   }

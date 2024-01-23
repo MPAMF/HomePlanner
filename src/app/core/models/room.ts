@@ -9,18 +9,13 @@ export class Room extends Clickable {
     public name: string,
     public background: string = '', // TODO: texture
     public isFinalized: boolean = false,
-    public walls: Wall[] = [],
-    isSelected: boolean = false,
+    public walls: Wall[] = []
   ) {
-    super(isSelected);
+    super();
   }
 
-  override isPointOnElement(point: Point): boolean {
-    return false;
-  }
-
-  override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
-    this.walls.forEach(wall => wall.draw(canvas, on));
+  override getColor(): string {
+    throw new Error("Method not implemented.");
   }
 
   addWall(wall: Wall) {
@@ -88,7 +83,27 @@ export class Room extends Clickable {
     return this.walls.length === 0 ? undefined : this.walls[this.walls.length - 1];
   }
 
-  applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
+  override isPointOnElement(point: Point): boolean {
+    return false;
+  }
+
+  override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
+    this.walls.forEach(wall => wall.draw(canvas, on));
+  }
+
+  override onSelect(): void {
+  }
+
+  override onUnselect(): void {
+  }
+
+  override onHover(): void {
+  }
+
+  override onHoverOut(): void {
+  }
+
+  override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
     for (const wall of this.walls) {
       const mustExecutionContinue: boolean = wall.applyOnClickableRecursive(canvas, fn)
       if (!mustExecutionContinue) return false;

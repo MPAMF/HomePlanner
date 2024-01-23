@@ -31,7 +31,7 @@ export class WallElement extends Clickable {
     return new WallElement(this.p1, this.p2);
   }
 
-  applyOnAllClickable(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
+  applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
     return fn(this);
   }
 
@@ -180,9 +180,9 @@ export class Wall extends Clickable {
       this.color, this.selectedColor, this.elements.map(el => el.clone()), this.isSelected);
   }
 
-  applyOnAllClickable(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
+  applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
     for (const element of this.elements) {
-      const mustExecutionContinue: boolean = element.applyOnAllClickable(canvas, fn)
+      const mustExecutionContinue: boolean = element.applyOnClickableRecursive(canvas, fn)
       if(!mustExecutionContinue) return false;
     }
 

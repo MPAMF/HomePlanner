@@ -16,15 +16,7 @@ export class Room extends Clickable {
   }
 
   override isPointOnElement(point: Point): boolean {
-    for (const wall of this.walls) {
-      if(!point.isLeft(wall.p2, wall.p1)){
-        if(!point.isRight(wall.p2, wall.p1)){
-          return false;
-        }
-      }
-    }
-
-    return true;
+    return false;
   }
 
   override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
@@ -96,9 +88,9 @@ export class Room extends Clickable {
     return this.walls.length === 0 ? undefined : this.walls[this.walls.length - 1];
   }
 
-  applyOnAllClickable(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
+  applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
     for (const wall of this.walls) {
-      const mustExecutionContinue: boolean = wall.applyOnAllClickable(canvas, fn)
+      const mustExecutionContinue: boolean = wall.applyOnClickableRecursive(canvas, fn)
       if(!mustExecutionContinue) return false;
     }
 

@@ -143,7 +143,7 @@ export class Board implements Drawable {
 
   public applyOnAllClickable(canvas: Canvas, fn: (clickable: Clickable) => boolean){
     for (const room of this.rooms) {
-      const mustExecutionContinue: boolean = room.applyOnAllClickable(canvas, fn)
+      const mustExecutionContinue: boolean = room.applyOnClickableRecursive(canvas, fn)
       if(!mustExecutionContinue) return;
     }
   }

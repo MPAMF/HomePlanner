@@ -54,7 +54,7 @@ export class Point {
   }
 
   /**
-    Fonction auxiliaire pour vérifier si un point est à gauche d'une ligne
+   * Function to check if the point is on the left of the line
    */
   isLeft(p1: Point, p2: Point): boolean {
     const dxc: number = this.x - p1.x;
@@ -66,7 +66,7 @@ export class Point {
   }
 
   /**
-   Fonction auxiliaire pour vérifier si un point est à droite d'une ligne
+   * Function to check if the point is on the right of the line
    */
   isRight(p1: Point, p2: Point): boolean {
     const dxc: number = this.x - p1.x;

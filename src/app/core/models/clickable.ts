@@ -22,7 +22,7 @@ export abstract class Clickable extends Comparable implements Drawable {
    * @param fn the function
    * @return false if the execution must stop
    */
-  abstract applyOnAllClickable(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean;
+  abstract applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean;
 
   /**
    * Reset the attribute isSelected

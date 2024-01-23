@@ -1,13 +1,13 @@
 import {BaseEvent} from "./base-event";
-import {Board} from "../models/board";
 import {CommandInvoker} from "../commands/command";
-import {EditorDrawStateCommands, EditorRemoveLastWallCommand} from "../commands/editor-commands";
+import {EditorDrawStateCommands} from "../commands/editor-commands";
 import {DrawState} from "../models/draw-state";
+import {RemoveWallCommand} from "../commands/wall-commands";
 
 export class KeyboardEvents extends BaseEvent {
 
-  constructor(cmdInvoker: CommandInvoker) {
-    super(cmdInvoker);
+  constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker) {
+    super(cmdInvoker, actionCmdInvoker);
   }
 
   onKeyDown(event: KeyboardEvent) {
@@ -19,8 +19,12 @@ export class KeyboardEvents extends BaseEvent {
     const lowerKey = key.toLowerCase();
 
     if (event.key === 'Escape') {
-      this.cmdInvoker.execute(new EditorRemoveLastWallCommand());
-      this.cmdInvoker.execute(new EditorDrawStateCommands(DrawState.None));
+      if (this.board.drawState === DrawState.WallCreation && this.board.currentRoom && this.board.currentRoom.hasAnyWalls()) {
+        const lastWall = this.board.currentRoom.walls[this.board.currentRoom.walls.length - 1];
+        this.cmdInvoker.execute(new RemoveWallCommand(lastWall));
+      } else {
+        this.cmdInvoker.execute(new EditorDrawStateCommands(DrawState.None));
+      }
       return;
     }
 
@@ -43,9 +47,7 @@ export class KeyboardEvents extends BaseEvent {
 
     }
 
-
   }
-
 
   override bind() {
     document.addEventListener('keydown', this.onKeyDown.bind(this));

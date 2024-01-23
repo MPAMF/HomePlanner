@@ -1,6 +1,24 @@
 import {Point} from "./point";
 
 /**
+ * Interface containing multiple canvas
+ */
+export interface Canvas {
+  snappingLine: CanvasRenderingContext2D;
+  background: CanvasRenderingContext2D; // Main canvas
+}
+
+/**
+ * Enum to specify on which canvas to draw
+ */
+export enum DrawOn {
+  All,
+  SnappingLine,
+  Background,
+  None
+}
+
+/**
  * Transform a point from the canvas to the viewport
  * @param ctx Canvas context
  * @param point Point to transform
@@ -49,7 +67,7 @@ export function zoomCanvas(ctx: CanvasRenderingContext2D, pt: Point, scaleFactor
   matrix = matrix.translate(pt.x, pt.y);
   matrix = matrix.scale(scaleFactor, scaleFactor);
   matrix = matrix.translate(-pt.x, -pt.y);
- // matrix = matrix.multiply(matrix);
+  // matrix = matrix.multiply(matrix);
   ctx.setTransform(matrix);
 }
 
@@ -103,4 +121,14 @@ export function drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement
  */
 export function getScale(ctx: CanvasRenderingContext2D): Point {
   return new Point(ctx.getTransform().a, ctx.getTransform().d);
+}
+
+/**
+ * Apply a function to the canvas and the snapping line
+ * @param canvas Canvas
+ * @param fn Function to apply
+ */
+export function applyToCanvas(canvas: Canvas, fn: (ctx: CanvasRenderingContext2D) => void) {
+  fn(canvas.snappingLine);
+  fn(canvas.background);
 }

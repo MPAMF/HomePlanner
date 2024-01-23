@@ -6,9 +6,9 @@ export class EventHandler {
   public readonly mouseEvents: MouseEvents;
   public readonly keyboardEvents: KeyboardEvents;
 
-  constructor(cmdInvoker: CommandInvoker) {
-    this.mouseEvents = new MouseEvents(cmdInvoker);
-    this.keyboardEvents = new KeyboardEvents(cmdInvoker);
+  constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker) {
+    this.mouseEvents = new MouseEvents(cmdInvoker, actionCmdInvoker);
+    this.keyboardEvents = new KeyboardEvents(cmdInvoker, actionCmdInvoker);
     this.bind();
   }
 

@@ -12,6 +12,7 @@ import {MatIconModule} from "@angular/material/icon";
 })
 export class ToolbarComponent {
   @Input() commandInvoker?: CommandInvoker;
+  @Input() actionsCommandInvoker?: CommandInvoker;
 
   onClickUndo() {
     if (!this.commandInvoker || !this.commandInvoker.canUndo()) return;

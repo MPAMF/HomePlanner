@@ -3,7 +3,8 @@ export class Point {
   constructor(
     public x: number = 0,
     public y: number = 0
-  ) {}
+  ) {
+  }
 
   // Calculate the distance between two points
   distanceTo(other: Point): number {
@@ -51,6 +52,30 @@ export class Point {
   // Clone the point to create a new instance with the same coordinates
   clone(): Point {
     return new Point(this.x, this.y);
+  }
+
+  /**
+   * Function to check if the point is on the left of the line
+   */
+  isLeft(p1: Point, p2: Point): boolean {
+    const dxc: number = this.x - p1.x;
+    const dyc: number = this.y - p1.y;
+    const dxl: number = p2.x - p1.x;
+    const dyl: number = p2.y - p1.y;
+
+    return (dxc * dyl - dyc * dxl) >= 0;
+  }
+
+  /**
+   * Function to check if the point is on the right of the line
+   */
+  isRight(p1: Point, p2: Point): boolean {
+    const dxc: number = this.x - p1.x;
+    const dyc: number = this.y - p1.y;
+    const dxl: number = p2.x - p1.x;
+    const dyl: number = p2.y - p1.y;
+
+    return (dxc * dyl - dyc * dxl) <= 0;
   }
 }
 

@@ -1,14 +1,17 @@
 import {CommandInvoker} from "../commands/command";
 import {Board} from "../models/board";
+import {Canvas} from "../models/canvas";
 
 export abstract class BaseEvent {
-  protected canvasCtx: CanvasRenderingContext2D;
+  protected canvas: Canvas;
   protected board: Board;
   protected cmdInvoker: CommandInvoker;
+  protected actionCmdInvoker: CommandInvoker;
 
-  protected constructor(cmdInvoker: CommandInvoker) {
+  protected constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker) {
     this.cmdInvoker = cmdInvoker;
-    this.canvasCtx = cmdInvoker.ctx!;
+    this.actionCmdInvoker = actionCmdInvoker;
+    this.canvas = cmdInvoker.canvas!;
     this.board = cmdInvoker.board;
   }
 

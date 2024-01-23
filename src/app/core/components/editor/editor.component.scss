@@ -2,8 +2,12 @@
   display: flex;
 }
 
+app-toolbar {
+  width: 100%;
+}
+
 canvas {
-  background-color: #F3EEEA;
+  background-color: var(--canvas-bg-color);
   background-image: linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px); // Checkered background
   background-size: 50px 50px; // Size of the checkered squares
   object-fit: contain;

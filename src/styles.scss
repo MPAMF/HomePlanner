@@ -1,7 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
 
 :root {
-  --header-height: 3rem;
+  --header-height: 4rem;
+  --header-bg-color: #F4E5D7;
+  --canvas-bg-color: #F3EEEA;
+  --primary-color: #fd8616;
+  --primary-light-color: #F8BA80;
+  --buttons-bg-color: #ffffff;
+  --button-bg-color: #000000; // #505050
+  --button-border-color: #CDC9C3;
+  --logo-bg-color: #fda049;
+  --logo-color: #5c2626;
 }
 
 *, ::before, ::after {
@@ -17,4 +26,89 @@ html, body {
   margin: 0;
   padding: 0;
 }
+
+button:hover {
+  cursor: pointer;
+}
+
+button:not(:disabled):active, .active-button:not(:disabled) {
+  background-color: var(--primary-color);
+}
+
+.bottom-right {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+}
+
+.left-centered {
+  position: fixed;
+  left: 10px;
+  top: calc((100% + var(--header-height))/ 2);
+  transform: translate(0,-50%);
+}
+
+.buttons-groups-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.buttons-group {
+  background: var(--buttons-bg-color);
+  border: solid 1px var(--button-border-color);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.buttons-group.transparent {
+  border: none;
+  background: transparent;
+}
+
+.buttons-group + .buttons-group {
+  margin-top: 1rem;
+}
+
+.buttons-group button {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  transition: all 0.3s ease;
+  fill: var(--button-bg-color);
+}
+
+.buttons-group button.label-button {
+  width: auto;
+  padding-right: 0.5rem;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.buttons-group.transparent button.label-button {
+  background: transparent;
+}
+
+.buttons-group button:not(.active-button):not(:disabled):hover, {
+  background: var(--primary-light-color);
+}
+
+.buttons-group button:not(:disabled):hover:active {
+  background: var(--primary-color);
+}
+
+.buttons-group button:focus-visible {
+  outline: none;
+}
+
+.flex {
+  display: flex;
+}
+
+
 

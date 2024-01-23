@@ -1,32 +1,32 @@
-<div class="controls left-centered">
-  <div class="controls-group">
+<div class="buttons-groups-container left-centered">
+  <div class="buttons-group">
     <button (click)="onActionCommand(DrawState.Wall)"
-            [class.active-control-button]="isActiveCommand(DrawState.Wall)"
+            [class.active-button]="isActiveCommand(DrawState.Wall)"
             title="Draw">
       <mat-icon>horizontal_rule</mat-icon>
     </button>
     <button (click)="onActionCommand(DrawState.Window)"
-            [class.active-control-button]="isActiveCommand(DrawState.Window)"
+            [class.active-button]="isActiveCommand(DrawState.Window)"
             title="Add a window">
       <mat-icon>window</mat-icon>
     </button>
     <button (click)="onActionCommand(DrawState.Door)"
-            [class.active-control-button]="isActiveCommand(DrawState.Door)"
+            [class.active-button]="isActiveCommand(DrawState.Door)"
             title="Add a door">
       <mat-icon>meeting_room</mat-icon>
     </button>
   </div>
 </div>
 
-<div class="controls bottom-right">
-  <div class="controls-group">
+<div class="buttons-groups-container bottom-right">
+  <div class="buttons-group">
     <button (click)="onActionCommand(DrawState.Move)"
-            [class.active-control-button]="isActiveCommand(DrawState.Move)"
+            [class.active-button]="isActiveCommand(DrawState.Move)"
             title="Move">
       <mat-icon>open_with</mat-icon>
     </button>
   </div>
-  <div class="controls-group">
+  <div class="buttons-group">
     <button (click)="onClickZoomIn()" title="Zoom in">
       <mat-icon>add</mat-icon>
     </button>

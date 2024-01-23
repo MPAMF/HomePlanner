@@ -1,10 +1,67 @@
 <header>
-  <nav #nav *ngIf="commandInvoker">
-    <button (click)="onClickUndo()" [disabled]="!commandInvoker.canUndo()" title="Undo">
-      <mat-icon>undo</mat-icon>
-    </button>
-    <button (click)="onClickRedo()" [disabled]="!commandInvoker.canRedo()" title="Redo">
-      <mat-icon>redo</mat-icon>
-    </button>
+
+  <!--<button class="logo">
+    <svg viewBox="0 0 403.1966164643902 48.454989254900696">
+      <defs id="SvgjsDefs4402"></defs>
+      <g id="SvgjsG4403" featurekey="nameLeftFeature-0" class="logo-item" class="logo-item" transform="matrix(0.9421453231009834,0,0,0.9421453231009834,-2.691991198433783,0.23325177498995586)">
+        <path d="M20.629 11.428999999999998 l7.4286 0 l0 28.571 l-7.4286 0 l0 -11.143 l-10.286 0 l0 11.143 l-7.4857 0 l0.057143 -28.571 l7.4286 0 l0 11.143 l10.286 0 l0 -11.143 z M55.48542857142857 11.428999999999998 l4.2857 4.2857 l0 20 l-4.2857 4.2857 l-16.571 0 l-4.2857 -4.2857 l0 -20 l4.2857 -4.2857 l16.571 0 z M52.34242857142857 33.7143 l0 -16 l-10.286 0 l0 16 l10.286 0 z M87.4857142857143 11.428999999999998 l7.4286 0 l0 28.571 l-7.4286 0 l0 -16 l-5.0286 9.7143 l-3.7143 0 l-4.9714 -9.7143 l0 16 l-7.4286 0 l0 -28.571 l7.4286 0 l6.8571 12.971 z M125.77157142857143 17.714 l-16.857 0 l0 4.8571 l14.571 0 l0 6.2857 l-14.571 0 l0 4.8571 l16.857 0 l0 6.2857 l-20 0 l-4.2857 -4.2857 l0 -24.286 l24.286 0 l0 6.2857 z"></path>
+      </g>
+      <g id="SvgjsG4404" featurekey="inlineSymbolFeature-0" class="logo-item" class="logo-item" transform="matrix(17.09170530085495,0,0,17.09170530085495,117.50677660856643,-18.51031589543053)">
+        <g xmlns="http://www.w3.org/2000/svg">
+          <path class="logo-item" d="M1.364,2.557l0.494-0.18v1.541h0.009H2.21V1.329l0.724,0.434v2.155h0.105h0.048h0.059V3.164l0.527,0.377   v0.377h0.244V3.232L3.666,3.07V2.294L3.146,1.976V1.655L2.221,1.089V1.083L2.215,1.086L2.21,1.083v0.005L1.712,1.29v0.831   l-0.63,0.256v1.541h0.282V2.557z M3.146,2.229l0.356,0.215v0.519L3.146,2.73V2.229z"></path>
+        </g>
+      </g>
+      <g id="SvgjsG4405" featurekey="nameRightFeature-0" class="logo-item" class="logo-item" transform="matrix(0.9421451973157048,0,0,0.9421451973157048,187.04199383409897,0.23325321245230235)">
+        <path d="M17.99995714285714 40 l0 -28.571 l20.857 0 l4.2857 4.2857 l0 12 l-4.2857 4.2857 l-13.429 0 l0 8 l-7.4286 0 z M25.42885714285714 25.714 l10.286 0 l0 -8 l-10.286 0 l0 8 z M49.714242857142864 35.7143 l0 -24.286 l7.4286 0 l0 22.286 l15.429 0 l0 6.2857 l-18.571 0 z M77.71424285714286 40 l0 -24.286 l4.2857 -4.2857 l16.571 0 l4.2857 4.2857 l0 24.286 l-7.4286 0 l0 -8 l-10.286 0 l0 8 l-7.4286 0 z M85.14314285714286 25.714 l10.286 0 l0 -8 l-10.286 0 l0 8 z M127.14242857142858 11.428999999999998 l7.4286 0 l0 28.571 l-6.5714 0 l-11.143 -16 l0 16 l-7.4286 0 l0 -28.571 l6.5714 0 l11.143 15.886 l0 -15.886 z M158.8567142857143 11.428999999999998 l7.4286 0 l0 28.571 l-6.5714 0 l-11.143 -16 l0 16 l-7.4286 0 l0 -28.571 l6.5714 0 l11.143 15.886 l0 -15.886 z M197.14300000000003 17.714 l-16.857 0 l0 4.8571 l14.571 0 l0 6.2857 l-14.571 0 l0 4.8571 l16.857 0 l0 6.2857 l-20 0 l-4.2857 -4.2857 l0 -24.286 l24.286 0 l0 6.2857 z M229.4281428571429 15.713999999999999 l0 10 l-4.2857 4.2857 l4.2857 6.5714 l0 3.4286 l-6.8571 0 l-5.9429 -9.7143 l-5.4857 0 l0 9.7143 l-7.4286 0 l0 -28.571 l21.429 0 z M222.0001428571429 24 l0 -6.2857 l-10.857 0 l0 6.2857 l10.857 0 z"></path>
+      </g>
+    </svg>
+  </button>-->
+
+  <button class="logo logo-minimalist">
+    <svg viewBox="0 0 60.34483266110209 60.34483266110209">
+      <defs id="SvgjsDefs4447"></defs>
+      <g id="SvgjsG4448" featurekey="symbolFeature-0" class="logo-item" transform="matrix(21.28565318314768,0,0,21.28565318314768,-23.03107457211065,-23.052361219973253)">
+        <g xmlns="http://www.w3.org/2000/svg">
+          <path class="logo-item" d="M1.364,2.557l0.494-0.18v1.541h0.009H2.21V1.329l0.724,0.434v2.155h0.105h0.048h0.059V3.164l0.527,0.377   v0.377h0.244V3.232L3.666,3.07V2.294L3.146,1.976V1.655L2.221,1.089V1.083L2.215,1.086L2.21,1.083v0.005L1.712,1.29v0.831   l-0.63,0.256v1.541h0.282V2.557z M3.146,2.229l0.356,0.215v0.519L3.146,2.73V2.229z"></path>
+        </g>
+      </g>
+    </svg>
+  </button>
+
+  <nav #nav *ngIf="commandInvoker" class="buttons-groups-container">
+
+    <div class="buttons-group transparent">
+      <button class="label-button">
+        <mat-icon>navigate_before</mat-icon> All projects
+      </button>
+    </div>
+
+    <div class="buttons-group">
+      <button (click)="onClickUndo()" [disabled]="!commandInvoker.canUndo()" title="Undo">
+        <mat-icon>undo</mat-icon>
+      </button>
+      <button (click)="onClickRedo()" [disabled]="!commandInvoker.canRedo()" title="Redo">
+        <mat-icon>redo</mat-icon>
+      </button>
+    </div>
+
+    <div class="flex">
+      <div class="buttons-group">
+        <button title="Save">
+          <mat-icon>save</mat-icon>
+        </button>
+        <button title="Import component">
+          <mat-icon>save_alt</mat-icon>
+        </button>
+        <button title="Export component">
+          <mat-icon>ios_share</mat-icon>
+        </button>
+      </div>
+      <div class="buttons-group">
+        <button title="Settings">
+          <mat-icon>settings</mat-icon>
+        </button>
+      </div>
+    </div>
   </nav>
 </header>

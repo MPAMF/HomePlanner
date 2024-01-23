@@ -17,6 +17,7 @@ import {ControlsComponent} from "./controls/controls.component";
 export class EditorComponent {
 
   protected readonly cmdInvoker: CommandInvoker;
+  protected readonly actionsCmdInvoker: CommandInvoker;
   protected readonly isBrowser: boolean;
   private backgroundContext: CanvasRenderingContext2D | null | undefined;
   private backgroundCanvas: HTMLCanvasElement | null | undefined;
@@ -28,6 +29,7 @@ export class EditorComponent {
   constructor(@Inject(PLATFORM_ID) platformId: object,) {
     this.board = new Board();
     this.cmdInvoker = new CommandInvoker(this.board);
+    this.actionsCmdInvoker = new CommandInvoker(this.board);
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
@@ -72,13 +74,13 @@ export class EditorComponent {
     }
 
     this.cmdInvoker.canvas = {background: this.backgroundContext, snappingLine: this.snappingLineContext} as Canvas;
+    this.actionsCmdInvoker.canvas = {background: this.backgroundContext, snappingLine: this.snappingLineContext} as Canvas;
 
     // Correction of the Zoom from responsive size
     this.backgroundCanvas.width = this.backgroundCanvas.getBoundingClientRect().width;
     this.backgroundCanvas.height = this.backgroundCanvas.getBoundingClientRect().height;
     this.snappingLineCanvas.width = this.snappingLineCanvas.getBoundingClientRect().width;
     this.snappingLineCanvas.height = this.snappingLineCanvas.getBoundingClientRect().height;
-    this.eventHandler = new EventHandler(this.cmdInvoker);
+    this.eventHandler = new EventHandler(this.cmdInvoker, this.actionsCmdInvoker);
   }
-
 }

@@ -6,8 +6,8 @@ import {RemoveWallCommand} from "../commands/wall-commands";
 
 export class KeyboardEvents extends BaseEvent {
 
-  constructor(cmdInvoker: CommandInvoker) {
-    super(cmdInvoker);
+  constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker) {
+    super(cmdInvoker, actionCmdInvoker);
   }
 
   onKeyDown(event: KeyboardEvent) {

@@ -156,3 +156,17 @@ export class FinaliseLastWallCommand extends Command {
     }
   }
 }
+
+export class OnClickCommand extends Command {
+
+  constructor(private clickPosition: Point) {
+    super();
+  }
+
+  override execute(): void {
+    this.board.onClick(this.canvas, this.clickPosition);
+  }
+
+  override undo(): void {
+  }
+}

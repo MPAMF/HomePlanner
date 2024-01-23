@@ -1,21 +1,25 @@
-import {Comparable} from "./comparable";
-import {Drawable} from "./drawable";
 import {Wall} from "./wall";
 import {Point} from "./point";
 import {Canvas, DrawOn} from "./canvas";
+import {Clickable} from "./clickable";
 
-export class Room extends Comparable implements Drawable {
+export class Room extends Clickable {
 
   constructor(
     public name: string,
     public background: string = '', // TODO: texture
     public isFinalized: boolean = false,
-    public walls: Wall[] = []
+    public walls: Wall[] = [],
+    isSelected: boolean = false,
   ) {
-    super();
+    super(isSelected);
   }
 
-  draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
+  override isPointOnElement(point: Point): boolean {
+    return false;
+  }
+
+  override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
     this.walls.forEach(wall => wall.draw(canvas, on));
   }
 
@@ -82,5 +86,14 @@ export class Room extends Comparable implements Drawable {
    */
   public getLastWall(): Wall | undefined {
     return this.walls.length === 0 ? undefined : this.walls[this.walls.length - 1];
+  }
+
+  applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
+    for (const wall of this.walls) {
+      const mustExecutionContinue: boolean = wall.applyOnClickableRecursive(canvas, fn)
+      if (!mustExecutionContinue) return false;
+    }
+
+    return fn(this);
   }
 }

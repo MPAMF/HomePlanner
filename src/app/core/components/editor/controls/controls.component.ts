@@ -13,21 +13,22 @@ import {DrawState} from "../../../models/draw-state";
 })
 export class ControlsComponent {
   @Input() commandInvoker?: CommandInvoker;
+  @Input() actionsCommandInvoker?: CommandInvoker;
 
   isActiveCommand(drawState: DrawState): boolean {
-    return this.commandInvoker?.board?.drawState === drawState;
+    return this.actionsCommandInvoker?.board?.drawState === drawState;
   }
 
   onActionCommand(drawState: DrawState) {
-    this.commandInvoker?.execute(new EditorDrawStateCommands(drawState));
+    this.actionsCommandInvoker?.execute(new EditorDrawStateCommands(drawState));
   }
 
   onClickZoomIn() {
-    // this.commandInvoker?.execute(new ZoomCommand(1.1));
+    // this.actionsCommandInvoker?.execute(new ZoomCommand(1.1));
   }
 
   onClickZoomOut() {
-    // this.commandInvoker?.execute(new DeZoomCommand(1.1));
+    // this.actionsCommandInvoker?.execute(new DeZoomCommand(1.1));
   }
 
   protected readonly DrawState = DrawState;

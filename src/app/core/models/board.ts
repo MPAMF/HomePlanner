@@ -1,6 +1,8 @@
 import {Drawable} from "./drawable";
 import {DrawState, isWallDrawState} from "./draw-state";
 import {Point} from "./point";
+import {BoardConfig} from "./board-config";
+import {Clickable} from "./clickable";
 import {applyToCanvas, Canvas, clearCanvas, drawImage, DrawOn, getScale} from "./canvas";
 import {afterNextRender} from "@angular/core";
 import {Room} from "./room";
@@ -10,10 +12,10 @@ export class Board implements Drawable {
   public drawState: DrawState;
   public mousePosition: Point;
   public isPanning: boolean; // Whether the user is panning the canvas (moving the canvas around)
-  private image?: HTMLImageElement;
   public currentRoom?: Room; // This room is the room that is currently being edited
+  private image?: HTMLImageElement;
 
-  constructor() {
+  constructor(public boardConfig: BoardConfig = new BoardConfig()) {
     this.rooms = [];
     this.drawState = DrawState.None; // defaults to none
     this.isPanning = false;
@@ -53,32 +55,23 @@ export class Board implements Drawable {
     this.rooms.forEach(room => room.draw(canvas, on));
   }
 
-  private drawCursor(ctx: CanvasRenderingContext2D) {
-    ctx.canvas.style.cursor = this.findCursor();
+  onClick(canvas: Canvas, point: Point): void {
+    //Next to wall section
+    this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
+      const hasChange: boolean = clickable.resetSelectedState();
+      hasChange && clickable.draw(canvas, DrawOn.Background);
+      return true;
+    });
 
-    // Return if the user is panning or if there is no image
-    if (this.isPanning || !this.image || !isWallDrawState(this.drawState)) {
-      return;
-    }
+    this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
+      const isTheNearestWall = clickable.isPointOnElement(point);
+      if (isTheNearestWall) {
+        clickable.isSelected = isTheNearestWall;
+        this.draw(canvas, DrawOn.Background);
+      }
 
-    const lastWall = this.currentRoom ? this.currentRoom.getLastWall() : undefined;
-    const pt = this.drawState === DrawState.WallCreation && lastWall ? lastWall.p2 : this.mousePosition;
-    drawImage(ctx, this.image, new Point(pt.x, pt.y - 30 / getScale(ctx).y), 30, 30);
-  }
-
-  private findCursor(): string {
-    if (this.isPanning) {
-      return "grabbing";
-    }
-    switch (this.drawState) {
-      case DrawState.WallCreation:
-      case DrawState.Wall:
-        return "none";
-      case DrawState.Move:
-        return "grab";
-      default:
-        return "default";
-    }
+      return !isTheNearestWall;
+    });
   }
 
   /**
@@ -118,4 +111,38 @@ export class Board implements Drawable {
     return closestPoint ? [closestPoint, isOnCurrentRoom] : undefined;
   }
 
+  public applyOnAllClickable(canvas: Canvas, fn: (clickable: Clickable) => boolean) {
+    for (const room of this.rooms) {
+      const mustExecutionContinue: boolean = room.applyOnClickableRecursive(canvas, fn)
+      if (!mustExecutionContinue) return;
+    }
+  }
+
+  private drawCursor(ctx: CanvasRenderingContext2D) {
+    ctx.canvas.style.cursor = this.findCursor();
+
+    // Return if the user is panning or if there is no image
+    if (this.isPanning || !this.image || !isWallDrawState(this.drawState)) {
+      return;
+    }
+
+    const lastWall = this.currentRoom ? this.currentRoom.getLastWall() : undefined;
+    const pt = this.drawState === DrawState.WallCreation && lastWall ? lastWall.p2 : this.mousePosition;
+    drawImage(ctx, this.image, new Point(pt.x, pt.y - 30 / getScale(ctx).y), 30, 30);
+  }
+
+  private findCursor(): string {
+    if (this.isPanning) {
+      return "grabbing";
+    }
+    switch (this.drawState) {
+      case DrawState.WallCreation:
+      case DrawState.Wall:
+        return "none";
+      case DrawState.Move:
+        return "grab";
+      default:
+        return "default";
+    }
+  }
 }

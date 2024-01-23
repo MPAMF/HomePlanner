@@ -1,7 +1,12 @@
 import {Point} from "../models/point";
 import {Wall} from "../models/wall";
 import {DrawState} from "../models/draw-state";
-import {AddWallCommand, EditLastWallWithPointCommand, FinaliseLastWallCommand} from "../commands/wall-commands";
+import {
+  AddWallCommand,
+  EditLastWallWithPointCommand,
+  FinaliseLastWallCommand,
+  OnClickCommand
+} from "../commands/wall-commands";
 import {CommandInvoker} from "../commands/command";
 import {MoveCommand} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
@@ -12,8 +17,8 @@ export class MouseEvents extends BaseEvent {
   private readonly maxZoom: number;
   private readonly minZoom: number;
 
-  constructor(cmdInvoker: CommandInvoker) {
-    super(cmdInvoker);
+  constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker) {
+    super(cmdInvoker, actionCmdInvoker);
     this.panStart = new Point(0, 0);
     this.maxZoom = 5;
     this.minZoom = 0.1;
@@ -85,7 +90,8 @@ export class MouseEvents extends BaseEvent {
 
     switch (this.board.drawState) {
       case DrawState.Wall:
-        this.cmdInvoker.execute(new AddWallCommand(new Wall(pt, pt, 2, 'black')));
+        this.cmdInvoker.execute(new AddWallCommand(new Wall(pt, pt, this.board.boardConfig.wallThickness,
+          this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor)));
         break;
       case DrawState.WallCreation: {
         const closestPt = this.board.findClosestWallPoint(pt, 10, true);
@@ -93,7 +99,8 @@ export class MouseEvents extends BaseEvent {
         if (closestPt) {
           const [pt, isCurrentRoom] = closestPt;
 
-          const addWallCommand = new AddWallCommand(new Wall(pt, pt, 2, 'black'));
+          const addWallCommand = new AddWallCommand(new Wall(pt, pt, this.board.boardConfig.wallThickness,
+            this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor));
 
           if (isCurrentRoom && this.board.currentRoom && this.board.currentRoom.hasAnyWalls()) {
               const firstWall = this.board.currentRoom.walls[0];
@@ -110,9 +117,11 @@ export class MouseEvents extends BaseEvent {
           return
         }
 
-        this.cmdInvoker.execute(new AddWallCommand(new Wall(pt, pt, 2, 'black')));
+        this.cmdInvoker.execute(new AddWallCommand(new Wall(pt, pt, this.board.boardConfig.wallThickness,
+          this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor)));
+
+        break;
       }
-      break;
 
       case DrawState.Move:
         if (event.button === 0) { //Left click
@@ -130,6 +139,7 @@ export class MouseEvents extends BaseEvent {
         break;
 
       default:
+        this.actionCmdInvoker.execute(new OnClickCommand(pt));
         return;
     }
   }

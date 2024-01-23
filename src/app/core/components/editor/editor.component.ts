@@ -6,13 +6,13 @@ import {Board} from "../../models/board";
 import {EventHandler} from "../../events/event-handler";
 import {Canvas, DrawOn} from "../../models/canvas";
 import {ControlsComponent} from "./controls/controls.component";
-import {ModalComponent} from "./modal/modal.component";
+import {DialogConfirmationComponent} from "./dialogs/dialog-confirmation.component";
 import {MatDialog} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-editor',
   standalone: true,
-  imports: [CommonModule, ToolbarComponent, ControlsComponent, ModalComponent],
+  imports: [CommonModule, ToolbarComponent, ControlsComponent, DialogConfirmationComponent],
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.scss'
 })
@@ -28,19 +28,12 @@ export class EditorComponent {
   private readonly board: Board;
   protected eventHandler?: EventHandler;
 
-  constructor(@Inject(PLATFORM_ID) platformId: object, private dialog:MatDialog) {
+  constructor(@Inject(PLATFORM_ID) platformId: object, private dialog: MatDialog) {
     this.board = new Board();
     this.cmdInvoker = new CommandInvoker(this.board);
     this.actionsCmdInvoker = new CommandInvoker(this.board);
     this.isBrowser = isPlatformBrowser(platformId);
   }
-
-  /*openDialog(): void {
-    this.dialog.open(ModalComponent, {
-      enterAnimationDuration: '300ms',
-      exitAnimationDuration: '300ms'
-    });
-  }*/
 
   @ViewChild('background', {static: false}) set canvasRef(content: ElementRef) {
     if (content) { // initially setter gets called with undefined

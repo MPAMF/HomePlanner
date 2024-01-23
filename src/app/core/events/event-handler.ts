@@ -7,7 +7,7 @@ export class EventHandler {
   public readonly mouseEvents: MouseEvents;
   public readonly keyboardEvents: KeyboardEvents;
 
-  constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker, private dialog: MatDialog) {
+  constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker, dialog: MatDialog) {
     this.mouseEvents = new MouseEvents(cmdInvoker, actionCmdInvoker);
     this.keyboardEvents = new KeyboardEvents(cmdInvoker, actionCmdInvoker, dialog);
     this.bind();

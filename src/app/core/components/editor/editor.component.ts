@@ -35,12 +35,12 @@ export class EditorComponent {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
-  openDialog(): void {
+  /*openDialog(): void {
     this.dialog.open(ModalComponent, {
       enterAnimationDuration: '300ms',
       exitAnimationDuration: '300ms'
     });
-  }
+  }*/
 
   @ViewChild('background', {static: false}) set canvasRef(content: ElementRef) {
     if (content) { // initially setter gets called with undefined
@@ -90,16 +90,6 @@ export class EditorComponent {
     this.backgroundCanvas.height = this.backgroundCanvas.getBoundingClientRect().height;
     this.snappingLineCanvas.width = this.snappingLineCanvas.getBoundingClientRect().width;
     this.snappingLineCanvas.height = this.snappingLineCanvas.getBoundingClientRect().height;
-    this.eventHandler = new EventHandler(this.cmdInvoker, this.actionsCmdInvoker);
-  }
-
-  modalVisible: boolean = true;
-
-  showModal() {
-    this.modalVisible = true;
-  }
-
-  closeModal() {
-    this.modalVisible = false;
+    this.eventHandler = new EventHandler(this.cmdInvoker, this.actionsCmdInvoker, this.dialog);
   }
 }

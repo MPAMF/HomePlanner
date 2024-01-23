@@ -3,10 +3,12 @@ import {CommandInvoker} from "../commands/command";
 import {EditorDrawStateCommands} from "../commands/editor-commands";
 import {DrawState} from "../models/draw-state";
 import {RemoveWallCommand} from "../commands/wall-commands";
+import {MatDialog} from "@angular/material/dialog";
+import {ModalComponent} from "../components/editor/modal/modal.component";
 
 export class KeyboardEvents extends BaseEvent {
 
-  constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker) {
+  constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker, private dialog: MatDialog) {
     super(cmdInvoker, actionCmdInvoker);
   }
 
@@ -25,6 +27,7 @@ export class KeyboardEvents extends BaseEvent {
       } else {
         this.cmdInvoker.execute(new EditorDrawStateCommands(DrawState.None));
       }
+      this.openDialog();
       return;
     }
 
@@ -55,5 +58,12 @@ export class KeyboardEvents extends BaseEvent {
 
   override unbind() {
     document.removeEventListener('keydown', this.onKeyDown.bind(this));
+  }
+
+  openDialog(): void {
+    this.dialog.open(ModalComponent, {
+      enterAnimationDuration: '300ms',
+      exitAnimationDuration: '300ms'
+    });
   }
 }

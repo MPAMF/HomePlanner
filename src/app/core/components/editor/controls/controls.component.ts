@@ -3,11 +3,12 @@ import {CommonModule} from '@angular/common';
 import {CommandInvoker} from "../../../commands/command";
 import {EditorDrawStateCommands} from "../../../commands/editor-commands";
 import {DrawState} from "../../../models/draw-state";
+import {MatIconModule} from "@angular/material/icon";
 
 @Component({
   selector: 'app-controls',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './controls.component.html',
   styleUrl: './controls.component.scss'
 })

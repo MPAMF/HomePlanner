@@ -1,6 +1,49 @@
-nav {
+header {
   display: flex;
-  justify-content: space-around;
-  align-items: center;
+  justify-content: space-between;
   height: var(--header-height);
+  padding: 0.5rem;
+  background: var(--header-bg-color);
+}
+
+.logo {
+  display: flex;
+  padding: 1rem;
+  border-radius: 10px;
+  background-color: var(--logo-bg-color);
+  border: none;
+  transition: all ease 300ms;
+}
+
+.logo:hover {
+  background-color: var(--primary-color);
+}
+
+.logo svg {
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.logo-minimalist {
+  padding: 0.75rem;
+}
+
+.logo-item {
+  fill: var(--logo-color);
+}
+
+header .buttons-groups-container {
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-left: 1rem;
+}
+
+header .buttons-group {
+  display: flex;
+}
+
+header .buttons-group + .buttons-group {
+  margin-top: 0;
+  margin-left: 1rem;
 }

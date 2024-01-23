@@ -6,11 +6,13 @@ import {Board} from "../../models/board";
 import {EventHandler} from "../../events/event-handler";
 import {Canvas, DrawOn} from "../../models/canvas";
 import {ControlsComponent} from "./controls/controls.component";
+import {ModalComponent} from "./modal/modal.component";
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-editor',
   standalone: true,
-  imports: [CommonModule, ToolbarComponent, ControlsComponent],
+  imports: [CommonModule, ToolbarComponent, ControlsComponent, ModalComponent],
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.scss'
 })
@@ -26,11 +28,18 @@ export class EditorComponent {
   private readonly board: Board;
   protected eventHandler?: EventHandler;
 
-  constructor(@Inject(PLATFORM_ID) platformId: object,) {
+  constructor(@Inject(PLATFORM_ID) platformId: object, private dialog:MatDialog) {
     this.board = new Board();
     this.cmdInvoker = new CommandInvoker(this.board);
     this.actionsCmdInvoker = new CommandInvoker(this.board);
     this.isBrowser = isPlatformBrowser(platformId);
+  }
+
+  openDialog(): void {
+    this.dialog.open(ModalComponent, {
+      enterAnimationDuration: '300ms',
+      exitAnimationDuration: '300ms'
+    });
   }
 
   @ViewChild('background', {static: false}) set canvasRef(content: ElementRef) {
@@ -82,5 +91,15 @@ export class EditorComponent {
     this.snappingLineCanvas.width = this.snappingLineCanvas.getBoundingClientRect().width;
     this.snappingLineCanvas.height = this.snappingLineCanvas.getBoundingClientRect().height;
     this.eventHandler = new EventHandler(this.cmdInvoker, this.actionsCmdInvoker);
+  }
+
+  modalVisible: boolean = true;
+
+  showModal() {
+    this.modalVisible = true;
+  }
+
+  closeModal() {
+    this.modalVisible = false;
   }
 }

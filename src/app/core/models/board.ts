@@ -2,7 +2,7 @@ import {Drawable} from "./drawable";
 import {DrawState, isWallDrawState} from "./draw-state";
 import {Point} from "./point";
 import {BoardConfig} from "./board-config";
-import {Clickable, ClickableSate} from "./clickable";
+import {Clickable, ClickableState} from "./clickable";
 import {applyToCanvas, Canvas, clearCanvas, drawImage, DrawOn, getScale} from "./canvas";
 import {afterNextRender} from "@angular/core";
 import {Room} from "./room";
@@ -65,7 +65,7 @@ export class Board implements Drawable {
    */
   onClick(canvas: Canvas, point: Point): void {
     //Select element section
-    this.selectElementsOnCanvas(canvas, point, ClickableSate.SELECTED);
+    this.selectElementsOnCanvas(canvas, point, ClickableState.SELECTED);
   }
 
   /**
@@ -75,7 +75,7 @@ export class Board implements Drawable {
    */
   onMove(canvas: Canvas, point: Point): void {
     //Select element section
-    this.selectElementsOnCanvas(canvas, point, ClickableSate.HOVERED);
+    this.selectElementsOnCanvas(canvas, point, ClickableState.HOVERED);
   }
 
   /**
@@ -84,9 +84,9 @@ export class Board implements Drawable {
    * @param point The position of the mouse
    * @param clickableState
    */
-  selectElementsOnCanvas(canvas: Canvas, point: Point, clickableState: ClickableSate): void {
-    if (this.isAnClickableSelected && clickableState == ClickableSate.SELECTED
-      || this.isAnClickableHovered && clickableState == ClickableSate.HOVERED) {
+  selectElementsOnCanvas(canvas: Canvas, point: Point, clickableState: ClickableState): void {
+    if (this.isAnClickableSelected && clickableState == ClickableState.SELECTED
+      || this.isAnClickableHovered && clickableState == ClickableState.HOVERED) {
 
       this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
         const hasChange: boolean = clickable.resetState(clickableState);
@@ -106,11 +106,11 @@ export class Board implements Drawable {
     });
 
     switch (clickableState) {
-      case ClickableSate.SELECTED:
+      case ClickableState.SELECTED:
         this.isAnClickableSelected = isElementSelected;
         break;
 
-      case ClickableSate.HOVERED:
+      case ClickableState.HOVERED:
         this.isAnClickableHovered = isElementSelected;
         break;
     }

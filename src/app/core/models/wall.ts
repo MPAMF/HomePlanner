@@ -1,5 +1,5 @@
 import {Point} from "./point";
-import {Clickable, ClickableSate} from "./clickable";
+import {Clickable, ClickableState} from "./clickable";
 import {Canvas, DrawOn} from "./canvas";
 
 export class WallElement extends Clickable {
@@ -87,7 +87,7 @@ export class Wall extends Clickable {
    */
   override getColor(): string {
     switch (this.state){
-      case ClickableSate.NONE:
+      case ClickableState.NONE:
         return this.color ?? this.defaultColor;
 
       default:

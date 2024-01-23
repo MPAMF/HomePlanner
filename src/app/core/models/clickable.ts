@@ -3,7 +3,7 @@ import {Point} from "./point";
 import {Drawable} from "./drawable";
 import {Canvas, DrawOn} from "./canvas";
 
-export enum ClickableSate {
+export enum ClickableState {
   NONE,
   SELECTED,
   HOVERED
@@ -11,7 +11,7 @@ export enum ClickableSate {
 
 export abstract class Clickable extends Comparable implements Drawable {
 
-  protected state: ClickableSate = ClickableSate.NONE;
+  protected state: ClickableState = ClickableState.NONE;
 
   protected constructor() {
     super();
@@ -61,63 +61,35 @@ export abstract class Clickable extends Comparable implements Drawable {
    * @param newState The new state
    * @retrun true if the state is changed
    */
-  public setState(newState: ClickableSate): boolean {
-    switch (this.state){
-      case ClickableSate.NONE:
-        if(newState == ClickableSate.NONE) return false;
+  public setState(newState: ClickableState): boolean {
+    switch (this.state) {
+      case ClickableState.NONE:
+        if (newState == ClickableState.NONE) return false;
         this.state = newState;
 
-        switch (newState){
-          case ClickableSate.SELECTED:
+        switch (newState) {
+          case ClickableState.SELECTED:
             this.onSelect();
             break;
-          case ClickableSate.HOVERED:
+          case ClickableState.HOVERED:
             this.onHover()
             break;
         }
         break;
 
-      case ClickableSate.SELECTED:
-        if(newState != ClickableSate.NONE) return false;
-        this.state = ClickableSate.NONE;
+      case ClickableState.SELECTED:
+        if (newState != ClickableState.NONE) return false;
+        this.state = ClickableState.NONE;
         this.onUnselect();
         break;
 
-      case ClickableSate.HOVERED:
-        if(newState == ClickableSate.HOVERED) return false;
+      case ClickableState.HOVERED:
+        if (newState == ClickableState.HOVERED) return false;
         this.state = newState;
 
-        if(newState == ClickableSate.SELECTED){
+        if (newState == ClickableState.SELECTED) {
           this.onSelect();
         }
-        this.onHoverOut();
-        break;
-
-      default:
-          throw new Error("Method not implemented.");
-    }
-
-    return true;
-  }
-
-  /**
-   * Reset the attribute state
-   * @param stateToReset (optional) reset juste clickable with this state
-   */
-  public resetState(stateToReset?: ClickableSate): boolean{
-    if(stateToReset && stateToReset != this.state){
-      return false;
-    }
-
-    switch (this.state){
-      case ClickableSate.NONE:
-        return false;
-
-      case ClickableSate.SELECTED:
-        this.onUnselect();
-        break;
-
-      case ClickableSate.HOVERED:
         this.onHoverOut();
         break;
 
@@ -125,14 +97,42 @@ export abstract class Clickable extends Comparable implements Drawable {
         throw new Error("Method not implemented.");
     }
 
-    this.state = ClickableSate.NONE;
+    return true;
+  }
+
+  /**
+   * Reset the attribute state
+   * @param stateToReset (optional) reset just clickable with this state
+   */
+  public resetState(stateToReset?: ClickableState): boolean {
+    if (stateToReset && stateToReset != this.state) {
+      return false;
+    }
+
+    switch (this.state) {
+      case ClickableState.NONE:
+        return false;
+
+      case ClickableState.SELECTED:
+        this.onUnselect();
+        break;
+
+      case ClickableState.HOVERED:
+        this.onHoverOut();
+        break;
+
+      default:
+        throw new Error("Method not implemented.");
+    }
+
+    this.state = ClickableState.NONE;
     return true;
   }
 
   /**
    * Get the clickable state
    */
-  public getState(): ClickableSate {
+  public getState(): ClickableState {
     return this.state;
   }
 

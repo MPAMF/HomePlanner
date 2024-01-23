@@ -2,7 +2,7 @@ import {Drawable} from "./drawable";
 import {DrawState, isWallDrawState} from "./draw-state";
 import {Point} from "./point";
 import {BoardConfig} from "./board-config";
-import {Clickable} from "./clickable";
+import {Clickable, ClickableState} from "./clickable";
 import {applyToCanvas, Canvas, clearCanvas, drawImage, DrawOn, getScale} from "./canvas";
 import {afterNextRender} from "@angular/core";
 import {Room} from "./room";
@@ -14,8 +14,11 @@ export class Board implements Drawable {
   public isPanning: boolean; // Whether the user is panning the canvas (moving the canvas around)
   public currentRoom?: Room; // This room is the room that is currently being edited
   private image?: HTMLImageElement;
-
-  constructor(public boardConfig: BoardConfig = new BoardConfig()) {
+  private isAnClickableSelected: boolean = false;
+  private isAnClickableHovered: boolean = false;
+  constructor(
+    public boardConfig: BoardConfig = new BoardConfig()
+  ) {
     this.rooms = [];
     this.drawState = DrawState.None; // defaults to none
     this.isPanning = false;
@@ -55,23 +58,62 @@ export class Board implements Drawable {
     this.rooms.forEach(room => room.draw(canvas, on));
   }
 
+  /**
+   * Interaction to do on the board when the user click
+   * @param canvas The canvas
+   * @param point the position of the mouse
+   */
   onClick(canvas: Canvas, point: Point): void {
-    //Next to wall section
-    this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
-      const hasChange: boolean = clickable.resetSelectedState();
-      hasChange && clickable.draw(canvas, DrawOn.Background);
-      return true;
-    });
+    //Select element section
+    this.selectElementsOnCanvas(canvas, point, ClickableState.SELECTED);
+  }
 
-    this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
-      const isTheNearestWall = clickable.isPointOnElement(point);
-      if (isTheNearestWall) {
-        clickable.isSelected = isTheNearestWall;
+  /**
+   * Interaction to do on the board when the user move
+   * @param canvas The canvas
+   * @param point the position of the mouse
+   */
+  onMove(canvas: Canvas, point: Point): void {
+    //Select element section
+    this.selectElementsOnCanvas(canvas, point, ClickableState.HOVERED);
+  }
+
+  /**
+   * This function reset the selected state and possibly select a element on the board
+   * @param canvas The canvas
+   * @param point The position of the mouse
+   * @param clickableState
+   */
+  selectElementsOnCanvas(canvas: Canvas, point: Point, clickableState: ClickableState): void {
+    if (this.isAnClickableSelected && clickableState == ClickableState.SELECTED
+      || this.isAnClickableHovered && clickableState == ClickableState.HOVERED) {
+
+      this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
+        const hasChange: boolean = clickable.resetState(clickableState);
+        hasChange && clickable.draw(canvas, DrawOn.Background);
+        return true;
+      });
+    }
+
+    const isElementSelected: boolean = this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
+      const isTheNearestElement = clickable.isPointOnElement(point);
+      if (isTheNearestElement) {
+        clickable.setState(clickableState);
         this.draw(canvas, DrawOn.Background);
       }
 
-      return !isTheNearestWall;
+      return !isTheNearestElement;
     });
+
+    switch (clickableState) {
+      case ClickableState.SELECTED:
+        this.isAnClickableSelected = isElementSelected;
+        break;
+
+      case ClickableState.HOVERED:
+        this.isAnClickableHovered = isElementSelected;
+        break;
+    }
   }
 
   /**
@@ -111,11 +153,13 @@ export class Board implements Drawable {
     return closestPoint ? [closestPoint, isOnCurrentRoom] : undefined;
   }
 
-  public applyOnAllClickable(canvas: Canvas, fn: (clickable: Clickable) => boolean) {
+  public applyOnAllClickable(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
     for (const room of this.rooms) {
       const mustExecutionContinue: boolean = room.applyOnClickableRecursive(canvas, fn)
-      if (!mustExecutionContinue) return;
+      if (!mustExecutionContinue) return true;
     }
+
+    return false;
   }
 
   private drawCursor(ctx: CanvasRenderingContext2D) {

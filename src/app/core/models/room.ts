@@ -9,39 +9,9 @@ export class Room extends Clickable {
     public name: string,
     public background: string = '', // TODO: texture
     public isFinalized: boolean = false,
-    public walls: Wall[] = [],
-    isSelected: boolean = false,
+    public walls: Wall[] = []
   ) {
-    super(isSelected);
-  }
-
-  /**
-   * Return true if the point is inside the room
-   *
-   * Source: https://alienryderflex.com/polygon/
-   *
-   * How its made: draw a horizontal line and count the number of times it crosses the polygon segments.
-   * If the number of crossings is odd, the point is inside the polygon, otherwise it is outside.
-   * 
-   * @param point The point to check
-   */
-  override isPointOnElement(point: Point): boolean {
-    let oddNodes = false;
-
-    for (let i = 0; i < this.walls.length; i++) {
-      const { p1, p2 } = this.walls[i];
-      if (p1.y < point.y && p2.y >= point.y || p2.y < point.y && p1.y >= point.y) {
-        if (p1.x + (point.y - p1.y) / (p2.y - p1.y) * (p2.x - p1.x) < point.x) {
-          oddNodes = !oddNodes;
-        }
-      }
-    }
-
-    return oddNodes;
-  }
-
-  override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
-    this.walls.forEach(wall => wall.draw(canvas, on));
+    super();
   }
 
   addWall(wall: Wall) {
@@ -109,12 +79,56 @@ export class Room extends Clickable {
     return this.walls.length === 0 ? undefined : this.walls[this.walls.length - 1];
   }
 
-  applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
+  /**
+   * Return true if the point is inside the room
+   *
+   * Source: https://alienryderflex.com/polygon/
+   *
+   * How its made: draw a horizontal line and count the number of times it crosses the polygon segments.
+   * If the number of crossings is odd, the point is inside the polygon, otherwise it is outside.
+   *
+   * @param point The point to check
+   */
+  override isPointOnElement(point: Point): boolean {
+    let oddNodes = false;
+
+    for (let i = 0; i < this.walls.length; i++) {
+      const { p1, p2 } = this.walls[i];
+      if (p1.y < point.y && p2.y >= point.y || p2.y < point.y && p1.y >= point.y) {
+        if (p1.x + (point.y - p1.y) / (p2.y - p1.y) * (p2.x - p1.x) < point.x) {
+          oddNodes = !oddNodes;
+        }
+      }
+    }
+
+    return oddNodes;
+  }
+  override getColor(): string {
+    throw new Error("Method not implemented.");
+  }
+
+  override onSelect(): void {
+  }
+
+  override onUnselect(): void {
+  }
+
+  override onHover(): void {
+  }
+
+  override onHoverOut(): void {
+  }
+
+  override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
     for (const wall of this.walls) {
       const mustExecutionContinue: boolean = wall.applyOnClickableRecursive(canvas, fn)
       if (!mustExecutionContinue) return false;
     }
 
     return fn(this);
+  }
+
+  override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
+    this.walls.forEach(wall => wall.draw(canvas, on));
   }
 }

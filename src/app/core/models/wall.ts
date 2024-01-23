@@ -1,24 +1,17 @@
 import {Point} from "./point";
-import {Clickable} from "./clickable";
+import {Clickable, ClickableState} from "./clickable";
 import {Canvas, DrawOn} from "./canvas";
 
 export class WallElement extends Clickable {
+  override getColor(): string {
+      throw new Error("Method not implemented.");
+  }
 
   constructor(
     public p1: Point,
     public p2: Point,
-    isSelected: boolean = false
   ) {
-    super(isSelected);
-  }
-
-  isPointOnElement(point: Point): boolean {
-    return false;
-  }
-
-  override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
-    // should be implemented in subclasses
-    throw new Error("Method not implemented.");
+    super();
   }
 
   // Calculate the length of the wall element
@@ -31,10 +24,30 @@ export class WallElement extends Clickable {
     return new WallElement(this.p1, this.p2);
   }
 
-  applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
-    return fn(this);
+  override isPointOnElement(point: Point): boolean {
+    return false;
   }
 
+  override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
+    // should be implemented in subclasses
+    throw new Error("Method not implemented.");
+  }
+
+  override onSelect(): void {
+  }
+
+  override onUnselect(): void {
+  }
+
+  override onHover(): void {
+  }
+
+  override onHoverOut(): void {
+  }
+
+  override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
+    return fn(this);
+  }
 }
 
 export class Wall extends Clickable {
@@ -49,10 +62,9 @@ export class Wall extends Clickable {
     private color?: string,
     private selectedColor?: string,
     public elements: WallElement[] = [],
-    isSelected: boolean = false,
     public isFinalized: boolean = false
   ) {
-    super(isSelected);
+    super();
   }
 
   /**
@@ -73,8 +85,14 @@ export class Wall extends Clickable {
   /**
    * Get the wall color or the default one
    */
-  getColor(): string {
-    return this.isSelected ? this.selectedColor ?? this.defaultSelectedColor : this.color ?? this.defaultColor;
+  override getColor(): string {
+    switch (this.state){
+      case ClickableState.NONE:
+        return this.color ?? this.defaultColor;
+
+      default:
+        return this.selectedColor ?? this.defaultSelectedColor;
+    }
   }
 
   /**
@@ -102,19 +120,6 @@ export class Wall extends Clickable {
     if (index !== -1) {
       this.elements.splice(index, 1);
     }
-  }
-
-  override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
-    const ctx = !this.isFinalized ? canvas.snappingLine : canvas.background;
-
-    ctx.beginPath();
-    ctx.moveTo(this.p1.x, this.p1.y);
-    ctx.lineTo(this.p2.x, this.p2.y);
-    ctx.lineWidth = this.getThickness();
-    ctx.strokeStyle = this.getColor();
-    ctx.stroke();
-
-    this.elements.forEach(element => element.draw(canvas, on));
   }
 
   /**
@@ -154,7 +159,15 @@ export class Wall extends Clickable {
     return Math.abs(crossProduct) < Number.EPSILON;
   }
 
-  isPointOnElement(point: Point): boolean {
+  /**
+   * Clone the wall to create a new instance with the same points
+   */
+  clone(): Wall {
+    return new Wall(this.p1, this.p2, this.defaultThickness, this.defaultColor, this.defaultSelectedColor, this.thickness,
+      this.color, this.selectedColor, this.elements.map(el => el.clone()));
+  }
+
+  override isPointOnElement(point: Point): boolean {
     const delta: number = this.getThickness() / 2;
     const isP1OverP2: boolean = this.p1.y < this.p2.y;
     const isP1LeftP2: boolean = this.p1.x < this.p2.x;
@@ -172,15 +185,32 @@ export class Wall extends Clickable {
     return (point.isLeft(B, A) && point.isLeft(C, B) && point.isLeft(D, C) && point.isLeft(A, D));
   }
 
-  /**
-   * Clone the wall to create a new instance with the same points
-   */
-  clone(): Wall {
-    return new Wall(this.p1, this.p2, this.defaultThickness, this.defaultColor, this.defaultSelectedColor, this.thickness,
-      this.color, this.selectedColor, this.elements.map(el => el.clone()), this.isSelected);
+  override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
+    const ctx = !this.isFinalized ? canvas.snappingLine : canvas.background;
+
+    ctx.beginPath();
+    ctx.moveTo(this.p1.x, this.p1.y);
+    ctx.lineTo(this.p2.x, this.p2.y);
+    ctx.lineWidth = this.getThickness();
+    ctx.strokeStyle = this.getColor();
+    ctx.stroke();
+
+    this.elements.forEach(element => element.draw(canvas, on));
   }
 
-  applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
+  override onSelect(): void {
+  }
+
+  override onUnselect(): void {
+  }
+
+  override onHover(): void {
+  }
+
+  override onHoverOut(): void {
+  }
+
+  override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
     for (const element of this.elements) {
       const mustExecutionContinue: boolean = element.applyOnClickableRecursive(canvas, fn)
       if (!mustExecutionContinue) return false;

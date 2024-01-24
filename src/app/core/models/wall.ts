@@ -193,6 +193,7 @@ export class Wall extends Clickable {
     ctx.lineTo(this.p2.x, this.p2.y);
     ctx.lineWidth = this.getThickness();
     ctx.strokeStyle = this.getColor();
+    ctx.lineCap = "round";
     ctx.stroke();
 
     this.elements.forEach(element => element.draw(canvas, on));

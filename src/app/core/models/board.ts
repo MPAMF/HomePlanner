@@ -82,14 +82,14 @@ export class Board implements Drawable {
    * This function reset the selected state and possibly select a element on the board
    * @param canvas The canvas
    * @param point The position of the mouse
-   * @param clickableState
+   * @param state
    */
-  selectElementsOnCanvas(canvas: Canvas, point: Point, clickableState: ClickableState): void {
-    if (this.isAnClickableSelected && clickableState == ClickableState.SELECTED
-      || this.isAnClickableHovered && clickableState == ClickableState.HOVERED) {
+  selectElementsOnCanvas(canvas: Canvas, point: Point, state: ClickableState): void {
+    if (this.isAnClickableSelected && state == ClickableState.SELECTED
+      || this.isAnClickableHovered && state == ClickableState.HOVERED) {
 
       this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
-        const hasChange: boolean = clickable.resetState(clickableState);
+        const hasChange: boolean = clickable.resetState(state);
         hasChange && clickable.draw(canvas, DrawOn.Background);
         return true;
       });
@@ -98,14 +98,14 @@ export class Board implements Drawable {
     const isElementSelected: boolean = this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
       const isTheNearestElement = clickable.isPointOnElement(point);
       if (isTheNearestElement) {
-        clickable.setState(clickableState);
-        this.draw(canvas, DrawOn.Background);
+        clickable.setState(state);
+        clickable.draw(canvas, DrawOn.All);
       }
 
       return !isTheNearestElement;
     });
 
-    switch (clickableState) {
+    switch (state) {
       case ClickableState.SELECTED:
         this.isAnClickableSelected = isElementSelected;
         break;
@@ -114,6 +114,10 @@ export class Board implements Drawable {
         this.isAnClickableHovered = isElementSelected;
         break;
     }
+
+    // update cursor
+    this.drawCursor(canvas.snappingLine);
+
   }
 
   /**
@@ -133,7 +137,6 @@ export class Board implements Drawable {
     for (let i = 0; i < tempRooms.length; i++) {
 
       const room = tempRooms[i];
-
       const closestWallPoint = tempRooms[i].findClosestWallPoint(point, maxDistance, excludeLastWall && room === this.currentRoom);
 
       if (!closestWallPoint) {
@@ -186,6 +189,11 @@ export class Board implements Drawable {
       case DrawState.Move:
         return "grab";
       default:
+
+        if (this.isAnClickableHovered) {
+          return "move";
+        }
+
         return "default";
     }
   }

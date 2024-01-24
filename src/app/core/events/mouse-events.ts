@@ -99,11 +99,11 @@ export class MouseEvents extends BaseEvent {
             this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor));
 
           if (isCurrentRoom && this.board.currentRoom && this.board.currentRoom.hasAnyWalls()) {
-              const firstWall = this.board.currentRoom.walls[0];
-              if (firstWall.p1.equals(pt) || firstWall.p2.equals(pt)) {
-                this.cmdInvoker.execute(new FinaliseLastWallCommand());
-                return;
-              }
+            const firstWall = this.board.currentRoom.walls[0];
+            if (firstWall.p1.equals(pt) || firstWall.p2.equals(pt)) {
+              this.cmdInvoker.execute(new FinaliseLastWallCommand());
+              return;
+            }
 
             this.cmdInvoker.execute(addWallCommand);
             return;

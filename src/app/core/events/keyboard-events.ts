@@ -2,9 +2,9 @@ import {BaseEvent} from "./base-event";
 import {CommandInvoker} from "../commands/command";
 import {EditorDrawStateCommands} from "../commands/editor-commands";
 import {DrawState} from "../models/draw-state";
-import {DialogConfirmationComponent} from "../components/editor/dialogs/dialog-confirmation.component";
 import {MatDialog} from "@angular/material/dialog";
 import {ResetCurrentRoom} from "../commands/canvas-commands";
+import {DialogConfirmationComponent} from "../../shared/components/dialog-confirmation.component";
 
 export class KeyboardEvents extends BaseEvent {
 
@@ -74,6 +74,7 @@ export class KeyboardEvents extends BaseEvent {
     this.dialogRef = this.dialog?.open(DialogConfirmationComponent, {
       enterAnimationDuration: '300ms',
       exitAnimationDuration: '300ms',
+      width: '400px',
       data: {
         title: 'Warning',
         content: 'Enclose the room to continue! Make sure all walls are enclosed.'

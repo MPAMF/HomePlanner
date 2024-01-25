@@ -9,7 +9,7 @@ export abstract class BaseEvent {
   protected cmdInvoker: CommandInvoker;
   protected actionCmdInvoker: CommandInvoker;
   protected dialog: MatDialog | undefined;
-  protected dialogRef: MatDialogRef<any> | undefined;
+  protected dialogRef: MatDialogRef<DialogConfirmationComponent> | undefined;
 
   protected constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker, dialog?: MatDialog) {
     this.cmdInvoker = cmdInvoker;

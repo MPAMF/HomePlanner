@@ -3,14 +3,14 @@ header {
   justify-content: space-between;
   height: var(--header-height);
   padding: 0.5rem;
-  background: var(--header-bg-color);
+  background: var(--item-primary-bg-color);
 }
 
 .logo {
   display: flex;
   padding: 1rem;
   border-radius: 10px;
-  background-color: var(--logo-bg-color);
+  background-color: var(--secondary-color);
   border: none;
   transition: all ease 300ms;
 }

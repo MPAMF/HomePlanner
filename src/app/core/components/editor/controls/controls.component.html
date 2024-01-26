@@ -1,7 +1,7 @@
 <div class="buttons-groups-container left-centered">
   <div class="buttons-group">
     <button (click)="onActionCommand(DrawState.Wall)"
-            [class.active-button]="isActiveCommand(DrawState.Wall)"
+            [class.active-button]="isActiveCommand(DrawState.Wall) || isActiveCommand(DrawState.WallCreation)"
             title="Draw">
       <mat-icon>horizontal_rule</mat-icon>
     </button>

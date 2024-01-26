@@ -1,0 +1,13 @@
+<h1 mat-dialog-title>
+  {{ data.title }}
+  <span mat-dialog-close="cancel">
+    <mat-icon>cancel</mat-icon>
+  </span>
+</h1>
+<mat-dialog-content class="mat-typography">
+  {{ data.content }}
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-dialog-close="cancel" class="cancel label-button">Cancel</button>
+  <button mat-dialog-close="confirm" class="primary label-button">Confirm</button>
+</mat-dialog-actions>

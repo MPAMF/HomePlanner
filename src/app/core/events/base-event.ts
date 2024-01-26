@@ -9,8 +9,8 @@ export abstract class BaseEvent {
   protected board: Board;
   protected cmdInvoker: CommandInvoker;
   protected actionCmdInvoker: CommandInvoker;
-  protected dialog: MatDialog | undefined;
-  protected dialogRef: MatDialogRef<DialogConfirmationComponent> | undefined;
+  protected dialog?: MatDialog;
+  protected dialogRef?: MatDialogRef<DialogConfirmationComponent>;
 
   protected constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker, dialog?: MatDialog) {
     this.cmdInvoker = cmdInvoker;

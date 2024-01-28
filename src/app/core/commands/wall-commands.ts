@@ -121,19 +121,11 @@ export class EditLastWallWithPointCommand extends Command {
     const divisionResult: number = Utils.CalculatePIOverFour(angleInDegreesWithUnitaryVector);
 
     let divisionResultModuloOne: number = divisionResult % 1;
-
-    console.log(`angleInDegreesWithUnitaryVector : ${angleInDegreesWithUnitaryVector}`)
-    /*
-    console.log(`test >= 0.90 : ${test >= 0.90}`)
-    console.log(`test <= 0.1 : ${test <= 0.1}`)
-
-     */
     if(divisionResultModuloOne >= 0.95 || divisionResultModuloOne <= 0.05) {
 
       divisionResultModuloOne = Math.round(divisionResultModuloOne % 1)
       const newAngle: number = (Math.trunc(divisionResult) + divisionResultModuloOne) * 45;
       const newAngleToRadian: number = Utils.ConvertAngleToRadian(newAngle);
-      console.log(`divisionResult : ${divisionResult}; newAngle :  ${newAngle} => newAngleToRadian : ${newAngleToRadian}`)
 
       const len: number = wall.length();
       wall.p2 = new Point(wall.p1.x + len * Math.cos(newAngleToRadian),

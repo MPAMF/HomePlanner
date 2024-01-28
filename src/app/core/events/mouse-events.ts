@@ -69,7 +69,7 @@ export class MouseEvents extends BaseEvent {
     if (!this.canvas) return;
     const startX = this.getMouseXPosition(event);
     const startY = this.getMouseYPosition(event);
-    const pt = inverseTransformPoint(this.canvas.background, new Point(startX, startY));
+    let pt = inverseTransformPoint(this.canvas.background, new Point(startX, startY));
 
     /**
      * 0 = Left click
@@ -104,13 +104,17 @@ export class MouseEvents extends BaseEvent {
                 this.cmdInvoker.execute(new FinaliseLastWallCommand());
                 return;
               }
-
-            this.cmdInvoker.execute(addWallCommand);
-            return;
           }
 
           this.cmdInvoker.execute(addWallCommand);
           return
+        }
+
+        // To fix the distance between the wall paste with the angle help and the position of the mouse
+        if(this.board.currentRoom && this.board.currentRoom.hasAnyWalls()){
+          const len = this.board.currentRoom.walls.length;
+          const lastWall = this.board.currentRoom.walls[len-1];
+          pt = lastWall.p2;
         }
 
         this.cmdInvoker.execute(new AddWallCommand(new Wall(pt, pt, this.board.boardConfig.wallThickness,

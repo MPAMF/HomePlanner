@@ -8,6 +8,8 @@ import {Utils} from "../modules/utils";
 
 export class AddWallCommand extends Command {
 
+  private previousDrawSate: DrawState = DrawState.None;
+
   constructor(private wall: Wall) {
     super();
   }
@@ -22,12 +24,13 @@ export class AddWallCommand extends Command {
       }
     }
 
+    this.previousDrawSate = this.board.drawState;
     this.board.drawState = DrawState.WallCreation;
     this.board.currentRoom.addWall(this.wall);
   }
 
   override undo(): void {
-    this.board.drawState = DrawState.Wall;
+    this.board.drawState = this.previousDrawSate;
     if (!this.board.currentRoom) {
       return;
     }

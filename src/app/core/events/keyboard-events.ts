@@ -23,14 +23,12 @@ export class KeyboardEvents extends BaseEvent {
     if (event.key === 'Escape') {
 
       // Cancel current dialog and stops
-      if(this.dialogRef?.id)
-      {
+      if (this.dialogRef?.id) {
         return;
       }
 
       // Cancel the wall drawing which requires user's action
-      if(this.board.drawState === DrawState.WallCreation && this.board.currentRoom?.hasAnyWalls())
-      {
+      if (this.board.drawState === DrawState.WallCreation && this.board.currentRoom?.hasAnyWalls()) {
         this.openCancelWallCreationDialog();
       }
       // Cancel every other state

@@ -121,7 +121,7 @@ export class EditLastWallWithPointCommand extends Command {
     const divisionResult: number = Utils.CalculatePIOverFour(angleInDegreesWithUnitaryVector);
 
     let divisionResultModuloOne: number = divisionResult % 1;
-    if(divisionResultModuloOne >= 0.95 || divisionResultModuloOne <= 0.05) {
+    if (divisionResultModuloOne >= 0.95 || divisionResultModuloOne <= 0.05) {
 
       divisionResultModuloOne = Math.round(divisionResultModuloOne % 1)
       const newAngle: number = (Math.trunc(divisionResult) + divisionResultModuloOne) * 45;

@@ -115,9 +115,9 @@ export class MouseEvents extends BaseEvent {
         }
 
         // To fix the distance between the wall paste with the angle help and the position of the mouse
-        if(hasAnyWalls){
+        if (hasAnyWalls) {
           const len = this.board.currentRoom!.walls.length;
-          const lastWall = this.board.currentRoom!.walls[len-1];
+          const lastWall = this.board.currentRoom!.walls[len - 1];
           pt = lastWall.p2;
         }
 
@@ -204,19 +204,6 @@ export class MouseEvents extends BaseEvent {
     }
   }
 
-  private getMouseXPosition(event: MouseEvent): number {
-    return event.clientX - this.canvas.background.canvas.getBoundingClientRect().left;
-  }
-
-  private getMouseYPosition(event: MouseEvent): number {
-    return event.clientY - this.canvas.background.canvas.getBoundingClientRect().top;
-  }
-
-  private setMousePosition(event: MouseEvent) {
-    const pt = new Point(event.clientX, event.clientY);
-    this.board.mousePosition = inverseTransformPoint(this.canvas.background, pt);
-  }
-
   override bind() {
     this.canvas.snappingLine.canvas.addEventListener('mousedown', this.onMouseDown.bind(this));
     this.canvas.snappingLine.canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
@@ -233,6 +220,19 @@ export class MouseEvents extends BaseEvent {
     this.canvas.snappingLine.canvas.removeEventListener('contextmenu', this.onContextMenu.bind(this));
     this.canvas.snappingLine.canvas.removeEventListener('wheel', this.onWheel.bind(this));
     this.canvas.snappingLine.canvas.removeEventListener('mouseout', this.onMouseOut.bind(this));
+  }
+
+  private getMouseXPosition(event: MouseEvent): number {
+    return event.clientX - this.canvas.background.canvas.getBoundingClientRect().left;
+  }
+
+  private getMouseYPosition(event: MouseEvent): number {
+    return event.clientY - this.canvas.background.canvas.getBoundingClientRect().top;
+  }
+
+  private setMousePosition(event: MouseEvent) {
+    const pt = new Point(event.clientX, event.clientY);
+    this.board.mousePosition = inverseTransformPoint(this.canvas.background, pt);
   }
 }
 

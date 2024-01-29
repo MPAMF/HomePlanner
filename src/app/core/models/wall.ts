@@ -4,15 +4,15 @@ import {Canvas, DrawOn} from "./canvas";
 import {Utils} from "../modules/utils";
 
 export class WallElement extends Clickable {
-  override getColor(): string {
-      throw new Error("Method not implemented.");
-  }
-
   constructor(
     public p1: Point,
     public p2: Point,
   ) {
     super();
+  }
+
+  override getColor(): string {
+    throw new Error("Method not implemented.");
   }
 
   // Calculate the length of the wall element
@@ -87,7 +87,7 @@ export class Wall extends Clickable {
    * Get the wall color or the default one
    */
   override getColor(): string {
-    switch (this.state){
+    switch (this.state) {
       case ClickableState.NONE:
         return this.color ?? this.defaultColor;
 

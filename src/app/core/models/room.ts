@@ -93,7 +93,7 @@ export class Room extends Clickable {
     let oddNodes = false;
 
     for (let i = 0; i < this.walls.length; i++) {
-      const { p1, p2 } = this.walls[i];
+      const {p1, p2} = this.walls[i];
       if (p1.y < point.y && p2.y >= point.y || p2.y < point.y && p1.y >= point.y) {
         if (p1.x + (point.y - p1.y) / (p2.y - p1.y) * (p2.x - p1.x) < point.x) {
           oddNodes = !oddNodes;
@@ -103,6 +103,7 @@ export class Room extends Clickable {
 
     return oddNodes;
   }
+
   override getColor(): string {
     throw new Error("Method not implemented.");
   }

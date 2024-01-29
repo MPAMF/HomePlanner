@@ -16,6 +16,7 @@ export class Board implements Drawable {
   private image?: HTMLImageElement;
   private isAnClickableSelected: boolean = false;
   private isAnClickableHovered: boolean = false;
+
   constructor(
     public boardConfig: BoardConfig = new BoardConfig()
   ) {

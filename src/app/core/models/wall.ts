@@ -1,6 +1,7 @@
 import {Point} from "./point";
 import {Clickable, ClickableState} from "./clickable";
 import {Canvas, DrawOn} from "./canvas";
+import {Utils} from "../modules/utils";
 
 export class WallElement extends Clickable {
   override getColor(): string {
@@ -123,16 +124,31 @@ export class Wall extends Clickable {
   }
 
   /**
-   * Calculate the angle with another wall
+   * Calculate the angle with another wall (range from 0 to 360)
    * @param otherWall The second wall use to calculate the angle
    */
   calculateAngleWith(otherWall: Wall): number {
+    return this.calculateAngleWithTwoPoint(otherWall.p1, otherWall.p2);
+  }
+
+  /**
+   * Calculate the angle with a vector created with the given points (range from 0 to 360)
+   * @param point1 The first point of the vector
+   * @param point2 The second point of the vector
+   */
+  calculateAngleWithTwoPoint(point1: Point, point2: Point): number {
     const vector1 = new Point(this.p2.x - this.p1.x, this.p2.y - this.p1.y);
-    const vector2 = new Point(otherWall.p2.x - otherWall.p1.x, otherWall.p2.y - otherWall.p1.y);
+    const vector2 = new Point(point2.x - point1.x, point2.y - point1.y);
     const magnitude1 = Math.sqrt(vector1.x ** 2 + vector1.y ** 2);
     const magnitude2 = Math.sqrt(vector2.x ** 2 + vector2.y ** 2);
     const cosineTheta = vector1.dotProduct(vector2) / (magnitude1 * magnitude2);
-    return (Math.acos(cosineTheta) * 180) / Math.PI;
+
+    let angleInRadians = Math.acos(cosineTheta);
+    if (this.p2.isRight(point1, point2)) {
+      angleInRadians = 2 * Math.PI - angleInRadians;
+    }
+
+    return Utils.ConvertAngleToDegrees(angleInRadians);
   }
 
   /**

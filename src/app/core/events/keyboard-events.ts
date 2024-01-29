@@ -2,12 +2,14 @@ import {BaseEvent} from "./base-event";
 import {CommandInvoker} from "../commands/command";
 import {EditorDrawStateCommands} from "../commands/editor-commands";
 import {DrawState} from "../models/draw-state";
-import {RemoveWallCommand} from "../commands/wall-commands";
+import {MatDialog} from "@angular/material/dialog";
+import {ResetCurrentRoom} from "../commands/canvas-commands";
+import {DialogConfirmationComponent} from "../../shared/components/dialog-confirmation.component";
 
 export class KeyboardEvents extends BaseEvent {
 
-  constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker) {
-    super(cmdInvoker, actionCmdInvoker);
+  constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker, dialog: MatDialog) {
+    super(cmdInvoker, actionCmdInvoker, dialog);
   }
 
   onKeyDown(event: KeyboardEvent) {
@@ -19,12 +21,23 @@ export class KeyboardEvents extends BaseEvent {
     const lowerKey = key.toLowerCase();
 
     if (event.key === 'Escape') {
-      if (this.board.drawState === DrawState.WallCreation && this.board.currentRoom && this.board.currentRoom.hasAnyWalls()) {
-        const lastWall = this.board.currentRoom.walls[this.board.currentRoom.walls.length - 1];
-        this.cmdInvoker.execute(new RemoveWallCommand(lastWall));
-      } else {
+
+      // Cancel current dialog and stops
+      if(this.dialogRef?.id)
+      {
+        return;
+      }
+
+      // Cancel the wall drawing which requires user's action
+      if(this.board.drawState === DrawState.WallCreation && this.board.currentRoom?.hasAnyWalls())
+      {
+        this.openCancelWallCreationDialog();
+      }
+      // Cancel every other state
+      else {
         this.cmdInvoker.execute(new EditorDrawStateCommands(DrawState.None));
       }
+
       return;
     }
 
@@ -55,5 +68,28 @@ export class KeyboardEvents extends BaseEvent {
 
   override unbind() {
     document.removeEventListener('keydown', this.onKeyDown.bind(this));
+  }
+
+  openCancelWallCreationDialog(): void {
+    this.dialogRef = this.dialog?.open(DialogConfirmationComponent, {
+      enterAnimationDuration: '300ms',
+      exitAnimationDuration: '300ms',
+      width: '400px',
+      data: {
+        title: 'Warning',
+        content: 'Enclose the room to continue! Make sure all walls are enclosed.'
+      }
+    });
+
+    // Subscribe to the afterClosed event
+    this.dialogRef?.afterClosed().subscribe(result => {
+      // Check the result to determine which button was clicked
+      if (result === 'confirm') {
+        this.cmdInvoker.execute(new ResetCurrentRoom(this.board.currentRoom));
+      }
+
+      // At this point, the dialog is closed
+      this.dialogRef = undefined;
+    });
   }
 }

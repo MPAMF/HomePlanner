@@ -3,9 +3,12 @@ import {Wall} from "../models/wall";
 import {Point} from "../models/point";
 import {Room} from "../models/room";
 import {DrawState} from "../models/draw-state";
-import {clearCanvas, DrawOn} from "../models/canvas";
+import {DrawOn} from "../models/canvas";
+import {Utils} from "../modules/utils";
 
 export class AddWallCommand extends Command {
+
+  private previousDrawSate: DrawState = DrawState.None;
 
   constructor(private wall: Wall) {
     super();
@@ -21,12 +24,13 @@ export class AddWallCommand extends Command {
       }
     }
 
+    this.previousDrawSate = this.board.drawState;
     this.board.drawState = DrawState.WallCreation;
     this.board.currentRoom.addWall(this.wall);
   }
 
   override undo(): void {
-    this.board.drawState = DrawState.Wall;
+    this.board.drawState = this.previousDrawSate;
     if (!this.board.currentRoom) {
       return;
     }
@@ -107,12 +111,26 @@ export class EditLastWallWithPointCommand extends Command {
     if (!wall) return;
 
     const closestPt = this.board.findClosestWallPoint(this.p2, 10, true);
-    if (!closestPt) {
-      wall.p2 = this.p2;
+    if (closestPt) {
+      wall.p2 = closestPt[0];
       return;
     }
 
-    wall.p2 = closestPt[0];
+    wall.p2 = this.p2;
+    const angleInDegreesWithUnitaryVector: number = wall.calculateAngleWithTwoPoint(wall.p1, new Point(wall.p1.x + 1, wall.p1.y));
+    const divisionResult: number = Utils.CalculatePIOverFour(angleInDegreesWithUnitaryVector);
+
+    let divisionResultModuloOne: number = divisionResult % 1;
+    if(divisionResultModuloOne >= 0.95 || divisionResultModuloOne <= 0.05) {
+
+      divisionResultModuloOne = Math.round(divisionResultModuloOne % 1)
+      const newAngle: number = (Math.trunc(divisionResult) + divisionResultModuloOne) * 45;
+      const newAngleToRadian: number = Utils.ConvertAngleToRadian(newAngle);
+
+      const len: number = wall.length();
+      wall.p2 = new Point(wall.p1.x + len * Math.cos(newAngleToRadian),
+        wall.p1.y + len * Math.sin(-newAngleToRadian));
+    }
   }
 
   override undo(): void {

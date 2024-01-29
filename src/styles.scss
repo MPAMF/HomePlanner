@@ -1,15 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
-
 :root {
   --header-height: 4rem;
-  --header-bg-color: #F4E5D7;
+  --item-primary-bg-color: #F4E5D7;
+  --item-secondary-bg-color: #F6D0AC;
   --canvas-bg-color: #F3EEEA;
   --primary-color: #fd8616;
   --primary-light-color: #F8BA80;
+  --secondary-color: #fda049;
+  --secondary-light-color: #FEE3C8;
   --buttons-bg-color: #ffffff;
   --button-bg-color: #000000; // #505050
   --button-border-color: #CDC9C3;
-  --logo-bg-color: #fda049;
   --logo-color: #5c2626;
 }
 
@@ -25,6 +26,31 @@ html {
 html, body {
   margin: 0;
   padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  transition: all 0.3s ease;
+  fill: var(--button-bg-color);
+}
+
+button.label-button {
+  width: auto;
+  padding-right: 0.5rem;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+button:focus-visible {
+  outline: none;
 }
 
 button:hover {
@@ -33,19 +59,6 @@ button:hover {
 
 button:not(:disabled):active, .active-button:not(:disabled) {
   background-color: var(--primary-color);
-}
-
-.bottom-right {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-}
-
-.left-centered {
-  position: fixed;
-  left: 10px;
-  top: calc((100% + var(--header-height))/ 2);
-  transform: translate(0,-50%);
 }
 
 .buttons-groups-container {
@@ -70,26 +83,6 @@ button:not(:disabled):active, .active-button:not(:disabled) {
   margin-top: 1rem;
 }
 
-.buttons-group button {
-  border: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  transition: all 0.3s ease;
-  fill: var(--button-bg-color);
-}
-
-.buttons-group button.label-button {
-  width: auto;
-  padding-right: 0.5rem;
-  font-size: 16px;
-  font-weight: 400;
-}
-
 .buttons-group.transparent button.label-button {
   background: transparent;
 }
@@ -102,13 +95,90 @@ button:not(:disabled):active, .active-button:not(:disabled) {
   background: var(--primary-color);
 }
 
-.buttons-group button:focus-visible {
-  outline: none;
-}
-
 .flex {
   display: flex;
 }
 
+.bottom-right {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+}
 
+.left-centered {
+  position: fixed;
+  left: 10px;
+  top: calc((100% + var(--header-height))/ 2);
+  transform: translate(0,-50%);
+}
 
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  background-color: var(--item-primary-bg-color) !important;
+  border-radius: 10px !important;
+}
+
+.mat-mdc-dialog-container .mdc-dialog__title, .mat-mdc-dialog-container .mdc-dialog__content {
+  color: initial !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  letter-spacing: initial !important;
+  line-height: initial !important;
+  margin: 0 1rem !important;
+}
+
+.mat-mdc-dialog-container .mdc-dialog__title {
+  border-bottom: solid 2px var(--item-secondary-bg-color);
+  padding: 0.75rem 0;
+}
+
+.mat-mdc-dialog-container .mdc-dialog__title::before {
+  height: auto;
+}
+
+.mat-mdc-dialog-container .mdc-dialog__title span {
+  position: absolute;
+  right: 0;
+  color: var(--secondary-color);
+}
+
+.mat-mdc-dialog-container .mdc-dialog__title span:hover {
+  cursor: pointer;
+  color: var(--primary-color);
+}
+
+.mat-mdc-dialog-container .mdc-dialog__content {
+  padding: 1.5rem 0.25rem !important;
+}
+
+.mat-mdc-dialog-container .mdc-dialog__actions {
+  background-color: var(--item-secondary-bg-color);
+  border-top: solid 1px var(--primary-light-color);
+}
+
+.mat-mdc-dialog-container .mdc-dialog__actions button {
+  width: auto;
+  height: auto;
+  padding: 0.5rem;
+  border-radius: 5px;
+}
+
+.mat-mdc-dialog-container .mdc-dialog__actions button + button {
+  margin-left: 1rem;
+}
+
+.mat-mdc-dialog-container .mdc-dialog__actions button.primary {
+  background-color: var(--secondary-color);
+  border: solid 1px var(--secondary-color);
+}
+
+.mat-mdc-dialog-container .mdc-dialog__actions button.primary:hover {
+  background-color: var(--primary-color);
+}
+
+.mat-mdc-dialog-container .mdc-dialog__actions button.cancel {
+  background-color: var(--secondary-light-color);
+  border: solid 1px var(--secondary-light-color);
+}
+
+.mat-mdc-dialog-container .mdc-dialog__actions button.cancel:hover {
+  border: solid 1px var(--primary-light-color);
+}

@@ -3,7 +3,7 @@ import {CommandInvoker} from "../commands/command";
 import {EditorDrawStateCommands} from "../commands/editor-commands";
 import {DrawState} from "../models/draw-state";
 import {MatDialog} from "@angular/material/dialog";
-import {ResetCurrentRoom} from "../commands/canvas-commands";
+import {ResetCurrentRoomCommand} from "../commands/canvas-commands";
 import {DialogConfirmationComponent} from "../../shared/components/dialog-confirmation.component";
 
 export class KeyboardEvents extends BaseEvent {
@@ -13,7 +13,6 @@ export class KeyboardEvents extends BaseEvent {
   }
 
   onKeyDown(event: KeyboardEvent) {
-    console.log(event);
     if (!this.cmdInvoker) {
       return;
     }
@@ -83,7 +82,7 @@ export class KeyboardEvents extends BaseEvent {
     this.dialogRef?.afterClosed().subscribe(result => {
       // Check the result to determine which button was clicked
       if (result === 'confirm') {
-        this.cmdInvoker.execute(new ResetCurrentRoom(this.board.currentRoom));
+        this.cmdInvoker.execute(new ResetCurrentRoomCommand(this.board.currentRoom));
       }
 
       // At this point, the dialog is closed

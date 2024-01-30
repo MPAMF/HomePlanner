@@ -1,10 +1,11 @@
 import {Point} from "./point";
-import {Clickable, ClickableState} from "./clickable";
+import {Clickable, ClickableState} from "./interfaces/clickable";
 import {Canvas, DrawOn} from "./canvas";
 import {Utils} from "../modules/utils";
+import {Cloneable} from "./interfaces/cloneable";
 
-export class WallElement extends Clickable {
-  constructor(
+export abstract class WallElement extends Clickable implements Cloneable<WallElement> {
+  protected constructor(
     public p1: Point,
     public p2: Point,
   ) {
@@ -20,35 +21,13 @@ export class WallElement extends Clickable {
     return this.p1.distanceTo(this.p2);
   }
 
-  // Clone the wall element to create a new instance with the same points
-  clone(): WallElement {
-    return new WallElement(this.p1, this.p2);
-  }
-
-  override isPointOnElement(point: Point): boolean {
-    return false;
-  }
-
-  override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
-    // should be implemented in subclasses
-    throw new Error("Method not implemented.");
-  }
-
-  override onSelect(): void {
-  }
-
-  override onUnselect(): void {
-  }
-
-  override onHover(): void {
-  }
-
-  override onHoverOut(): void {
-  }
-
   override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
     return fn(this);
   }
+
+  abstract clone() : WallElement;
+
+  abstract restore(element: WallElement) : void;
 }
 
 export class Wall extends Clickable {
@@ -183,6 +162,19 @@ export class Wall extends Clickable {
       this.color, this.selectedColor, this.elements.map(el => el.clone()));
   }
 
+  restore(wall: Wall) {
+    this.p1 = wall.p1;
+    this.p2 = wall.p2;
+    this.defaultThickness = wall.defaultThickness;
+    this.defaultColor = wall.defaultColor;
+    this.defaultSelectedColor = wall.defaultSelectedColor;
+    this.thickness = wall.thickness;
+    this.color = wall.color;
+    this.selectedColor = wall.selectedColor;
+    this.elements = wall.elements.map(el => el.clone());
+    this.isFinalized = wall.isFinalized;
+  }
+
   override isPointOnElement(point: Point): boolean {
     const delta: number = this.getThickness() / 2;
     const isP1OverP2: boolean = this.p1.y < this.p2.y;
@@ -225,6 +217,15 @@ export class Wall extends Clickable {
   }
 
   override onHoverOut(): void {
+  }
+
+  override onDrag(offset: Point, recursive: boolean) {
+    this.p1 = this.p1.translatePoint(offset);
+    this.p2 = this.p2.translatePoint(offset);
+    if (!recursive) {
+      return;
+    }
+    this.elements.forEach(element => element.onDrag(offset, recursive));
   }
 
   override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {

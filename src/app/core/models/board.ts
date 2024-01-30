@@ -1,8 +1,8 @@
-import {Drawable} from "./drawable";
+import {Drawable} from "./interfaces/drawable";
 import {DrawState, isWallDrawState} from "./draw-state";
 import {Point} from "./point";
 import {BoardConfig} from "./board-config";
-import {Clickable, ClickableState} from "./clickable";
+import {Clickable, ClickableState} from "./interfaces/clickable";
 import {applyToCanvas, Canvas, clearCanvas, drawImage, DrawOn, getScale} from "./canvas";
 import {afterNextRender} from "@angular/core";
 import {Room} from "./room";
@@ -12,10 +12,12 @@ export class Board implements Drawable {
   public drawState: DrawState;
   public mousePosition: Point;
   public isPanning: boolean; // Whether the user is panning the canvas (moving the canvas around)
+  public isDragging: boolean; // Whether the user is dragging an element
+  public draggingApplyFn?: () => void;
   public currentRoom?: Room; // This room is the room that is currently being edited
   private image?: HTMLImageElement;
-  private isAnClickableSelected: boolean = false;
-  private isAnClickableHovered: boolean = false;
+  public selectedElement?: Clickable;
+  public hoveredElement?: Clickable;
 
   constructor(
     public boardConfig: BoardConfig = new BoardConfig()
@@ -23,6 +25,7 @@ export class Board implements Drawable {
     this.rooms = [];
     this.drawState = DrawState.None; // defaults to none
     this.isPanning = false;
+    this.isDragging = false;
     this.mousePosition = new Point(0, 0);
 
     afterNextRender(() => {
@@ -86,8 +89,8 @@ export class Board implements Drawable {
    * @param state
    */
   selectElementsOnCanvas(canvas: Canvas, point: Point, state: ClickableState): void {
-    if (this.isAnClickableSelected && state == ClickableState.SELECTED
-      || this.isAnClickableHovered && state == ClickableState.HOVERED) {
+    if (this.selectedElement && state == ClickableState.SELECTED
+      || this.hoveredElement && state == ClickableState.HOVERED) {
 
       this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
         const hasChange: boolean = clickable.resetState(state);
@@ -96,23 +99,27 @@ export class Board implements Drawable {
       });
     }
 
-    const isElementSelected: boolean = this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
-      const isTheNearestElement = clickable.isPointOnElement(point);
-      if (isTheNearestElement) {
+    let element: Clickable | undefined = undefined
+
+    this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
+      const isOnElement = clickable.isPointOnElement(point);
+      if (isOnElement) {
         clickable.setState(state);
+        clearCanvas(canvas.snappingLine);
         clickable.draw(canvas, DrawOn.All);
+        element = clickable;
       }
 
-      return !isTheNearestElement;
+      return !isOnElement;
     });
 
     switch (state) {
       case ClickableState.SELECTED:
-        this.isAnClickableSelected = isElementSelected;
+        this.selectedElement = element;
         break;
 
       case ClickableState.HOVERED:
-        this.isAnClickableHovered = isElementSelected;
+        this.hoveredElement = element;
         break;
     }
 
@@ -191,7 +198,7 @@ export class Board implements Drawable {
         return "grab";
       default:
 
-        if (this.isAnClickableHovered) {
+        if (this.hoveredElement) {
           return "move";
         }
 

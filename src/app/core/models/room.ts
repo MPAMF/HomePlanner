@@ -1,9 +1,10 @@
 import {Wall} from "./wall";
 import {Point} from "./point";
 import {Canvas, DrawOn} from "./canvas";
-import {Clickable} from "./clickable";
+import {Clickable, ClickableState} from "./interfaces/clickable";
+import {Cloneable} from "./interfaces/cloneable";
 
-export class Room extends Clickable {
+export class Room extends Clickable implements Cloneable<Room> {
 
   constructor(
     public name: string,
@@ -109,15 +110,24 @@ export class Room extends Clickable {
   }
 
   override onSelect(): void {
+    this.walls.forEach(wall => wall.setState(ClickableState.SELECTED));
   }
 
   override onUnselect(): void {
+    this.walls.forEach(wall => wall.setState(ClickableState.NONE));
   }
 
   override onHover(): void {
   }
 
   override onHoverOut(): void {
+  }
+
+  override onDrag(offset: Point, recursive: boolean) {
+    // if (!recursive) {
+    //   return;
+    // }
+    this.walls.forEach(wall => wall.onDrag(offset, recursive));
   }
 
   override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
@@ -130,6 +140,19 @@ export class Room extends Clickable {
   }
 
   override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
+    // TODO: maybe first draw the non-selected walls and then the selected ones
     this.walls.forEach(wall => wall.draw(canvas, on));
   }
+
+  clone() {
+    return new Room(this.name, this.background, this.isFinalized, this.walls.map(wall => wall.clone()));
+  }
+
+  restore(room: Room) {
+    this.name = room.name;
+    this.background = room.background;
+    this.isFinalized = room.isFinalized;
+    this.walls = room.walls.map(wall => wall.clone());
+  }
+
 }

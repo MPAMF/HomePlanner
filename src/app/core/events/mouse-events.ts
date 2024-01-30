@@ -3,18 +3,20 @@ import {Wall} from "../models/wall";
 import {DrawState} from "../models/draw-state";
 import {AddWallCommand, EditLastWallWithPointCommand, FinaliseLastWallCommand,} from "../commands/wall-commands";
 import {CommandInvoker} from "../commands/command";
-import {MoveCommand} from "../commands/canvas-commands";
+import {DragObjectCommand, EndObjectDragCommand, MoveCommand, StartObjectDragCommand} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
 import {applyToCanvas, DrawOn, getScale, inverseTransformPoint, zoomCanvas} from "../models/canvas";
 
 export class MouseEvents extends BaseEvent {
   private panStart: Point;
+  private dragStart: Point;
   private readonly maxZoom: number;
   private readonly minZoom: number;
 
   constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker) {
     super(cmdInvoker, actionCmdInvoker);
     this.panStart = new Point(0, 0);
+    this.dragStart = new Point(0, 0);
     this.maxZoom = 5;
     this.minZoom = 0.1;
   }
@@ -37,6 +39,16 @@ export class MouseEvents extends BaseEvent {
       this.panStart.y = event.clientY;
 
       this.cmdInvoker.execute(new MoveCommand(new Point(dx, dy)));//Right click
+      return;
+    }
+
+    if (this.board.isDragging && this.board.selectedElement) {
+      const dx = event.clientX - this.dragStart.x;
+      const dy = event.clientY - this.dragStart.y;
+      this.dragStart.x = event.clientX;
+      this.dragStart.y = event.clientY;
+
+      this.cmdInvoker.execute(new DragObjectCommand(new Point(dx, dy)), false);
       return;
     }
 
@@ -76,7 +88,7 @@ export class MouseEvents extends BaseEvent {
      * 1 = Middle click
      * 2 = Right click
      */
-    if (this.board.drawState !== DrawState.WallCreation && event.button === 2) { //Left click
+    if (this.board.drawState !== DrawState.WallCreation && event.button === 2) {
       this.board.isPanning = true;
       this.cmdInvoker.redraw(DrawOn.All);
       this.panStart.x = event.clientX;
@@ -143,7 +155,15 @@ export class MouseEvents extends BaseEvent {
         break;
 
       case DrawState.None:
+
         this.board.onClick(this.canvas, pt);
+
+        if (event.button === 0 && this.board.selectedElement) {
+          this.dragStart.x = event.clientX;
+          this.dragStart.y = event.clientY;
+          this.cmdInvoker.execute(new StartObjectDragCommand(/*pt*/));
+        }
+
         break;
 
       default:
@@ -156,6 +176,11 @@ export class MouseEvents extends BaseEvent {
    */
   onMouseUp(event: MouseEvent) {
     if (!this.canvas) return;
+
+    if (event.button === 0 && this.board.isDragging) {
+      this.cmdInvoker.execute(new EndObjectDragCommand());
+      return;
+    }
 
     if (this.board.isPanning) {
       this.board.isPanning = false;

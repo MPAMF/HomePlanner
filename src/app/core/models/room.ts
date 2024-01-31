@@ -34,6 +34,15 @@ export class Room extends Clickable implements Cloneable<Room> {
   }
 
   /**
+   * Get the walls on the given point
+   * @param point The point to find the walls on
+   * @returns The walls on the given point
+   */
+  public getWallsOnPoint(point: Point): Wall[] {
+    return this.walls.filter(wall => wall.p1.equals(point) || wall.p2.equals(point));
+  }
+
+  /**
    * Find the closest wall point to the given point
    * @param point Point to find the closest wall point to
    * @param maxDistance Maximum distance to search for a wall point

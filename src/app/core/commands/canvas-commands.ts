@@ -58,8 +58,39 @@ export class StartObjectDragCommand extends Command {
     this.board.isDragging = true;
 
     // check if selected element is a wall
-    if (selectedElement instanceof Wall || selectedElement instanceof Room
-      || selectedElement instanceof Door || selectedElement instanceof Window) {
+    if (selectedElement instanceof Wall) {
+      this.selectedElement = selectedElement;
+      this.selectedElementClone = selectedElement.clone();
+      const room = this.board.getRoomByWall(selectedElement);
+      if (room) {
+        const p1: { wall: Wall, p1: boolean }[] = [];
+        const p2: { wall: Wall, p1: boolean }[] = [];
+        room.walls.forEach(wall => {
+          if (wall.p1.equals(selectedElement.p1)) {
+            p1.push({wall, p1: true});
+          }
+          if (wall.p2.equals(selectedElement.p1)) {
+            p1.push({wall, p1: false});
+          }
+          if (wall.p1.equals(selectedElement.p2)) {
+            p2.push({wall, p1: true});
+          }
+          if (wall.p2.equals(selectedElement.p2)) {
+            p2.push({wall, p1: false});
+          }
+        });
+        [...p1, ...p2].forEach(e => e.wall.isFinalized = false);
+        this.board.draggingApplyFn = () => {
+          p1.forEach(e => e.p1 ? e.wall.p1.restore(selectedElement.p1) : e.wall.p2.restore(selectedElement.p1));
+          p2.forEach(e => e.p1 ? e.wall.p1.restore(selectedElement.p2) : e.wall.p2.restore(selectedElement.p2));
+        }
+      }
+      selectedElement.isFinalized = false;
+    } else if (selectedElement instanceof Room) {
+      this.selectedElement = selectedElement;
+      this.selectedElementClone = selectedElement.clone();
+      selectedElement.walls.forEach(wall => wall.isFinalized = false);
+    } else if ( selectedElement instanceof Door || selectedElement instanceof Window) {
       this.selectedElement = selectedElement;
       this.selectedElementClone = selectedElement.clone();
     } else {
@@ -70,6 +101,7 @@ export class StartObjectDragCommand extends Command {
 
   override undo(): void {
     this.board.isDragging = false;
+    this.board.draggingApplyFn = undefined;
 
     if (!this.selectedElement || !this.selectedElementClone) {
       return;
@@ -100,11 +132,12 @@ export class DragObjectCommand extends Command {
       return;
     }
 
+    this.board.selectedElement.onDrag(this.offset, true);
+
     if (this.board.draggingApplyFn) {
       this.board.draggingApplyFn();
     }
 
-    this.board.selectedElement.onDrag(this.offset, true);
   }
 
   override undo(): void {
@@ -112,16 +145,40 @@ export class DragObjectCommand extends Command {
 }
 
 export class EndObjectDragCommand extends Command {
+  private draggingApplyFn?: () => void;
+
   constructor() {
     super();
   }
 
   override execute(): void {
+    const selectedElement = this.board.selectedElement;
+    if (!selectedElement || !this.board.isDragging) {
+      return;
+    }
+
+    if (selectedElement instanceof Wall) {
+      selectedElement.isFinalized = true;
+      const room = this.board.getRoomByWall(selectedElement);
+      if (room) {
+        room.walls.forEach(wall => wall.isFinalized = true);
+      }
+    } else if (selectedElement instanceof Room) {
+      selectedElement.walls.forEach(wall => wall.isFinalized = true);
+    } else if (selectedElement instanceof Door) {
+
+    } else if (selectedElement instanceof Window) {
+
+    }
+
+    this.draggingApplyFn = this.board.draggingApplyFn;
+    this.board.draggingApplyFn = undefined;
     this.board.isDragging = false;
   }
 
   override undo(): void {
     this.board.isDragging = true;
+    this.board.draggingApplyFn = this.draggingApplyFn;
   }
 }
 

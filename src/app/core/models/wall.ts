@@ -30,7 +30,7 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
   abstract restore(element: WallElement) : void;
 }
 
-export class Wall extends Clickable {
+export class Wall extends Clickable implements Cloneable<Wall> {
 
   constructor(
     public p1: Point,

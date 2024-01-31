@@ -6,6 +6,7 @@ import {Clickable, ClickableState} from "./interfaces/clickable";
 import {applyToCanvas, Canvas, clearCanvas, drawImage, DrawOn, getScale} from "./canvas";
 import {afterNextRender} from "@angular/core";
 import {Room} from "./room";
+import {Wall} from "./wall";
 
 export class Board implements Drawable {
   public rooms: Room[];
@@ -186,6 +187,10 @@ export class Board implements Drawable {
     drawImage(ctx, this.image, new Point(pt.x, pt.y - 30 / getScale(ctx).y), 30, 30);
   }
 
+  /**
+   * Find the cursor to display
+   * @returns The cursor to display
+   */
   private findCursor(): string {
     if (this.isPanning) {
       return "grabbing";
@@ -205,4 +210,14 @@ export class Board implements Drawable {
         return "default";
     }
   }
+
+  /**
+   * Get the room that contains the given wall
+   * @param wall Wall to find the room of
+   * @returns The room that contains the given wall
+   */
+  public getRoomByWall(wall: Wall): Room | undefined {
+    return this.rooms.find(room => room.walls.includes(wall));
+  }
+
 }

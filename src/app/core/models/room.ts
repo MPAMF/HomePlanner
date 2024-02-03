@@ -1,9 +1,10 @@
 import {Wall} from "./wall";
 import {Point} from "./point";
 import {Canvas, DrawOn} from "./canvas";
-import {Clickable} from "./clickable";
+import {Clickable, ClickableState} from "./interfaces/clickable";
+import {Cloneable} from "./interfaces/cloneable";
 
-export class Room extends Clickable {
+export class Room extends Clickable implements Cloneable<Room> {
 
   constructor(
     public name: string,
@@ -30,6 +31,15 @@ export class Room extends Clickable {
    */
   public hasAnyWalls(): boolean {
     return this.walls.length !== 0;
+  }
+
+  /**
+   * Get the walls on the given point
+   * @param point The point to find the walls on
+   * @returns The walls on the given point
+   */
+  public getWallsOnPoint(point: Point): Wall[] {
+    return this.walls.filter(wall => wall.p1.equals(point) || wall.p2.equals(point));
   }
 
   /**
@@ -93,7 +103,7 @@ export class Room extends Clickable {
     let oddNodes = false;
 
     for (let i = 0; i < this.walls.length; i++) {
-      const { p1, p2 } = this.walls[i];
+      const {p1, p2} = this.walls[i];
       if (p1.y < point.y && p2.y >= point.y || p2.y < point.y && p1.y >= point.y) {
         if (p1.x + (point.y - p1.y) / (p2.y - p1.y) * (p2.x - p1.x) < point.x) {
           oddNodes = !oddNodes;
@@ -103,20 +113,30 @@ export class Room extends Clickable {
 
     return oddNodes;
   }
+
   override getColor(): string {
     throw new Error("Method not implemented.");
   }
 
   override onSelect(): void {
+    this.walls.forEach(wall => wall.setState(ClickableState.SELECTED));
   }
 
   override onUnselect(): void {
+    this.walls.forEach(wall => wall.setState(ClickableState.NONE));
   }
 
   override onHover(): void {
   }
 
   override onHoverOut(): void {
+  }
+
+  override onDrag(offset: Point, recursive: boolean) {
+    // if (!recursive) {
+    //   return;
+    // }
+    this.walls.forEach(wall => wall.onDrag(offset, recursive));
   }
 
   override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
@@ -129,6 +149,19 @@ export class Room extends Clickable {
   }
 
   override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
+    // TODO: maybe first draw the non-selected walls and then the selected ones
     this.walls.forEach(wall => wall.draw(canvas, on));
   }
+
+  clone() {
+    return new Room(this.name, this.background, this.isFinalized, this.walls.map(wall => wall.clone()));
+  }
+
+  restore(room: Room) {
+    this.name = room.name;
+    this.background = room.background;
+    this.isFinalized = room.isFinalized;
+    this.walls = room.walls.map(wall => wall.clone());
+  }
+
 }

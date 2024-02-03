@@ -39,6 +39,7 @@ export class AddWallCommand extends Command {
     // Remove the room if there are no walls left
     if (!this.board.currentRoom.hasAnyWalls()) {
       this.board.currentRoom = undefined;
+      this.board.drawState = DrawState.None;
     } else {
       const lastWall = this.board.currentRoom.getLastWall();
       if (lastWall) {
@@ -121,7 +122,7 @@ export class EditLastWallWithPointCommand extends Command {
     const divisionResult: number = Utils.CalculatePIOverFour(angleInDegreesWithUnitaryVector);
 
     let divisionResultModuloOne: number = divisionResult % 1;
-    if(divisionResultModuloOne >= 0.95 || divisionResultModuloOne <= 0.05) {
+    if (divisionResultModuloOne >= 0.95 || divisionResultModuloOne <= 0.05) {
 
       divisionResultModuloOne = Math.round(divisionResultModuloOne % 1)
       const newAngle: number = (Math.trunc(divisionResult) + divisionResultModuloOne) * 45;

@@ -1,4 +1,4 @@
-import {Canvas, DrawOn} from "./canvas";
+import {Canvas, DrawOn} from "../canvas";
 
 export interface Drawable {
 

@@ -21,12 +21,12 @@ export class EditorComponent {
   protected readonly cmdInvoker: CommandInvoker;
   protected readonly actionsCmdInvoker: CommandInvoker;
   protected readonly isBrowser: boolean;
+  protected eventHandler?: EventHandler;
   private backgroundContext: CanvasRenderingContext2D | null | undefined;
   private backgroundCanvas: HTMLCanvasElement | null | undefined;
   private snappingLineContext: CanvasRenderingContext2D | null | undefined;
   private snappingLineCanvas: HTMLCanvasElement | null | undefined;
   private readonly board: Board;
-  protected eventHandler?: EventHandler;
 
   constructor(@Inject(PLATFORM_ID) platformId: object, private dialog: MatDialog) {
     this.board = new Board();
@@ -76,7 +76,10 @@ export class EditorComponent {
     }
 
     this.cmdInvoker.canvas = {background: this.backgroundContext, snappingLine: this.snappingLineContext} as Canvas;
-    this.actionsCmdInvoker.canvas = {background: this.backgroundContext, snappingLine: this.snappingLineContext} as Canvas;
+    this.actionsCmdInvoker.canvas = {
+      background: this.backgroundContext,
+      snappingLine: this.snappingLineContext
+    } as Canvas;
 
     // Correction of the Zoom from responsive size
     this.backgroundCanvas.width = this.backgroundCanvas.getBoundingClientRect().width;

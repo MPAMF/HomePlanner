@@ -158,8 +158,8 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    * Clone the wall to create a new instance with the same points
    */
   clone(): Wall {
-    return new Wall(this.p1, this.p2, this.defaultThickness, this.defaultColor, this.defaultSelectedColor, this.thickness,
-      this.color, this.selectedColor, this.elements.map(el => el.clone()));
+    return new Wall(this.p1.clone(), this.p2.clone(), this.defaultThickness, this.defaultColor, this.defaultSelectedColor, this.thickness,
+      this.color, this.selectedColor, this.elements.map(el => el.clone()), this.isFinalized);
   }
 
   restore(wall: Wall) {

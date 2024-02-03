@@ -44,6 +44,8 @@ export class ResetCurrentRoomCommand extends Command {
 export class StartObjectDragCommand extends Command {
   private selectedElement: Wall | Room | Door | Window | undefined;
   private selectedElementClone: Wall | Room | Door | Window | undefined;
+  private walls?: Wall[];
+  private draggingApplyFn?: () => void;
 
   constructor() {
     super();
@@ -79,18 +81,20 @@ export class StartObjectDragCommand extends Command {
             p2.push({wall, p1: false});
           }
         });
-        [...p1, ...p2].forEach(e => e.wall.isFinalized = false);
-        this.board.draggingApplyFn = () => {
+        this.walls = [...p1, ...p2].map(e => e.wall);
+        this.walls.forEach(w => w.isFinalized = false);
+        this.draggingApplyFn = () => {
           p1.forEach(e => e.p1 ? e.wall.p1.restore(selectedElement.p1) : e.wall.p2.restore(selectedElement.p1));
           p2.forEach(e => e.p1 ? e.wall.p1.restore(selectedElement.p2) : e.wall.p2.restore(selectedElement.p2));
         }
+        this.board.draggingApplyFn = this.draggingApplyFn;
       }
       selectedElement.isFinalized = false;
     } else if (selectedElement instanceof Room) {
       this.selectedElement = selectedElement;
       this.selectedElementClone = selectedElement.clone();
       selectedElement.walls.forEach(wall => wall.isFinalized = false);
-    } else if ( selectedElement instanceof Door || selectedElement instanceof Window) {
+    } else if (selectedElement instanceof Door || selectedElement instanceof Window) {
       this.selectedElement = selectedElement;
       this.selectedElementClone = selectedElement.clone();
     } else {
@@ -101,7 +105,6 @@ export class StartObjectDragCommand extends Command {
 
   override undo(): void {
     this.board.isDragging = false;
-    this.board.draggingApplyFn = undefined;
 
     if (!this.selectedElement || !this.selectedElementClone) {
       return;
@@ -117,6 +120,10 @@ export class StartObjectDragCommand extends Command {
       this.selectedElement.restore(this.selectedElementClone);
     } else {
       throw new Error("Unknown element");
+    }
+
+    if (this.draggingApplyFn) {
+      this.draggingApplyFn();
     }
 
   }
@@ -141,11 +148,11 @@ export class DragObjectCommand extends Command {
   }
 
   override undo(): void {
+    throw new Error("Please execute this command without saving it to the history");
   }
 }
 
 export class EndObjectDragCommand extends Command {
-  private draggingApplyFn?: () => void;
 
   constructor() {
     super();
@@ -166,19 +173,16 @@ export class EndObjectDragCommand extends Command {
     } else if (selectedElement instanceof Room) {
       selectedElement.walls.forEach(wall => wall.isFinalized = true);
     } else if (selectedElement instanceof Door) {
-
+      throw new Error("Not implemented");
     } else if (selectedElement instanceof Window) {
-
+      throw new Error("Not implemented");
     }
 
-    this.draggingApplyFn = this.board.draggingApplyFn;
     this.board.draggingApplyFn = undefined;
     this.board.isDragging = false;
   }
 
   override undo(): void {
-    this.board.isDragging = true;
-    this.board.draggingApplyFn = this.draggingApplyFn;
   }
 }
 

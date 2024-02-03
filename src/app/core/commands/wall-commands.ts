@@ -39,6 +39,7 @@ export class AddWallCommand extends Command {
     // Remove the room if there are no walls left
     if (!this.board.currentRoom.hasAnyWalls()) {
       this.board.currentRoom = undefined;
+      this.board.drawState = DrawState.None;
     } else {
       const lastWall = this.board.currentRoom.getLastWall();
       if (lastWall) {

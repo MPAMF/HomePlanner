@@ -178,7 +178,7 @@ export class MouseEvents extends BaseEvent {
     if (!this.canvas) return;
 
     if (event.button === 0 && this.board.isDragging) {
-      this.cmdInvoker.execute(new EndObjectDragCommand());
+      this.cmdInvoker.execute(new EndObjectDragCommand(), false);
       return;
     }
 

@@ -1,4 +1,6 @@
 import {Cloneable} from "./interfaces/cloneable";
+import {Clickable} from "./interfaces/clickable";
+import {Canvas} from "./canvas";
 
 export class Point implements Cloneable<Point> {
 
@@ -141,3 +143,45 @@ export class Point implements Cloneable<Point> {
 
 }
 
+export class ClickablePoint extends Clickable implements Cloneable<ClickablePoint> {
+
+  constructor(private point: Point) {
+    super();
+  }
+
+  applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
+    return fn(this);
+  }
+
+  clone(): ClickablePoint {
+    return new ClickablePoint(this.point.clone());
+  }
+
+  getColor(): string {
+    throw new Error("Method not implemented.");
+  }
+
+  isPointOnElement(point: Point): boolean {
+    return false;
+  }
+
+  onDrag(offset: Point, recursive: boolean): void {
+  }
+
+  onHover(): void {
+  }
+
+  onHoverOut(): void {
+  }
+
+  onSelect(): void {
+  }
+
+  onUnselect(): void {
+  }
+
+  restore(element: ClickablePoint): void {
+    this.point = element.point;
+  }
+
+}

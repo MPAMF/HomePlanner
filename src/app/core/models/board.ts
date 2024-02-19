@@ -207,7 +207,7 @@ export class Board implements Drawable {
           return "move";
         }
 
-        if (this.selectedElement) {
+        if (this.selectedElement && this.hoveredElement) {
           return "move";
         }
 

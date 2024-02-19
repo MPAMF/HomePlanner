@@ -2,6 +2,11 @@ import {Point} from "./point";
 import {Clickable, ClickableState} from "./clickable";
 import {Canvas, DrawOn} from "./canvas";
 import {Utils} from "../modules/utils";
+import {ActionButtonProps, ActionsButtonOptions} from "./action-button-options";
+import {Board} from "./board";
+import {CommandInvoker} from "../commands/command";
+import {DivideWallCommand} from "../commands/wall-commands";
+import {HideClickableCommand} from "../commands/clickable-commands";
 
 export class WallElement extends Clickable {
   override getColor(): string {
@@ -46,8 +51,15 @@ export class WallElement extends Clickable {
   override onHoverOut(): void {
   }
 
+  override getActionButtonOptions(point: Point): ActionsButtonOptions {
+    return new ActionsButtonOptions(true, point.x, point.y, );
+  }
+
   override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
     return fn(this);
+  }
+
+  override setVisibleState(newState: boolean) {
   }
 }
 
@@ -203,13 +215,14 @@ export class Wall extends Clickable {
 
   override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
     const ctx = !this.isFinalized ? canvas.snappingLine : canvas.background;
-
-    ctx.beginPath();
-    ctx.moveTo(this.p1.x, this.p1.y);
-    ctx.lineTo(this.p2.x, this.p2.y);
-    ctx.lineWidth = this.getThickness();
-    ctx.strokeStyle = this.getColor();
-    ctx.stroke();
+    if (this.isVisible) {
+      ctx.beginPath();
+      ctx.moveTo(this.p1.x, this.p1.y);
+      ctx.lineTo(this.p2.x, this.p2.y);
+      ctx.lineWidth = this.getThickness();
+      ctx.strokeStyle = this.getColor();
+      ctx.stroke();
+    }
 
     this.elements.forEach(element => element.draw(canvas, on));
   }
@@ -226,6 +239,28 @@ export class Wall extends Clickable {
   override onHoverOut(): void {
   }
 
+  override getActionButtonOptions(point: Point): ActionsButtonOptions {
+    const newActionButtonOptions: ActionsButtonOptions = new ActionsButtonOptions(true, point.x, point.y)
+    const hideButton: ActionButtonProps = new ActionButtonProps(
+      this.isVisible ? 'visibility_off' : 'visibility',
+      (commandInvoker: CommandInvoker) => {
+        commandInvoker.execute(new HideClickableCommand(this))
+        newActionButtonOptions.isActionsButtonVisible = false;
+      }
+    );
+
+    const divideButton: ActionButtonProps = new ActionButtonProps(
+      'carpenter',
+      (commandInvoker: CommandInvoker) => {
+        commandInvoker.execute(new DivideWallCommand(this))
+        newActionButtonOptions.isActionsButtonVisible = false;
+      }
+    );
+
+    newActionButtonOptions.buttonsAndActions = [hideButton, divideButton];
+    return newActionButtonOptions;
+  }
+
   override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
     for (const element of this.elements) {
       const mustExecutionContinue: boolean = element.applyOnClickableRecursive(canvas, fn)
@@ -233,5 +268,9 @@ export class Wall extends Clickable {
     }
 
     return fn(this);
+  }
+
+  override setVisibleState(newState: boolean) {
+    this.isVisible = newState;
   }
 }

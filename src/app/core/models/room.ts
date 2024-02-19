@@ -2,6 +2,7 @@ import {Wall} from "./wall";
 import {Point} from "./point";
 import {Canvas, DrawOn} from "./canvas";
 import {Clickable} from "./clickable";
+import {ActionsButtonOptions} from "./action-button-options";
 
 export class Room extends Clickable {
 
@@ -18,11 +19,13 @@ export class Room extends Clickable {
     this.walls.push(wall);
   }
 
-  removeWall(wall: Wall) {
+  removeWall(wall: Wall): boolean {
     const index = this.walls.findIndex(w => w.equals(wall));
     if (index !== -1) {
       this.walls.splice(index, 1);
+      return true;
     }
+    return false;
   }
 
   /**
@@ -119,6 +122,10 @@ export class Room extends Clickable {
   override onHoverOut(): void {
   }
 
+  override getActionButtonOptions(point: Point): ActionsButtonOptions {
+    return new ActionsButtonOptions(true, point.x, point.y)
+  }
+
   override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
     for (const wall of this.walls) {
       const mustExecutionContinue: boolean = wall.applyOnClickableRecursive(canvas, fn)
@@ -126,6 +133,10 @@ export class Room extends Clickable {
     }
 
     return fn(this);
+  }
+
+  override setVisibleState(newState: boolean) {
+    throw new Error("Method not implemented.");
   }
 
   override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {

@@ -6,6 +6,7 @@ import {Clickable, ClickableState} from "./clickable";
 import {applyToCanvas, Canvas, clearCanvas, drawImage, DrawOn, getScale} from "./canvas";
 import {afterNextRender} from "@angular/core";
 import {Room} from "./room";
+import {ActionsButtonOptions} from "./action-button-options";
 
 export class Board implements Drawable {
   public rooms: Room[];
@@ -13,6 +14,7 @@ export class Board implements Drawable {
   public mousePosition: Point;
   public isPanning: boolean; // Whether the user is panning the canvas (moving the canvas around)
   public currentRoom?: Room; // This room is the room that is currently being edited
+  public actionsButtonOptions: ActionsButtonOptions = new ActionsButtonOptions();
   private image?: HTMLImageElement;
   private isAnClickableSelected: boolean = false;
   private isAnClickableHovered: boolean = false;
@@ -90,7 +92,10 @@ export class Board implements Drawable {
 
       this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
         const hasChange: boolean = clickable.resetState(clickableState);
-        hasChange && clickable.draw(canvas, DrawOn.Background);
+        if(hasChange) {
+          clickable.draw(canvas, DrawOn.Background);
+          clickableState == ClickableState.SELECTED && (this.actionsButtonOptions = new ActionsButtonOptions());
+        }
         return true;
       });
     }
@@ -99,6 +104,7 @@ export class Board implements Drawable {
       const isTheNearestElement = clickable.isPointOnElement(point);
       if (isTheNearestElement) {
         clickable.setState(clickableState);
+        clickableState == ClickableState.SELECTED && (this.actionsButtonOptions = clickable.getActionButtonOptions(point));
         this.draw(canvas, DrawOn.Background);
       }
 

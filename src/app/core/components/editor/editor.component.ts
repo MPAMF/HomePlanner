@@ -8,11 +8,12 @@ import {Canvas, DrawOn} from "../../models/canvas";
 import {ControlsComponent} from "./controls/controls.component";
 import {MatDialog} from "@angular/material/dialog";
 import {DialogConfirmationComponent} from "../../../shared/components/dialog-confirmation.component";
+import {ActionsButtonComponent} from "./actions-button/actions-button.component";
 
 @Component({
   selector: 'app-editor',
   standalone: true,
-  imports: [CommonModule, ToolbarComponent, ControlsComponent, DialogConfirmationComponent],
+  imports: [CommonModule, ToolbarComponent, ControlsComponent, DialogConfirmationComponent, ActionsButtonComponent],
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.scss'
 })

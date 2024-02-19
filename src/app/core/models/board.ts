@@ -203,7 +203,11 @@ export class Board implements Drawable {
         return "grab";
       default:
 
-        if (this.hoveredElement) {
+        if (this.hoveredElement && this.hoveredElement instanceof Wall) {
+          return "move";
+        }
+
+        if (this.selectedElement) {
           return "move";
         }
 

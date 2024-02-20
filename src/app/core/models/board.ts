@@ -95,6 +95,7 @@ export class Board implements Drawable {
 
       this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
         const hasChange: boolean = clickable.resetState(state);
+        clearCanvas(canvas.snappingLine);
         hasChange && clickable.draw(canvas, DrawOn.Background);
         return true;
       });
@@ -183,7 +184,7 @@ export class Board implements Drawable {
     }
 
     const lastWall = this.currentRoom ? this.currentRoom.getLastWall() : undefined;
-    const pt = this.drawState === DrawState.WallCreation && lastWall ? lastWall.p2 : this.mousePosition;
+    const pt = this.drawState === DrawState.WallCreation && lastWall ? lastWall.p2.point : this.mousePosition;
     drawImage(ctx, this.image, new Point(pt.x, pt.y - 30 / getScale(ctx).y), 30, 30);
   }
 

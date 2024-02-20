@@ -1,4 +1,4 @@
-import {Point} from "./point";
+import {ClickablePoint, Point} from "./point";
 import {Clickable, ClickableState} from "./interfaces/clickable";
 import {Canvas, DrawOn} from "./canvas";
 import {Utils} from "../modules/utils";
@@ -33,8 +33,8 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
 export class Wall extends Clickable implements Cloneable<Wall> {
 
   constructor(
-    public p1: Point,
-    public p2: Point,
+    public p1: ClickablePoint,
+    public p2: ClickablePoint,
     private defaultThickness: number,
     private defaultColor: string,
     private defaultSelectedColor: string,
@@ -107,7 +107,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    * @param otherWall The second wall use to calculate the angle
    */
   calculateAngleWith(otherWall: Wall): number {
-    return this.calculateAngleWithTwoPoint(otherWall.p1, otherWall.p2);
+    return this.calculateAngleWithTwoPoint(otherWall.p1.point, otherWall.p2.point);
   }
 
   /**
@@ -123,7 +123,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     const cosineTheta = vector1.dotProduct(vector2) / (magnitude1 * magnitude2);
 
     let angleInRadians = Math.acos(cosineTheta);
-    if (this.p2.isRight(point1, point2)) {
+    if (this.p2.point.isRight(point1, point2)) {
       angleInRadians = 2 * Math.PI - angleInRadians;
     }
 
@@ -134,7 +134,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    * Calculate the length of the wall
    */
   length(): number {
-    return this.p1.distanceTo(this.p2);
+    return this.p1.point.distanceTo(this.p2.point);
   }
 
   /**
@@ -150,7 +150,8 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    */
   isCollinearWith(other: Wall): boolean {
     const crossProduct =
-      (this.p2.y - this.p1.y) * (other.p2.x - other.p1.x) - (this.p2.x - this.p1.x) * (other.p2.y - other.p1.y);
+      (this.p2.y - this.p1.y) * (other.p2.x - other.p1.x)
+      - (this.p2.x - this.p1.x) * (other.p2.y - other.p1.y);
     return Math.abs(crossProduct) < Number.EPSILON;
   }
 
@@ -158,20 +159,21 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    * Clone the wall to create a new instance with the same points
    */
   clone(): Wall {
-    return new Wall(this.p1.clone(), this.p2.clone(), this.defaultThickness, this.defaultColor, this.defaultSelectedColor, this.thickness,
+    return new Wall(this.p1.clone(), this.p2.clone(), this.defaultThickness, this.defaultColor,
+      this.defaultSelectedColor, this.thickness,
       this.color, this.selectedColor, this.elements.map(el => el.clone()), this.isFinalized);
   }
 
   restore(wall: Wall) {
-    this.p1 = wall.p1;
-    this.p2 = wall.p2;
+    this.p1.restore(wall.p1);
+    this.p2.restore(wall.p2);
     this.defaultThickness = wall.defaultThickness;
     this.defaultColor = wall.defaultColor;
     this.defaultSelectedColor = wall.defaultSelectedColor;
     this.thickness = wall.thickness;
     this.color = wall.color;
     this.selectedColor = wall.selectedColor;
-    this.elements = wall.elements.map(el => el.clone());
+    this.elements = wall.elements;
     this.isFinalized = wall.isFinalized;
   }
 
@@ -205,6 +207,8 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     ctx.stroke();
 
     this.elements.forEach(element => element.draw(canvas, on));
+    this.p1.draw(canvas, on);
+    this.p2.draw(canvas, on);
   }
 
   override onSelect(): void {
@@ -220,8 +224,8 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   }
 
   override onDrag(offset: Point, recursive: boolean) {
-    this.p1 = this.p1.translatePoint(offset);
-    this.p2 = this.p2.translatePoint(offset);
+    this.p1.point = this.p1.point.translatePoint(offset);
+    this.p2.point = this.p2.point.translatePoint(offset);
     if (!recursive) {
       return;
     }
@@ -229,6 +233,10 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   }
 
   override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
+    // points
+    if (!this.p1.applyOnClickableRecursive(canvas, fn)) return false;
+    if (!this.p2.applyOnClickableRecursive(canvas, fn)) return false;
+    // elements
     for (const element of this.elements) {
       const mustExecutionContinue: boolean = element.applyOnClickableRecursive(canvas, fn)
       if (!mustExecutionContinue) return false;

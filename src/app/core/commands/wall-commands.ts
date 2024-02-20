@@ -113,12 +113,12 @@ export class EditLastWallWithPointCommand extends Command {
 
     const closestPt = this.board.findClosestWallPoint(this.p2, 10, true);
     if (closestPt) {
-      wall.p2 = closestPt[0];
+      wall.p2.point = closestPt[0];
       return;
     }
 
-    wall.p2 = this.p2;
-    const angleInDegreesWithUnitaryVector: number = wall.calculateAngleWithTwoPoint(wall.p1, new Point(wall.p1.x + 1, wall.p1.y));
+    wall.p2.point = this.p2;
+    const angleInDegreesWithUnitaryVector: number = wall.calculateAngleWithTwoPoint(wall.p1.point, new Point(wall.p1.x + 1, wall.p1.y));
     const divisionResult: number = Utils.CalculatePIOverFour(angleInDegreesWithUnitaryVector);
 
     let divisionResultModuloOne: number = divisionResult % 1;
@@ -129,7 +129,7 @@ export class EditLastWallWithPointCommand extends Command {
       const newAngleToRadian: number = Utils.ConvertAngleToRadian(newAngle);
 
       const len: number = wall.length();
-      wall.p2 = new Point(wall.p1.x + len * Math.cos(newAngleToRadian),
+      wall.p2.point = new Point(wall.p1.x + len * Math.cos(newAngleToRadian),
         wall.p1.y + len * Math.sin(-newAngleToRadian));
     }
   }

@@ -1,4 +1,4 @@
-import {Point} from "../models/point";
+import {ClickablePoint, Point} from "../models/point";
 import {Wall} from "../models/wall";
 import {DrawState} from "../models/draw-state";
 import {AddWallCommand, EditLastWallWithPointCommand, FinaliseLastWallCommand,} from "../commands/wall-commands";
@@ -98,7 +98,8 @@ export class MouseEvents extends BaseEvent {
 
     switch (this.board.drawState) {
       case DrawState.Wall:
-        this.cmdInvoker.execute(new AddWallCommand(new Wall(pt, pt, this.board.boardConfig.wallThickness,
+        this.cmdInvoker.execute(new AddWallCommand(new Wall(new ClickablePoint(pt), new ClickablePoint(pt),
+          this.board.boardConfig.wallThickness,
           this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor)));
         break;
       case DrawState.WallCreation: {
@@ -108,12 +109,12 @@ export class MouseEvents extends BaseEvent {
         if (closestPt) {
           const [pt, isCurrentRoom] = closestPt;
 
-          const addWallCommand = new AddWallCommand(new Wall(pt, pt, this.board.boardConfig.wallThickness,
+          const addWallCommand = new AddWallCommand(new Wall(new ClickablePoint(pt), new ClickablePoint(pt), this.board.boardConfig.wallThickness,
             this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor));
 
           if (isCurrentRoom && hasAnyWalls) {
             const firstWall = this.board.currentRoom!.walls[0];
-            if (firstWall.p1.equals(pt) || firstWall.p2.equals(pt)) {
+            if (firstWall.p1.point.equals(pt) || firstWall.p2.point.equals(pt)) {
               this.cmdInvoker.execute(new FinaliseLastWallCommand());
               return;
             }
@@ -130,10 +131,11 @@ export class MouseEvents extends BaseEvent {
         if (hasAnyWalls) {
           const len = this.board.currentRoom!.walls.length;
           const lastWall = this.board.currentRoom!.walls[len - 1];
-          pt = lastWall.p2;
+          pt = lastWall.p2.point;
         }
 
-        this.cmdInvoker.execute(new AddWallCommand(new Wall(pt, pt, this.board.boardConfig.wallThickness,
+        this.cmdInvoker.execute(new AddWallCommand(new Wall(new ClickablePoint(pt), new ClickablePoint(pt),
+          this.board.boardConfig.wallThickness,
           this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor)));
 
         break;

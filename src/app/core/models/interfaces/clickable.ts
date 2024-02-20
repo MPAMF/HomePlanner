@@ -62,6 +62,7 @@ export abstract class Clickable extends Comparable implements Drawable {
    * @param recursive true if the drag is recursive (all the children are dragged)
    */
   abstract onDrag(offset: Point, recursive: boolean): void;
+
   /**
    * Update the attribute state
    * @param newState The new state

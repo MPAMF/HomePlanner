@@ -41,7 +41,7 @@ export class Room extends Clickable implements Cloneable<Room> {
    * @returns The walls on the given point
    */
   public getWallsOnPoint(point: Point): Wall[] {
-    return this.walls.filter(wall => wall.p1.equals(point) || wall.p2.equals(point));
+    return this.walls.filter(wall => wall.p1.point.equals(point) || wall.p2.point.equals(point));
   }
 
   /**
@@ -62,14 +62,14 @@ export class Room extends Clickable implements Cloneable<Room> {
       const wall = this.walls[i];
       let pt: Point;
       let distance: number;
-      const p1Distance = wall.p1.distanceTo(point);
-      const p2Distance = wall.p2.distanceTo(point);
+      const p1Distance = wall.p1.point.distanceTo(point);
+      const p2Distance = wall.p2.point.distanceTo(point);
 
       if (p1Distance < p2Distance) {
-        pt = wall.p1;
+        pt = wall.p1.point;
         distance = p1Distance;
       } else {
-        pt = wall.p2;
+        pt = wall.p2.point;
         distance = p2Distance;
       }
 

@@ -1,6 +1,6 @@
 import {Cloneable} from "./interfaces/cloneable";
-import {Clickable} from "./interfaces/clickable";
-import {Canvas} from "./canvas";
+import {Clickable, ClickableState} from "./interfaces/clickable";
+import {Canvas, DrawOn} from "./canvas";
 
 export class Point implements Cloneable<Point> {
 
@@ -30,7 +30,7 @@ export class Point implements Cloneable<Point> {
    * Check whether the point is equal to another point
    * @param other The other point
    * @returns Whether the point is equal to the other point
-    */
+   */
   equals(other: Point): boolean {
     return this.x === other.x && this.y === other.y;
   }
@@ -144,9 +144,30 @@ export class Point implements Cloneable<Point> {
 }
 
 export class ClickablePoint extends Clickable implements Cloneable<ClickablePoint> {
+  private opacity: number = 0.4;
 
-  constructor(private point: Point) {
+  constructor(public point: Point, private readonly radius: number = 15) {
     super();
+  }
+
+  private getFillColor(opacity: number = 1): string {
+    return `rgba(177,36,36,${opacity})`;
+  }
+
+  public get x(): number {
+    return this.point.x;
+  }
+
+  public set x(value: number) {
+    this.point.x = value;
+  }
+
+  public get y(): number {
+    return this.point.y;
+  }
+
+  public set y(value: number) {
+    this.point.y = value;
   }
 
   applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
@@ -162,26 +183,60 @@ export class ClickablePoint extends Clickable implements Cloneable<ClickablePoin
   }
 
   isPointOnElement(point: Point): boolean {
-    return false;
+    return point.distanceTo(this.point) <= this.radius;
   }
 
   onDrag(offset: Point, recursive: boolean): void {
   }
 
   onHover(): void {
+    this.opacity = 0.8;
   }
 
   onHoverOut(): void {
+    if (this.state !== ClickableState.SELECTED) {
+      this.opacity = 0.4;
+    }
   }
 
   onSelect(): void {
+    this.opacity = 0.8;
   }
 
   onUnselect(): void {
+    this.opacity = 0.4;
   }
 
   restore(element: ClickablePoint): void {
-    this.point = element.point;
+    this.point.restore(element.point);
+  }
+
+  override draw(canvas: Canvas, on: DrawOn) {
+    const context = canvas.snappingLine;
+
+    // draw the intersection circle
+    context.fillStyle = this.getFillColor(this.opacity);
+    context.beginPath();
+    context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+    context.fill();
+
+    if (this.state !== ClickableState.SELECTED) {
+      return;
+    }
+
+    const crossSize = 20;
+    // draw a cross in the intersection
+    context.beginPath();
+    // horizontal line
+    context.moveTo(this.x - crossSize, this.y);
+    context.lineTo(this.x + crossSize, this.y);
+    // vertical line
+    context.moveTo(this.x, this.y - crossSize);
+    context.lineTo(this.x, this.y + crossSize);
+    context.lineWidth = 1;
+    context.lineCap = "butt";
+    context.strokeStyle = "black";
+    context.stroke();
   }
 
 }

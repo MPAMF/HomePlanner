@@ -1,8 +1,8 @@
 import {Comparable} from "./comparable";
-import {Point} from "./point";
+import {Point} from "../point";
 import {Drawable} from "./drawable";
-import {Canvas, DrawOn} from "./canvas";
-import {ActionsButtonOptions} from "./action-button-options";
+import {ActionsButtonOptions} from "../action-button-options";
+import {Canvas, DrawOn} from "../canvas";
 
 export enum ClickableState {
   NONE,
@@ -45,7 +45,7 @@ export abstract class Clickable extends Comparable implements Drawable {
   abstract onSelect(): void;
 
   /**
-   * Method call when the clickable was selected and turn to an other state
+   * Method call when the clickable was selected and turn to another state
    */
   abstract onUnselect(): void;
 
@@ -55,7 +55,7 @@ export abstract class Clickable extends Comparable implements Drawable {
   abstract onHover(): void;
 
   /**
-   * Method call when the clickable was hovered and turn to an other state
+   * Method call when the clickable was hovered and turn to another state
    */
   abstract onHoverOut(): void;
 
@@ -70,6 +70,13 @@ export abstract class Clickable extends Comparable implements Drawable {
    * @param newState the new visible status
    */
   abstract setVisibleState(newState: boolean): void;
+
+  /**
+   * Method call when the clickable is dragged
+   * @param offset The offset of the drag
+   * @param recursive true if the drag is recursive (all the children are dragged)
+   */
+  abstract onDrag(offset: Point, recursive: boolean): void;
 
   /**
    * Update the attribute state

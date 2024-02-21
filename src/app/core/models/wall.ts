@@ -1,5 +1,5 @@
 import {Point} from "./point";
-import {Clickable, ClickableState} from "./clickable";
+import {Clickable, ClickableState} from "./interfaces/clickable";
 import {Canvas, DrawOn} from "./canvas";
 import {Utils} from "../modules/utils";
 import {ActionButtonProps, ActionsButtonOptions} from "./action-button-options";
@@ -7,27 +7,24 @@ import {Board} from "./board";
 import {CommandInvoker} from "../commands/command";
 import {DivideWallCommand} from "../commands/wall-commands";
 import {HideClickableCommand} from "../commands/clickable-commands";
+import {Cloneable} from "./interfaces/cloneable";
 
-export class WallElement extends Clickable {
-  override getColor(): string {
-      throw new Error("Method not implemented.");
-  }
 
-  constructor(
+export abstract class WallElement extends Clickable implements Cloneable<WallElement> {
+  protected constructor(
     public p1: Point,
     public p2: Point,
   ) {
     super();
   }
 
+  override getColor(): string {
+    throw new Error("Method not implemented.");
+  }
+
   // Calculate the length of the wall element
   length(): number {
     return this.p1.distanceTo(this.p2);
-  }
-
-  // Clone the wall element to create a new instance with the same points
-  clone(): WallElement {
-    return new WallElement(this.p1, this.p2);
   }
 
   override isPointOnElement(point: Point): boolean {
@@ -61,9 +58,14 @@ export class WallElement extends Clickable {
 
   override setVisibleState(newState: boolean) {
   }
+
+  abstract clone() : WallElement;
+
+  abstract restore(element: WallElement) : void;
+
 }
 
-export class Wall extends Clickable {
+export class Wall extends Clickable implements Cloneable<Wall> {
 
   constructor(
     public p1: Point,
@@ -99,7 +101,7 @@ export class Wall extends Clickable {
    * Get the wall color or the default one
    */
   override getColor(): string {
-    switch (this.state){
+    switch (this.state) {
       case ClickableState.NONE:
         return this.color ?? this.defaultColor;
 
@@ -191,8 +193,21 @@ export class Wall extends Clickable {
    * Clone the wall to create a new instance with the same points
    */
   clone(): Wall {
-    return new Wall(this.p1, this.p2, this.defaultThickness, this.defaultColor, this.defaultSelectedColor, this.thickness,
-      this.color, this.selectedColor, this.elements.map(el => el.clone()));
+    return new Wall(this.p1.clone(), this.p2.clone(), this.defaultThickness, this.defaultColor, this.defaultSelectedColor, this.thickness,
+      this.color, this.selectedColor, this.elements.map(el => el.clone()), this.isFinalized);
+  }
+
+  restore(wall: Wall) {
+    this.p1 = wall.p1;
+    this.p2 = wall.p2;
+    this.defaultThickness = wall.defaultThickness;
+    this.defaultColor = wall.defaultColor;
+    this.defaultSelectedColor = wall.defaultSelectedColor;
+    this.thickness = wall.thickness;
+    this.color = wall.color;
+    this.selectedColor = wall.selectedColor;
+    this.elements = wall.elements.map(el => el.clone());
+    this.isFinalized = wall.isFinalized;
   }
 
   override isPointOnElement(point: Point): boolean {
@@ -215,12 +230,14 @@ export class Wall extends Clickable {
 
   override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
     const ctx = !this.isFinalized ? canvas.snappingLine : canvas.background;
+
     if (this.isVisible) {
       ctx.beginPath();
       ctx.moveTo(this.p1.x, this.p1.y);
       ctx.lineTo(this.p2.x, this.p2.y);
       ctx.lineWidth = this.getThickness();
       ctx.strokeStyle = this.getColor();
+      ctx.lineCap = "round";
       ctx.stroke();
     }
 
@@ -259,6 +276,15 @@ export class Wall extends Clickable {
 
     newActionButtonOptions.buttonsAndActions = [hideButton, divideButton];
     return newActionButtonOptions;
+}
+
+  override onDrag(offset: Point, recursive: boolean) {
+    this.p1 = this.p1.translatePoint(offset);
+    this.p2 = this.p2.translatePoint(offset);
+    if (!recursive) {
+      return;
+    }
+    this.elements.forEach(element => element.onDrag(offset, recursive));
   }
 
   override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {

@@ -1,5 +1,5 @@
 /**
- * This class is used to store config informations of the board
+ * This class is used to store config information of the board
  */
 export class BoardConfig {
 

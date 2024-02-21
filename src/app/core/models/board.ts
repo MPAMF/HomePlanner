@@ -1,29 +1,34 @@
-import {Drawable} from "./drawable";
+import {Drawable} from "./interfaces/drawable";
 import {DrawState, isWallDrawState} from "./draw-state";
 import {Point} from "./point";
 import {BoardConfig} from "./board-config";
-import {Clickable, ClickableState} from "./clickable";
+import {Clickable, ClickableState} from "./interfaces/clickable";
 import {applyToCanvas, Canvas, clearCanvas, drawImage, DrawOn, getScale} from "./canvas";
 import {afterNextRender} from "@angular/core";
 import {Room} from "./room";
 import {ActionsButtonOptions} from "./action-button-options";
+import {Wall} from "./wall";
 
 export class Board implements Drawable {
   public rooms: Room[];
   public drawState: DrawState;
   public mousePosition: Point;
   public isPanning: boolean; // Whether the user is panning the canvas (moving the canvas around)
+  public isDragging: boolean; // Whether the user is dragging an element
+  public draggingApplyFn?: () => void;
   public currentRoom?: Room; // This room is the room that is currently being edited
   public actionsButtonOptions: ActionsButtonOptions = new ActionsButtonOptions();
   private image?: HTMLImageElement;
-  private isAnClickableSelected: boolean = false;
-  private isAnClickableHovered: boolean = false;
+  public selectedElement?: Clickable;
+  public hoveredElement?: Clickable;
+
   constructor(
     public boardConfig: BoardConfig = new BoardConfig()
   ) {
     this.rooms = [];
     this.drawState = DrawState.None; // defaults to none
     this.isPanning = false;
+    this.isDragging = false;
     this.mousePosition = new Point(0, 0);
 
     afterNextRender(() => {
@@ -84,42 +89,50 @@ export class Board implements Drawable {
    * This function reset the selected state and possibly select a element on the board
    * @param canvas The canvas
    * @param point The position of the mouse
-   * @param clickableState
+   * @param state
    */
-  selectElementsOnCanvas(canvas: Canvas, point: Point, clickableState: ClickableState): void {
-    if (this.isAnClickableSelected && clickableState == ClickableState.SELECTED
-      || this.isAnClickableHovered && clickableState == ClickableState.HOVERED) {
+  selectElementsOnCanvas(canvas: Canvas, point: Point, state: ClickableState): void {
+    if (this.selectedElement && state == ClickableState.SELECTED
+      || this.hoveredElement && state == ClickableState.HOVERED) {
 
       this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
-        const hasChange: boolean = clickable.resetState(clickableState);
-        if(hasChange) {
+        const hasChange: boolean = clickable.resetState(state);
+        if (hasChange) {
           clickable.draw(canvas, DrawOn.Background);
-          clickableState == ClickableState.SELECTED && (this.actionsButtonOptions = new ActionsButtonOptions());
+          state == ClickableState.SELECTED && (this.actionsButtonOptions = new ActionsButtonOptions());
         }
         return true;
       });
     }
 
-    const isElementSelected: boolean = this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
-      const isTheNearestElement = clickable.isPointOnElement(point);
-      if (isTheNearestElement) {
-        clickable.setState(clickableState);
-        clickableState == ClickableState.SELECTED && (this.actionsButtonOptions = clickable.getActionButtonOptions(point));
-        this.draw(canvas, DrawOn.Background);
+    let element: Clickable | undefined = undefined
+
+    this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
+      const isOnElement = clickable.isPointOnElement(point);
+      if (isOnElement) {
+        clickable.setState(state);
+        clearCanvas(canvas.snappingLine);
+        clickable.draw(canvas, DrawOn.All);
+        state == ClickableState.SELECTED && (this.actionsButtonOptions = clickable.getActionButtonOptions(point));
+        element = clickable;
       }
 
-      return !isTheNearestElement;
+      return !isOnElement;
     });
 
-    switch (clickableState) {
+    switch (state) {
       case ClickableState.SELECTED:
-        this.isAnClickableSelected = isElementSelected;
+        this.selectedElement = element;
         break;
 
       case ClickableState.HOVERED:
-        this.isAnClickableHovered = isElementSelected;
+        this.hoveredElement = element;
         break;
     }
+
+    // update cursor
+    this.drawCursor(canvas.snappingLine);
+
   }
 
   /**
@@ -139,7 +152,6 @@ export class Board implements Drawable {
     for (let i = 0; i < tempRooms.length; i++) {
 
       const room = tempRooms[i];
-
       const closestWallPoint = tempRooms[i].findClosestWallPoint(point, maxDistance, excludeLastWall && room === this.currentRoom);
 
       if (!closestWallPoint) {
@@ -181,6 +193,10 @@ export class Board implements Drawable {
     drawImage(ctx, this.image, new Point(pt.x, pt.y - 30 / getScale(ctx).y), 30, 30);
   }
 
+  /**
+   * Find the cursor to display
+   * @returns The cursor to display
+   */
   private findCursor(): string {
     if (this.isPanning) {
       return "grabbing";
@@ -192,7 +208,26 @@ export class Board implements Drawable {
       case DrawState.Move:
         return "grab";
       default:
+
+        if (this.hoveredElement && this.hoveredElement instanceof Wall) {
+          return "move";
+        }
+
+        if (this.selectedElement) {
+          return "move";
+        }
+
         return "default";
     }
   }
+
+  /**
+   * Get the room that contains the given wall
+   * @param wall Wall to find the room of
+   * @returns The room that contains the given wall
+   */
+  public getRoomByWall(wall: Wall): Room | undefined {
+    return this.rooms.find(room => room.walls.includes(wall));
+  }
+
 }

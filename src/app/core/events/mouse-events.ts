@@ -3,18 +3,20 @@ import {Wall} from "../models/wall";
 import {DrawState} from "../models/draw-state";
 import {AddWallCommand, EditLastWallWithPointCommand, FinaliseLastWallCommand,} from "../commands/wall-commands";
 import {CommandInvoker} from "../commands/command";
-import {MoveCommand} from "../commands/canvas-commands";
+import {DragObjectCommand, EndObjectDragCommand, MoveCommand, StartObjectDragCommand} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
 import {applyToCanvas, DrawOn, getScale, inverseTransformPoint, zoomCanvas} from "../models/canvas";
 
 export class MouseEvents extends BaseEvent {
   private panStart: Point;
+  private dragStart: Point;
   private readonly maxZoom: number;
   private readonly minZoom: number;
 
   constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker) {
     super(cmdInvoker, actionCmdInvoker);
     this.panStart = new Point(0, 0);
+    this.dragStart = new Point(0, 0);
     this.maxZoom = 5;
     this.minZoom = 0.1;
   }
@@ -37,6 +39,16 @@ export class MouseEvents extends BaseEvent {
       this.panStart.y = event.clientY;
 
       this.cmdInvoker.execute(new MoveCommand(new Point(dx, dy)));//Right click
+      return;
+    }
+
+    if (this.board.isDragging && this.board.selectedElement) {
+      const dx = event.clientX - this.dragStart.x;
+      const dy = event.clientY - this.dragStart.y;
+      this.dragStart.x = event.clientX;
+      this.dragStart.y = event.clientY;
+
+      this.cmdInvoker.execute(new DragObjectCommand(new Point(dx, dy)), false);
       return;
     }
 
@@ -76,7 +88,7 @@ export class MouseEvents extends BaseEvent {
      * 1 = Middle click
      * 2 = Right click
      */
-    if (this.board.drawState !== DrawState.WallCreation && event.button === 2) { //Left click
+    if (this.board.drawState !== DrawState.WallCreation && event.button === 2) {
       this.board.isPanning = true;
       this.cmdInvoker.redraw(DrawOn.All);
       this.panStart.x = event.clientX;
@@ -91,6 +103,7 @@ export class MouseEvents extends BaseEvent {
         break;
       case DrawState.WallCreation: {
         const closestPt = this.board.findClosestWallPoint(pt, 10, true);
+        const hasAnyWalls = this.board.currentRoom && this.board.currentRoom.hasAnyWalls();
 
         if (closestPt) {
           const [pt, isCurrentRoom] = closestPt;
@@ -98,12 +111,15 @@ export class MouseEvents extends BaseEvent {
           const addWallCommand = new AddWallCommand(new Wall(pt, pt, this.board.boardConfig.wallThickness,
             this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor));
 
-          if (isCurrentRoom && this.board.currentRoom && this.board.currentRoom.hasAnyWalls()) {
-              const firstWall = this.board.currentRoom.walls[0];
-              if (firstWall.p1.equals(pt) || firstWall.p2.equals(pt)) {
-                this.cmdInvoker.execute(new FinaliseLastWallCommand());
-                return;
-              }
+          if (isCurrentRoom && hasAnyWalls) {
+            const firstWall = this.board.currentRoom!.walls[0];
+            if (firstWall.p1.equals(pt) || firstWall.p2.equals(pt)) {
+              this.cmdInvoker.execute(new FinaliseLastWallCommand());
+              return;
+            }
+
+            this.cmdInvoker.execute(addWallCommand);
+            return;
           }
 
           this.cmdInvoker.execute(addWallCommand);
@@ -111,9 +127,9 @@ export class MouseEvents extends BaseEvent {
         }
 
         // To fix the distance between the wall paste with the angle help and the position of the mouse
-        if(this.board.currentRoom && this.board.currentRoom.hasAnyWalls()){
-          const len = this.board.currentRoom.walls.length;
-          const lastWall = this.board.currentRoom.walls[len-1];
+        if (hasAnyWalls) {
+          const len = this.board.currentRoom!.walls.length;
+          const lastWall = this.board.currentRoom!.walls[len - 1];
           pt = lastWall.p2;
         }
 
@@ -139,7 +155,15 @@ export class MouseEvents extends BaseEvent {
         break;
 
       case DrawState.None:
+
         this.board.onClick(this.canvas, pt);
+
+        if (event.button === 0 && this.board.selectedElement) {
+          this.dragStart.x = event.clientX;
+          this.dragStart.y = event.clientY;
+          this.cmdInvoker.execute(new StartObjectDragCommand(/*pt*/));
+        }
+
         break;
 
       default:
@@ -152,6 +176,11 @@ export class MouseEvents extends BaseEvent {
    */
   onMouseUp(event: MouseEvent) {
     if (!this.canvas) return;
+
+    if (event.button === 0 && this.board.isDragging) {
+      this.cmdInvoker.execute(new EndObjectDragCommand(), false);
+      return;
+    }
 
     if (this.board.isPanning) {
       this.board.isPanning = false;
@@ -200,19 +229,6 @@ export class MouseEvents extends BaseEvent {
     }
   }
 
-  private getMouseXPosition(event: MouseEvent): number {
-    return event.clientX - this.canvas.background.canvas.getBoundingClientRect().left;
-  }
-
-  private getMouseYPosition(event: MouseEvent): number {
-    return event.clientY - this.canvas.background.canvas.getBoundingClientRect().top;
-  }
-
-  private setMousePosition(event: MouseEvent) {
-    const pt = new Point(event.clientX, event.clientY);
-    this.board.mousePosition = inverseTransformPoint(this.canvas.background, pt);
-  }
-
   override bind() {
     this.canvas.snappingLine.canvas.addEventListener('mousedown', this.onMouseDown.bind(this));
     this.canvas.snappingLine.canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
@@ -229,6 +245,19 @@ export class MouseEvents extends BaseEvent {
     this.canvas.snappingLine.canvas.removeEventListener('contextmenu', this.onContextMenu.bind(this));
     this.canvas.snappingLine.canvas.removeEventListener('wheel', this.onWheel.bind(this));
     this.canvas.snappingLine.canvas.removeEventListener('mouseout', this.onMouseOut.bind(this));
+  }
+
+  private getMouseXPosition(event: MouseEvent): number {
+    return event.clientX - this.canvas.background.canvas.getBoundingClientRect().left;
+  }
+
+  private getMouseYPosition(event: MouseEvent): number {
+    return event.clientY - this.canvas.background.canvas.getBoundingClientRect().top;
+  }
+
+  private setMousePosition(event: MouseEvent) {
+    const pt = new Point(event.clientX, event.clientY);
+    this.board.mousePosition = inverseTransformPoint(this.canvas.background, pt);
   }
 }
 

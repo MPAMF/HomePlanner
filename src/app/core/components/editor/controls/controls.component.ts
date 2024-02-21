@@ -15,6 +15,7 @@ import {MatIconModule} from "@angular/material/icon";
 export class ControlsComponent {
   @Input() commandInvoker?: CommandInvoker;
   @Input() actionsCommandInvoker?: CommandInvoker;
+  protected readonly DrawState = DrawState;
 
   isActiveCommand(drawState: DrawState): boolean {
     return this.actionsCommandInvoker?.board?.drawState === drawState;
@@ -31,6 +32,4 @@ export class ControlsComponent {
   onClickZoomOut() {
     // this.actionsCommandInvoker?.execute(new DeZoomCommand(1.1));
   }
-
-  protected readonly DrawState = DrawState;
 }

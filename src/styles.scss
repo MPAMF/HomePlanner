@@ -108,8 +108,8 @@ button:not(:disabled):active, .active-button:not(:disabled) {
 .left-centered {
   position: fixed;
   left: 10px;
-  top: calc((100% + var(--header-height))/ 2);
-  transform: translate(0,-50%);
+  top: calc((100% + var(--header-height)) / 2);
+  transform: translate(0, -50%);
 }
 
 .mat-mdc-dialog-container .mdc-dialog__surface {

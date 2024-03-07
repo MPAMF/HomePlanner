@@ -1,7 +1,7 @@
 import {ClickablePoint, Point} from "../models/point";
 import {Wall} from "../models/wall";
 import {DrawState} from "../models/draw-state";
-import {AddWallCommand, EditLastWallWithPointCommand, FinaliseLastWallCommand,} from "../commands/wall-commands";
+import {AddWallCommand, EditLastWallWithPointCommand, FinaliseRoomCommand,} from "../commands/wall-commands";
 import {CommandInvoker} from "../commands/command";
 import {DragObjectCommand, EndObjectDragCommand, MoveCommand, StartObjectDragCommand} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
@@ -109,13 +109,15 @@ export class MouseEvents extends BaseEvent {
         if (closestPt) {
           const [pt, isCurrentRoom] = closestPt;
 
-          const addWallCommand = new AddWallCommand(new Wall(new ClickablePoint(pt), new ClickablePoint(pt), this.board.boardConfig.wallThickness,
-            this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor));
+          const addWallCommand = new AddWallCommand(new Wall(new ClickablePoint(pt),
+            new ClickablePoint(pt), this.board.boardConfig.wallThickness,
+            this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor)
+          );
 
           if (isCurrentRoom && hasAnyWalls) {
             const firstWall = this.board.currentRoom!.walls[0];
             if (firstWall.p1.point.equals(pt) || firstWall.p2.point.equals(pt)) {
-              this.cmdInvoker.execute(new FinaliseLastWallCommand());
+              this.cmdInvoker.execute(new FinaliseRoomCommand());
               return;
             }
 

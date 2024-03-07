@@ -139,7 +139,7 @@ export class EditLastWallWithPointCommand extends Command {
   }
 }
 
-export class FinaliseLastWallCommand extends Command {
+export class FinaliseRoomCommand extends Command {
 
   constructor() {
     super();
@@ -159,6 +159,7 @@ export class FinaliseLastWallCommand extends Command {
     this.board.rooms.push(currentRoom);
     this.board.currentRoom = undefined;
     this.board.drawState = DrawState.None; // When a room is finalized, the user should not be able to draw walls
+    this.board.normalisePoints();
   }
 
   override undo(): void {

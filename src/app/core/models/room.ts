@@ -3,7 +3,6 @@ import {Point} from "./point";
 import {Canvas, DrawOn} from "./canvas";
 import {Clickable, ClickableState} from "./interfaces/clickable";
 import {Cloneable} from "./interfaces/cloneable";
-import {Intersection} from "./intersection";
 
 export class Room extends Clickable implements Cloneable<Room> {
 
@@ -12,7 +11,6 @@ export class Room extends Clickable implements Cloneable<Room> {
     public background: string = '', // TODO: texture
     public isFinalized: boolean = false,
     public walls: Wall[] = [],
-    public intersections: Intersection[] = []
   ) {
     super();
   }
@@ -139,7 +137,6 @@ export class Room extends Clickable implements Cloneable<Room> {
     //   return;
     // }
     this.walls.forEach(wall => wall.onDrag(offset, recursive));
-    this.intersections.forEach(intersection => intersection.onDrag(offset, recursive));
   }
 
   override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
@@ -154,13 +151,11 @@ export class Room extends Clickable implements Cloneable<Room> {
   override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
     // TODO: maybe first draw the non-selected walls and then the selected ones
     this.walls.forEach(wall => wall.draw(canvas, on));
-    this.intersections.forEach(intersection => intersection.draw(canvas, on));
   }
 
   clone() {
     return new Room(this.name, this.background, this.isFinalized,
       this.walls.map(wall => wall.clone()),
-      this.intersections.map(intersection => intersection.clone())
     );
   }
 
@@ -169,7 +164,6 @@ export class Room extends Clickable implements Cloneable<Room> {
     this.background = room.background;
     this.isFinalized = room.isFinalized;
     this.walls = room.walls.map(wall => wall.clone());
-    this.intersections = room.intersections.map(intersection => intersection.clone());
   }
 
 }

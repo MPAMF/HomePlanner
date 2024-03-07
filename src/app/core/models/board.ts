@@ -1,6 +1,6 @@
 import {Drawable} from "./interfaces/drawable";
 import {DrawState, isWallDrawState} from "./draw-state";
-import {Point} from "./point";
+import {ClickablePoint, Point} from "./point";
 import {BoardConfig} from "./board-config";
 import {Clickable, ClickableState} from "./interfaces/clickable";
 import {applyToCanvas, Canvas, clearCanvas, drawImage, DrawOn, getScale} from "./canvas";
@@ -225,4 +225,24 @@ export class Board implements Drawable {
     return this.rooms.find(room => room.walls.includes(wall));
   }
 
+  /**
+   * Normalise the points of the walls
+   * This function is used to remove all duplicates points
+   * and replace all references to the old points with the new ones
+   * This function should be called after all the walls are added (room finalised)
+   */
+  public normalisePoints() {
+    const points = this.rooms.map(room => room.walls.flatMap(w => [w.p1, w.p2])).flat();
+    console.debug(points);
+    const uniquePoints: { [key: string]: ClickablePoint } = {};
+    // remove all duplicates (in coordinates)
+    points.forEach(p => uniquePoints[p.point.toString()] = p);
+    console.debug(uniquePoints);
+    // now that we have unique points, we can replace all references to the old points with the new ones
+    this.rooms.forEach(room => room.walls.forEach(w => {
+      w.p1 = uniquePoints[w.p1.point.toString()];
+      w.p2 = uniquePoints[w.p2.point.toString()];
+    }));
+    console.log(this.rooms.map(room => room.walls.flatMap(w => [w.p1, w.p2])).flat());
+  }
 }

@@ -1,5 +1,5 @@
 import {Command} from "./command";
-import {Point} from "../models/point";
+import {ClickablePoint, Point} from "../models/point";
 import {applyToCanvas, DrawOn, moveCanvas} from "../models/canvas";
 import {DrawState} from "../models/draw-state";
 import {Room} from "../models/room";
@@ -42,8 +42,8 @@ export class ResetCurrentRoomCommand extends Command {
 }
 
 export class StartObjectDragCommand extends Command {
-  private selectedElement: Wall | Room | Door | Window | undefined;
-  private selectedElementClone: Wall | Room | Door | Window | undefined;
+  private selectedElement: Wall | Room | Door | Window | ClickablePoint | undefined;
+  private selectedElementClone: Wall | Room | Door | Window | ClickablePoint | undefined;
   private walls?: Wall[];
   private draggingApplyFn?: () => void;
 
@@ -97,6 +97,13 @@ export class StartObjectDragCommand extends Command {
     } else if (selectedElement instanceof Door || selectedElement instanceof Window) {
       this.selectedElement = selectedElement;
       this.selectedElementClone = selectedElement.clone();
+    } else if (selectedElement instanceof ClickablePoint) {
+      this.selectedElement = selectedElement;
+      this.selectedElementClone = selectedElement.clone();
+      this.draggingApplyFn = () => {
+        selectedElement.restore(selectedElement);
+      }
+      this.board.draggingApplyFn = this.draggingApplyFn;
     } else {
       throw new Error("Unknown element");
     }
@@ -117,6 +124,8 @@ export class StartObjectDragCommand extends Command {
     } else if (this.selectedElement instanceof Door && this.selectedElementClone instanceof Door) {
       this.selectedElement.restore(this.selectedElementClone);
     } else if (this.selectedElement instanceof Window && this.selectedElementClone instanceof Window) {
+      this.selectedElement.restore(this.selectedElementClone);
+    } else if (this.selectedElement instanceof ClickablePoint && this.selectedElementClone instanceof ClickablePoint) {
       this.selectedElement.restore(this.selectedElementClone);
     } else {
       throw new Error("Unknown element");

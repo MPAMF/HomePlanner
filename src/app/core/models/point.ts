@@ -141,6 +141,10 @@ export class Point implements Cloneable<Point> {
     return (dxc * dyl - dyc * dxl) <= 0;
   }
 
+  toString(): string {
+    return `(${this.x}, ${this.y})`;
+  }
+
 }
 
 export class ClickablePoint extends Clickable implements Cloneable<ClickablePoint> {
@@ -238,5 +242,4 @@ export class ClickablePoint extends Clickable implements Cloneable<ClickablePoin
     context.strokeStyle = "black";
     context.stroke();
   }
-
 }

@@ -5,7 +5,7 @@ export const bottomToTopScaleAnimation: AnimationTriggerMetadata = trigger('butt
     transform: 'scale(1)'
   })),
   transition('* => open',
-    animate('1000ms', keyframes([
+    animate('400ms', keyframes([
         style({transform: 'scale(0) translateY(-100%)'}),
         style({transform: 'scale(0.25) translateY(-75%)'}),
         style({transform: 'scale(0.5) translateY(-50%)'}),

@@ -1,3 +1,5 @@
+import {Point} from "../models/point";
+
 export class Utils {
 
   /**
@@ -18,5 +20,25 @@ export class Utils {
 
   public static CalculatePIOverFour(angleInDegrees: number): number {
     return angleInDegrees / 45;
+  }
+
+  public static CalculateAffineFunction(a :number, x: number, b: number): number{
+    return a * x + b;
+  }
+
+  public static CalculateAngle(point1Vector1: Point, point2Vector1: Point, point1Vector2: Point, point2Vector2: Point): number {
+    const vector1 = new Point(point2Vector1.x - point1Vector1.x, point2Vector1.y - point1Vector1.y);
+    const vector2 = new Point(point2Vector2.x - point1Vector2.x, point2Vector2.y - point1Vector2.y);
+
+    const magnitude1 = Math.sqrt(vector1.x ** 2 + vector1.y ** 2);
+    const magnitude2 = Math.sqrt(vector2.x ** 2 + vector2.y ** 2);
+    const cosineTheta = vector1.dotProduct(vector2) / (magnitude1 * magnitude2);
+
+    let angleInRadians = Math.acos(cosineTheta);
+    if (point2Vector1.isRight(point1Vector2, point2Vector2)) {
+      angleInRadians = 2 * Math.PI - angleInRadians;
+    }
+
+    return angleInRadians;
   }
 }

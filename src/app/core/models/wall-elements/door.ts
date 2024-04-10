@@ -29,7 +29,9 @@ export class Door extends WallElement {
   }
 
   clone(): WallElement {
-    return new Door(this.p1.clone(), this.p2.clone());
+    return new Door(this.p1.clone(), this.p2.clone(), this.angleInDegreesWithUnitaryVector, this.defaultLength,
+      this.defaultThickness, this.defaultColor, this.defaultSelectedColor, this.thickness, this.color, this.selectedColor,
+      this.length, this.isFinalized);
   }
 
   restore(element: WallElement): void {

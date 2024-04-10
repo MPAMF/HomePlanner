@@ -67,10 +67,24 @@ export class Board implements Drawable {
    * Interaction to do on the board when the user click
    * @param canvas The canvas
    * @param point the position of the mouse
+   * @param drawState The draw state
    */
-  onClick(canvas: Canvas, point: Point): void {
+  onClick(canvas: Canvas, point: Point, drawState: DrawState): Wall | undefined {
+    let nearestWall: Wall | undefined;
+
     //Select element section
-    this.selectElementsOnCanvas(canvas, point, ClickableState.SELECTED);
+    switch (drawState){
+      case DrawState.None:
+        this.selectElementsOnCanvas(canvas, point, ClickableState.SELECTED);
+        break;
+
+      case DrawState.Window:
+        nearestWall =  this.findClosestWall(point);
+        nearestWall?.setColor('#FF5733');
+        break;
+    }
+
+    return nearestWall;
   }
 
   /**
@@ -127,6 +141,43 @@ export class Board implements Drawable {
     // update cursor
     this.drawCursor(canvas.snappingLine);
 
+  }
+
+  public findClosestWall(point: Point): Wall | undefined {
+    let nearestWall: Wall | undefined;
+    let lastShortestDistance: number = -1;
+    let index: number;
+
+    for (const room of this.rooms) {
+      index = 0;
+      for (const wall of room.walls) {
+        index++;
+        console.log(`wall ${index} : (${wall.p1.x}, ${wall.p1.y}) (${wall.p2.x}, ${wall.p2.y})`)
+        console.log(`point : (${point.x}, ${point.y})`)
+
+        const p1xSupP2x: boolean = (point.x >= wall.p2.x) && (point.x <= wall.p1.x);
+        const p2xSupP1x: boolean = (point.x >= wall.p1.x) && (point.x <= wall.p2.x);
+
+        const p1ySupP2y: boolean = (point.y >= wall.p2.y) && (point.y <= wall.p1.y);
+        const p2ySupP1y: boolean = (point.y >= wall.p1.y) && (point.y <= wall.p2.y);
+
+        if( (p1xSupP2x || p2xSupP1x) && (p1ySupP2y || p2ySupP1y)){
+
+          const proportion: number = (point.x - wall.p1.x) / (wall.p2.x - wall.p1.x);
+          const pointInTheNearestWall: Point = new Point( point.x, wall.p1.y + proportion * (wall.p2.y - wall.p1.y));
+
+          const newDistance: number = pointInTheNearestWall.distanceTo(point);
+
+          if (lastShortestDistance > newDistance || lastShortestDistance == -1){
+            lastShortestDistance = newDistance;
+            nearestWall = wall;
+            console.log('true')
+          }
+        }
+      }
+    }
+
+    return nearestWall;
   }
 
   /**

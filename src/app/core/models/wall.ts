@@ -8,17 +8,66 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
   protected constructor(
     public p1: Point,
     public p2: Point,
+    public angleInDegreesWithUnitaryVector: number,
+    protected defaultLength: number,
+    protected defaultThickness: number,
+    protected defaultColor: string,
+    protected defaultSelectedColor: string,
+    protected thickness?: number,
+    protected color?: string,
+    protected selectedColor?: string,
+    protected length?: number,
+    public isFinalized: boolean = false
   ) {
     super();
   }
 
-  override getColor(): string {
-    throw new Error("Method not implemented.");
+  /**
+   * Get the wall thickness or the default one
+   */
+  getThickness(): number {
+    return this.thickness ?? this.defaultThickness;
   }
 
-  // Calculate the length of the wall element
-  length(): number {
-    return this.p1.distanceTo(this.p2);
+  /**
+   * Set the thickness of the wall
+   * @param newThickness the new thickness of the wall
+   */
+  setThickness(newThickness: number): void {
+    this.thickness = newThickness;
+  }
+
+  /**
+   * Get the wall color or the default one
+   */
+  override getColor(): string {
+    switch (this.state) {
+      case ClickableState.NONE:
+        return this.color ?? this.defaultColor;
+
+      default:
+        return this.selectedColor ?? this.defaultSelectedColor;
+    }
+  }
+
+  /**
+   * Set the color of the wall element
+   * @param newColor the new color
+   */
+  setColor(newColor: string): void {
+    this.color = newColor;
+  }
+
+  getLength(): number {
+    return this.length ?? this.defaultLength;
+  }
+
+  /**
+   * Set the length of the wall element
+   * @param newLength new length
+   */
+  setLength(newLength: number): void {
+    this.length = newLength;
   }
 
   override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
@@ -116,18 +165,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    * @param point2 The second point of the vector
    */
   calculateAngleWithTwoPoint(point1: Point, point2: Point): number {
-    const vector1 = new Point(this.p2.x - this.p1.x, this.p2.y - this.p1.y);
-    const vector2 = new Point(point2.x - point1.x, point2.y - point1.y);
-    const magnitude1 = Math.sqrt(vector1.x ** 2 + vector1.y ** 2);
-    const magnitude2 = Math.sqrt(vector2.x ** 2 + vector2.y ** 2);
-    const cosineTheta = vector1.dotProduct(vector2) / (magnitude1 * magnitude2);
-
-    let angleInRadians = Math.acos(cosineTheta);
-    if (this.p2.isRight(point1, point2)) {
-      angleInRadians = 2 * Math.PI - angleInRadians;
-    }
-
-    return Utils.ConvertAngleToDegrees(angleInRadians);
+    return Utils.ConvertAngleToDegrees(Utils.CalculateAngle(this.p1, this.p2, point1, point2));
   }
 
   /**

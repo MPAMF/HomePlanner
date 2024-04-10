@@ -6,6 +6,8 @@ import {CommandInvoker} from "../commands/command";
 import {DragObjectCommand, EndObjectDragCommand, MoveCommand, StartObjectDragCommand} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
 import {applyToCanvas, DrawOn, getScale, inverseTransformPoint, zoomCanvas} from "../models/canvas";
+import {AddWindowCommand} from "../commands/wall-element-commands";
+import {Utils} from "../modules/utils";
 
 export class MouseEvents extends BaseEvent {
   private panStart: Point;
@@ -56,13 +58,17 @@ export class MouseEvents extends BaseEvent {
       case DrawState.None:
         this.board.onMove(this.canvas, pt);
         break;
+
       case DrawState.Wall:
         this.cmdInvoker.redraw(DrawOn.SnappingLine);
         break;
+
       case DrawState.WallCreation:
         this.cmdInvoker.execute(new EditLastWallWithPointCommand(pt), false);
         break;
+
       case DrawState.Window:
+
         break;
 
       case DrawState.Door:
@@ -96,6 +102,7 @@ export class MouseEvents extends BaseEvent {
       return;
     }
 
+    let nearestWall: Wall | undefined;
     switch (this.board.drawState) {
       case DrawState.Wall:
         this.cmdInvoker.execute(new AddWallCommand(new Wall(pt, pt, this.board.boardConfig.wallThickness,
@@ -149,6 +156,20 @@ export class MouseEvents extends BaseEvent {
         break;
 
       case DrawState.Window:
+        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Window);
+        if(nearestWall){
+
+          // Calcul de la proportion de la distance de D à B par rapport à la longueur totale de BC
+          const a = (pt.x - nearestWall.p1.x) / (nearestWall.p2.x - nearestWall.p1.x);
+
+          const pointInTheNearestWall: Point = new Point( pt.x, Utils.CalculateAffineFunction(a, (nearestWall.p2.y - nearestWall.p1.y), nearestWall.p1.y));
+
+          const angleInDegreesWithUnitaryVector: number = nearestWall.calculateAngleWithTwoPoint(nearestWall.p1, pt);
+
+          this.cmdInvoker.execute(new AddWindowCommand(nearestWall, pointInTheNearestWall,
+            angleInDegreesWithUnitaryVector))
+        }
+
         break;
 
       case DrawState.Door:
@@ -156,7 +177,7 @@ export class MouseEvents extends BaseEvent {
 
       case DrawState.None:
 
-        this.board.onClick(this.canvas, pt);
+        this.board.onClick(this.canvas, pt, DrawState.None);
 
         if (event.button === 0 && this.board.selectedElement) {
           this.dragStart.x = event.clientX;

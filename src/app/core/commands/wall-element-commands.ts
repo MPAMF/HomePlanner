@@ -20,10 +20,8 @@ export class AddWindowCommand extends Command {
     this.previousDrawSate = this.board.drawState;
     this.board.drawState = DrawState.Window;
 
-    const directingCoefficient: number = (this.wall.p2.y - this.wall.p1.y) / (this.wall.p2.x - this.wall.p1.x)
-
     const window: Window =  new Window(
-      this.startPoint, directingCoefficient, this.angleInDegreesWithUnitaryVector,
+      this.startPoint, this.wall.p1, this.wall.p2, this.angleInDegreesWithUnitaryVector,
       this.board.boardConfig.windowLength, this.board.boardConfig.windowThickness,
       this.board.boardConfig.windowColor, this.board.boardConfig.selectWindowColor
     )

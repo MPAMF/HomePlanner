@@ -152,8 +152,8 @@ export class Board implements Drawable {
       index = 0;
       for (const wall of room.walls) {
         index++;
-        console.log(`wall ${index} : (${wall.p1.x}, ${wall.p1.y}) (${wall.p2.x}, ${wall.p2.y})`)
-        console.log(`point : (${point.x}, ${point.y})`)
+        //console.log(`wall ${index} : (${wall.p1.x}, ${wall.p1.y}) (${wall.p2.x}, ${wall.p2.y})`)
+        //console.log(`point : (${point.x}, ${point.y})`)
 
         const p1xSupP2x: boolean = (point.x >= wall.p2.x) && (point.x <= wall.p1.x);
         const p2xSupP1x: boolean = (point.x >= wall.p1.x) && (point.x <= wall.p2.x);
@@ -171,7 +171,7 @@ export class Board implements Drawable {
           if (lastShortestDistance > newDistance || lastShortestDistance == -1){
             lastShortestDistance = newDistance;
             nearestWall = wall;
-            console.log('true')
+            //console.log('true')
           }
         }
       }

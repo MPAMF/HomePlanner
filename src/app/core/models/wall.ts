@@ -10,7 +10,6 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
     public p2: Point,
     protected parentWallP1: Point,
     protected parentWallP2: Point,
-    protected angleInDegreesWithUnitaryVector: number,
     protected defaultLength: number,
     protected defaultThickness: number,
     protected defaultColor: string,
@@ -19,7 +18,8 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
     protected color?: string,
     protected selectedColor?: string,
     protected length?: number,
-    public isFinalized: boolean = false
+    public isFinalized: boolean = false,
+    protected isRotated: boolean = false
   ) {
     super();
   }
@@ -79,6 +79,8 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
   abstract clone() : WallElement;
 
   abstract restore(element: WallElement) : void;
+
+  abstract update(newOriginPoint: Point): void;
 }
 
 export class Wall extends Clickable implements Cloneable<Wall> {
@@ -195,6 +197,13 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   }
 
   /**
+   * Return the vector of the wall
+   */
+  getVector(): Point {
+    return new Point(this.p2.x - this.p1.x, this.p2.y - this.p1.y);
+  }
+
+  /**
    * Clone the wall to create a new instance with the same points
    */
   clone(): Wall {
@@ -275,5 +284,29 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     }
 
     return fn(this);
+  }
+
+  /**
+   * Get the last wall-element added in the wall
+   */
+  public getLastWallElement(): WallElement | undefined {
+    return this.elements.length === 0 ? undefined : this.elements[this.elements.length - 1];
+  }
+
+  /**
+   * Calculate the position of the orthogonal projection onto a Wall
+   * @param point The point to project
+   * @return the projection of the point
+   */
+  projectOrthogonallyOntoWall(point: Point): Point {
+    const segmentVector = new Point(this.p2.x - this.p1.x, this.p2.y - this.p1.y);
+    const pointVector = this.p1.getVector(point);
+
+    // Calculation of the projection of the pointVector onto the segmentVector
+    const projectionMagnitude = (pointVector.x * segmentVector.x + pointVector.y * segmentVector.y) / this.length() ** 2;
+    const projection = new Point(segmentVector.x * projectionMagnitude, segmentVector.y * projectionMagnitude);
+
+    // Add the projection at the beginning of the segment to obtain the coordinates of the projected point
+    return new Point(this.p1.x + projection.x, this.p1.y + projection.y);
   }
 }

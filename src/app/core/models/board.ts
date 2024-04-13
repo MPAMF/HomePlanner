@@ -80,7 +80,6 @@ export class Board implements Drawable {
 
       case DrawState.Window:
         nearestWall =  this.findClosestWall(point);
-        nearestWall?.setColor('#FF5733');
         break;
     }
 
@@ -143,36 +142,34 @@ export class Board implements Drawable {
 
   }
 
+  /**
+   * Find the closest wall to the given point
+   * @param point The point use to search the wall
+   * @return the closest wall if a wall exist
+   */
   public findClosestWall(point: Point): Wall | undefined {
     let nearestWall: Wall | undefined;
     let lastShortestDistance: number = -1;
-    let index: number;
 
     for (const room of this.rooms) {
-      index = 0;
       for (const wall of room.walls) {
-        index++;
-        //console.log(`wall ${index} : (${wall.p1.x}, ${wall.p1.y}) (${wall.p2.x}, ${wall.p2.y})`)
-        //console.log(`point : (${point.x}, ${point.y})`)
 
-        const p1xSupP2x: boolean = (point.x >= wall.p2.x) && (point.x <= wall.p1.x);
-        const p2xSupP1x: boolean = (point.x >= wall.p1.x) && (point.x <= wall.p2.x);
+        // Determine coordinate in the nearest Wall
+        const pointInTheNearestWall: Point = wall.projectOrthogonallyOntoWall(point);
 
-        const p1ySupP2y: boolean = (point.y >= wall.p2.y) && (point.y <= wall.p1.y);
-        const p2ySupP1y: boolean = (point.y >= wall.p1.y) && (point.y <= wall.p2.y);
+        // Check if the point is on the wall
+        const p1xSupP2x: boolean = (pointInTheNearestWall.x >= wall.p2.x) && (pointInTheNearestWall.x <= wall.p1.x);
+        const p2xSupP1x: boolean = (pointInTheNearestWall.x >= wall.p1.x) && (pointInTheNearestWall.x <= wall.p2.x);
 
-        if( (p1xSupP2x || p2xSupP1x) && (p1ySupP2y || p2ySupP1y)){
+        const p1ySupP2y: boolean = (pointInTheNearestWall.y >= wall.p2.y) && (pointInTheNearestWall.y <= wall.p1.y);
+        const p2ySupP1y: boolean = (pointInTheNearestWall.y >= wall.p1.y) && (pointInTheNearestWall.y <= wall.p2.y);
 
-          const proportion: number = (point.x - wall.p1.x) / (wall.p2.x - wall.p1.x);
-          const pointInTheNearestWall: Point = new Point( point.x, wall.p1.y + proportion * (wall.p2.y - wall.p1.y));
-
-          const newDistance: number = pointInTheNearestWall.distanceTo(point);
-
-          if (lastShortestDistance > newDistance || lastShortestDistance == -1){
-            lastShortestDistance = newDistance;
-            nearestWall = wall;
-            //console.log('true')
-          }
+        const isPointOnTheWall: boolean = (p1xSupP2x || p2xSupP1x) && (p1ySupP2y || p2ySupP1y);
+        const newDistance: number = pointInTheNearestWall.distanceTo(point);
+        if ((lastShortestDistance > newDistance || lastShortestDistance == -1)
+          && isPointOnTheWall){
+          lastShortestDistance = newDistance;
+          nearestWall = wall;
         }
       }
     }

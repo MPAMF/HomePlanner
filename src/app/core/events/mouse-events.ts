@@ -6,7 +6,7 @@ import {CommandInvoker} from "../commands/command";
 import {DragObjectCommand, EndObjectDragCommand, MoveCommand, StartObjectDragCommand} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
 import {applyToCanvas, DrawOn, getScale, inverseTransformPoint, zoomCanvas} from "../models/canvas";
-import {AddWindowCommand} from "../commands/wall-element-commands";
+import {AddWindowCommand, EditLastWindowCommand, FinalizeWindowCommand} from "../commands/wall-element-commands";
 import {Utils} from "../modules/utils";
 
 export class MouseEvents extends BaseEvent {
@@ -54,6 +54,7 @@ export class MouseEvents extends BaseEvent {
       return;
     }
 
+    let nearestWall: Wall | undefined;
     switch (this.board.drawState) {
       case DrawState.None:
         this.board.onMove(this.canvas, pt);
@@ -67,8 +68,11 @@ export class MouseEvents extends BaseEvent {
         this.cmdInvoker.execute(new EditLastWallWithPointCommand(pt), false);
         break;
 
-      case DrawState.Window:
-
+      case DrawState.WindowPlacement:
+        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Window);
+        if(nearestWall){
+          this.cmdInvoker.execute(new EditLastWindowCommand(nearestWall, pt))
+        }
         break;
 
       case DrawState.Door:
@@ -158,18 +162,15 @@ export class MouseEvents extends BaseEvent {
       case DrawState.Window:
         nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Window);
         if(nearestWall){
-
-          // Calcul de la proportion de la distance de D à B par rapport à la longueur totale de BC
-          const a = (pt.x - nearestWall.p1.x) / (nearestWall.p2.x - nearestWall.p1.x);
-
-          const pointInTheNearestWall: Point = new Point( pt.x, Utils.CalculateAffineFunction(a, (nearestWall.p2.y - nearestWall.p1.y), nearestWall.p1.y));
-
-          const angleInDegreesWithUnitaryVector: number = nearestWall.calculateAngleWithTwoPoint(nearestWall.p1, pt);
-
-          this.cmdInvoker.execute(new AddWindowCommand(nearestWall, pointInTheNearestWall,
-            angleInDegreesWithUnitaryVector))
+          this.cmdInvoker.execute(new AddWindowCommand(nearestWall, pt))
         }
+        break;
 
+      case DrawState.WindowPlacement:
+        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Window);
+        if(nearestWall){
+          this.cmdInvoker.execute(new FinalizeWindowCommand(nearestWall))
+        }
         break;
 
       case DrawState.Door:

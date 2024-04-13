@@ -29,7 +29,7 @@ export class Door extends WallElement {
   }
 
   clone(): WallElement {
-    return new Door(this.p1.clone(), this.p2.clone(), this.parentWallP1, this.parentWallP2, this.angleInDegreesWithUnitaryVector, this.defaultLength,
+    return new Door(this.p1.clone(), this.p2.clone(), this.parentWallP1, this.parentWallP2, this.defaultLength,
       this.defaultThickness, this.defaultColor, this.defaultSelectedColor, this.thickness, this.color, this.selectedColor,
       this.length, this.isFinalized);
   }
@@ -42,4 +42,7 @@ export class Door extends WallElement {
     this.p2 = element.p2;
   }
 
+  update(newOriginPoint: Point): void {
+    this.p1 = newOriginPoint;
+  }
 }

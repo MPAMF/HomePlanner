@@ -8,17 +8,68 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
   protected constructor(
     public p1: Point,
     public p2: Point,
+    protected parentWallP1: Point,
+    protected parentWallP2: Point,
+    protected defaultLength: number,
+    protected defaultThickness: number,
+    protected defaultColor: string,
+    protected defaultSelectedColor: string,
+    protected thickness?: number,
+    protected color?: string,
+    protected selectedColor?: string,
+    protected length?: number,
+    public isFinalized: boolean = false,
+    protected isRotated: boolean = false
   ) {
     super();
   }
 
-  override getColor(): string {
-    throw new Error("Method not implemented.");
+  /**
+   * Get the wall thickness or the default one
+   */
+  getThickness(): number {
+    return this.thickness ?? this.defaultThickness;
   }
 
-  // Calculate the length of the wall element
-  length(): number {
-    return this.p1.distanceTo(this.p2);
+  /**
+   * Set the thickness of the wall
+   * @param newThickness the new thickness of the wall
+   */
+  setThickness(newThickness: number): void {
+    this.thickness = newThickness;
+  }
+
+  /**
+   * Get the wall color or the default one
+   */
+  override getColor(): string {
+    switch (this.state) {
+      case ClickableState.NONE:
+        return this.color ?? this.defaultColor;
+
+      default:
+        return this.selectedColor ?? this.defaultSelectedColor;
+    }
+  }
+
+  /**
+   * Set the color of the wall element
+   * @param newColor the new color
+   */
+  setColor(newColor: string): void {
+    this.color = newColor;
+  }
+
+  getLength(): number {
+    return this.length ?? this.defaultLength;
+  }
+
+  /**
+   * Set the length of the wall element
+   * @param newLength new length
+   */
+  setLength(newLength: number): void {
+    this.length = newLength;
   }
 
   override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
@@ -28,6 +79,8 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
   abstract clone() : WallElement;
 
   abstract restore(element: WallElement) : void;
+
+  abstract update(newOriginPoint: Point): void;
 }
 
 export class Wall extends Clickable implements Cloneable<Wall> {
@@ -116,18 +169,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    * @param point2 The second point of the vector
    */
   calculateAngleWithTwoPoint(point1: Point, point2: Point): number {
-    const vector1 = new Point(this.p2.x - this.p1.x, this.p2.y - this.p1.y);
-    const vector2 = new Point(point2.x - point1.x, point2.y - point1.y);
-    const magnitude1 = Math.sqrt(vector1.x ** 2 + vector1.y ** 2);
-    const magnitude2 = Math.sqrt(vector2.x ** 2 + vector2.y ** 2);
-    const cosineTheta = vector1.dotProduct(vector2) / (magnitude1 * magnitude2);
-
-    let angleInRadians = Math.acos(cosineTheta);
-    if (this.p2.isRight(point1, point2)) {
-      angleInRadians = 2 * Math.PI - angleInRadians;
-    }
-
-    return Utils.ConvertAngleToDegrees(angleInRadians);
+    return Utils.ConvertAngleToDegrees(Utils.CalculateAngle(this.p1, this.p2, point1, point2));
   }
 
   /**
@@ -152,6 +194,13 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     const crossProduct =
       (this.p2.y - this.p1.y) * (other.p2.x - other.p1.x) - (this.p2.x - this.p1.x) * (other.p2.y - other.p1.y);
     return Math.abs(crossProduct) < Number.EPSILON;
+  }
+
+  /**
+   * Return the vector of the wall
+   */
+  getVector(): Point {
+    return new Point(this.p2.x - this.p1.x, this.p2.y - this.p1.y);
   }
 
   /**
@@ -235,5 +284,29 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     }
 
     return fn(this);
+  }
+
+  /**
+   * Get the last wall-element added in the wall
+   */
+  public getLastWallElement(): WallElement | undefined {
+    return this.elements.length === 0 ? undefined : this.elements[this.elements.length - 1];
+  }
+
+  /**
+   * Calculate the position of the orthogonal projection onto a Wall
+   * @param point The point to project
+   * @return the projection of the point
+   */
+  projectOrthogonallyOntoWall(point: Point): Point {
+    const segmentVector = new Point(this.p2.x - this.p1.x, this.p2.y - this.p1.y);
+    const pointVector = this.p1.getVector(point);
+
+    // Calculation of the projection of the pointVector onto the segmentVector
+    const projectionMagnitude = (pointVector.x * segmentVector.x + pointVector.y * segmentVector.y) / this.length() ** 2;
+    const projection = new Point(segmentVector.x * projectionMagnitude, segmentVector.y * projectionMagnitude);
+
+    // Add the projection at the beginning of the segment to obtain the coordinates of the projected point
+    return new Point(this.p1.x + projection.x, this.p1.y + projection.y);
   }
 }

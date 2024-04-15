@@ -1,6 +1,6 @@
-import {WallElement} from "../wall";
 import {Canvas, DrawOn} from "../canvas";
 import {Point} from "../point";
+import {WallElement} from "../interfaces/wall-elements";
 
 
 export class Door extends WallElement {

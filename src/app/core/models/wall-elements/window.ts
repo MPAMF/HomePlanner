@@ -1,7 +1,7 @@
-import {WallElement} from "../wall";
 import {Canvas, DrawOn} from "../canvas";
 import {Point} from "../point";
 import {Utils} from "../../modules/utils";
+import {WallElement} from "../interfaces/wall-elements";
 
 export class Window extends WallElement {
 
@@ -37,7 +37,28 @@ export class Window extends WallElement {
       ctx.lineTo(this.p1.x, this.p1.y);
       ctx.lineTo(this.p2.x, this.p2.y);
       ctx.lineTo(this.p4.x, this.p4.y);
-      ctx.lineWidth = this.getThickness();
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = this.getColor();
+      ctx.lineCap = "round";
+      ctx.stroke();
+
+      const delta: number = (this.getThickness() + this.getLength() / 2) / 2;
+      const isP1OverP2: boolean = this.p1.y < this.p2.y;
+      const isP1LeftP2: boolean = this.p1.x < this.p2.x;
+
+      //const deltaA: number = (isP1OverP2 && isP1LeftP2) || (!isP1OverP2 && !isP1LeftP2) || (!isP1LeftP2 && isP1OverP2) ? delta : -delta;
+      const A: Point = new Point(this.p3.x - delta, this.p3.y - delta);
+      const B: Point = this.p3
+      const C: Point = this.p4
+      const D: Point = new Point(this.p4.x - delta, this.p4.y - delta);
+
+      ctx.beginPath();
+      ctx.moveTo(A.x, A.y);
+      ctx.lineTo(B.x, B.y);
+      ctx.lineTo(C.x, C.y);
+      ctx.lineTo(D.x, D.y);
+      ctx.lineTo(A.x, A.y);
+      ctx.lineWidth = 1;
       ctx.strokeStyle = this.getColor();
       ctx.lineCap = "round";
       ctx.stroke();
@@ -45,6 +66,26 @@ export class Window extends WallElement {
   }
 
   isPointOnElement(point: Point): boolean {
+    if(this.p3 && this.p4){
+      const delta: number = (this.getThickness() + this.getLength()) / 2;
+      const alpha: Point = new Point((this.p1.x + this.p3.x) / 2, (this.p1.y + this.p3.y) / 2);
+      const beta: Point = new Point((this.p2.x + this.p4.x) / 2, (this.p2.y + this.p4.y) / 2);
+      const isAlphaOverBeta: boolean = alpha.y < beta.y;
+      const isAlphaLeftBeta: boolean = alpha.x < beta.x;
+
+      const deltaA: number = (isAlphaOverBeta && isAlphaLeftBeta) || (!isAlphaOverBeta && !isAlphaLeftBeta) ? delta : -delta;
+      const A: Point = new Point(alpha.x + deltaA, alpha.y - delta);
+      const B: Point = new Point(alpha.x - deltaA, alpha.y + delta);
+      const C: Point = new Point(beta.x - deltaA, beta.y + delta);
+      const D: Point = new Point(beta.x + deltaA, beta.y - delta);
+
+      if (isAlphaLeftBeta) {
+        return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
+      }
+
+      return (point.isLeft(B, A) && point.isLeft(C, B) && point.isLeft(D, C) && point.isLeft(A, D));
+    }
+
     return false;
   }
 

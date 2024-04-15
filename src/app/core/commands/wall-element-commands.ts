@@ -1,10 +1,10 @@
 import {Command} from "./command";
 import {DrawState} from "../models/draw-state";
-import {Wall, WallElement} from "../models/wall";
+import {Wall} from "../models/wall";
 import {Window} from "../models/wall-elements/window";
 import {Point} from "../models/point";
-import {Utils} from "../modules/utils";
 import {DrawOn} from "../models/canvas";
+import {WallElement} from "../models/interfaces/wall-elements";
 
 export class AddWindowCommand extends Command {
 

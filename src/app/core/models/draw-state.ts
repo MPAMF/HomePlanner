@@ -8,6 +8,7 @@ export enum DrawState {
   WallCreation,
   Door,
   Window,
+  WindowPlacement,
   Delete,
   ZoomIn,
   ZoomOut,

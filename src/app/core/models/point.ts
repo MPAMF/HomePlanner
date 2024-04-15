@@ -139,5 +139,13 @@ export class Point implements Cloneable<Point> {
     return (dxc * dyl - dyc * dxl) <= 0;
   }
 
+  /**
+   * Calculate the vector with another point
+   * @param other The other point
+   * @returns The vector calculate with the other point
+   */
+  getVector(other: Point): Point {
+    return new Point(other.x - this.x, other.y - this.y)
+  }
 }
 

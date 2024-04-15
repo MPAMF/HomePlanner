@@ -37,28 +37,7 @@ export class Window extends WallElement {
       ctx.lineTo(this.p1.x, this.p1.y);
       ctx.lineTo(this.p2.x, this.p2.y);
       ctx.lineTo(this.p4.x, this.p4.y);
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = this.getColor();
-      ctx.lineCap = "round";
-      ctx.stroke();
-
-      const delta: number = (this.getThickness() + this.getLength() / 2) / 2;
-      const isP1OverP2: boolean = this.p1.y < this.p2.y;
-      const isP1LeftP2: boolean = this.p1.x < this.p2.x;
-
-      //const deltaA: number = (isP1OverP2 && isP1LeftP2) || (!isP1OverP2 && !isP1LeftP2) || (!isP1LeftP2 && isP1OverP2) ? delta : -delta;
-      const A: Point = new Point(this.p3.x - delta, this.p3.y - delta);
-      const B: Point = this.p3
-      const C: Point = this.p4
-      const D: Point = new Point(this.p4.x - delta, this.p4.y - delta);
-
-      ctx.beginPath();
-      ctx.moveTo(A.x, A.y);
-      ctx.lineTo(B.x, B.y);
-      ctx.lineTo(C.x, C.y);
-      ctx.lineTo(D.x, D.y);
-      ctx.lineTo(A.x, A.y);
-      ctx.lineWidth = 1;
+      ctx.lineWidth = this.getThickness();
       ctx.strokeStyle = this.getColor();
       ctx.lineCap = "round";
       ctx.stroke();
@@ -67,23 +46,23 @@ export class Window extends WallElement {
 
   isPointOnElement(point: Point): boolean {
     if(this.p3 && this.p4){
-      const delta: number = (this.getThickness() + this.getLength()) / 2;
-      const alpha: Point = new Point((this.p1.x + this.p3.x) / 2, (this.p1.y + this.p3.y) / 2);
-      const beta: Point = new Point((this.p2.x + this.p4.x) / 2, (this.p2.y + this.p4.y) / 2);
-      const isAlphaOverBeta: boolean = alpha.y < beta.y;
-      const isAlphaLeftBeta: boolean = alpha.x < beta.x;
+      const delta: number = (this.getThickness() + this.getLength()) / 3;
+      let angleInDegreesWithUnitaryVector: number = Utils.CalculateAngle(this.p1, this.p2, new Point(0, 0), new Point(1, 0));
+      angleInDegreesWithUnitaryVector = this.p1.y >= this.p2.y ? angleInDegreesWithUnitaryVector : (-angleInDegreesWithUnitaryVector);
 
-      const deltaA: number = (isAlphaOverBeta && isAlphaLeftBeta) || (!isAlphaOverBeta && !isAlphaLeftBeta) ? delta : -delta;
-      const A: Point = new Point(alpha.x + deltaA, alpha.y - delta);
-      const B: Point = new Point(alpha.x - deltaA, alpha.y + delta);
-      const C: Point = new Point(beta.x - deltaA, beta.y + delta);
-      const D: Point = new Point(beta.x + deltaA, beta.y - delta);
+      const midPointP1: Point = this.p1.midpointTo(this.p3);
+      const midPointP2: Point = this.p2.midpointTo(this.p4);
 
-      if (isAlphaLeftBeta) {
-        return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
-      }
+      const alpha: Point = new Point(midPointP1.x - Math.cos(angleInDegreesWithUnitaryVector) * delta, midPointP1.y - Math.sin(angleInDegreesWithUnitaryVector) *  delta);
+      const beta: Point = new Point(midPointP2.x + Math.cos(angleInDegreesWithUnitaryVector) * delta, midPointP2.y + Math.sin(angleInDegreesWithUnitaryVector) *  delta);
 
-      return (point.isLeft(B, A) && point.isLeft(C, B) && point.isLeft(D, C) && point.isLeft(A, D));
+      angleInDegreesWithUnitaryVector += Math.PI/2;
+      const A: Point = new Point(alpha.x + Math.cos(angleInDegreesWithUnitaryVector) * delta, alpha.y + Math.sin(angleInDegreesWithUnitaryVector) *  delta);
+      const B: Point = new Point(beta.x + Math.cos(angleInDegreesWithUnitaryVector) * delta, beta.y + Math.sin(angleInDegreesWithUnitaryVector) *  delta);
+      const C: Point = new Point(beta.x - Math.cos(angleInDegreesWithUnitaryVector) * delta, beta.y - Math.sin(angleInDegreesWithUnitaryVector) *  delta);
+      const D: Point = new Point(alpha.x - Math.cos(angleInDegreesWithUnitaryVector) * delta, alpha.y - Math.sin(angleInDegreesWithUnitaryVector) *  delta);
+
+      return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
     }
 
     return false;

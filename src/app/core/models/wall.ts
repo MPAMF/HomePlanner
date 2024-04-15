@@ -148,20 +148,16 @@ export class Wall extends Clickable implements Cloneable<Wall> {
 
   override isPointOnElement(point: Point): boolean {
     const delta: number = this.getThickness() / 2;
-    const isP1OverP2: boolean = this.p1.y < this.p2.y;
-    const isP1LeftP2: boolean = this.p1.x < this.p2.x;
+    let angleInDegreesWithUnitaryVector: number = Utils.CalculateAngle(this.p1, this.p2, new Point(0, 0), new Point(1, 0));
+    angleInDegreesWithUnitaryVector = this.p1.y >= this.p2.y ? angleInDegreesWithUnitaryVector : (-angleInDegreesWithUnitaryVector);
+    angleInDegreesWithUnitaryVector += Math.PI/2;
 
-    const deltaA: number = (isP1OverP2 && isP1LeftP2) || (!isP1OverP2 && !isP1LeftP2) ? delta : -delta;
-    const A: Point = new Point(this.p1.x + deltaA, this.p1.y - delta);
-    const B: Point = new Point(this.p1.x - deltaA, this.p1.y + delta);
-    const C: Point = new Point(this.p2.x - deltaA, this.p2.y + delta);
-    const D: Point = new Point(this.p2.x + deltaA, this.p2.y - delta);
+    const A: Point = new Point(this.p1.x + Math.cos(angleInDegreesWithUnitaryVector) * delta, this.p1.y + Math.sin(angleInDegreesWithUnitaryVector) *  delta);
+    const B: Point = new Point(this.p2.x + Math.cos(angleInDegreesWithUnitaryVector) * delta, this.p2.y + Math.sin(angleInDegreesWithUnitaryVector) *  delta);
+    const C: Point = new Point(this.p2.x - Math.cos(angleInDegreesWithUnitaryVector) * delta, this.p2.y - Math.sin(angleInDegreesWithUnitaryVector) *  delta);
+    const D: Point = new Point(this.p1.x - Math.cos(angleInDegreesWithUnitaryVector) * delta, this.p1.y - Math.sin(angleInDegreesWithUnitaryVector) *  delta);
 
-    if (isP1LeftP2) {
-      return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
-    }
-
-    return (point.isLeft(B, A) && point.isLeft(C, B) && point.isLeft(D, C) && point.isLeft(A, D));
+    return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
   }
 
   override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {

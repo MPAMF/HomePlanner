@@ -200,10 +200,9 @@ export class DivideWallCommand extends Command {
   override undo(): void {
     if(this.newWall){
       for (const room of this.board.rooms) {
-        const wallWasInThisRoom: boolean = room.removeWall(this.newWall);
-        if(wallWasInThisRoom){
+        if(room.removeWall(this.newWall)){
           this.wall.p2 = this.newWall.p2;
-          return;
+          break;
         }
       }
     }

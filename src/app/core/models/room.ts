@@ -1,6 +1,8 @@
 import {Wall} from "./wall";
 import {Point} from "./point";
 import {Canvas, DrawOn} from "./canvas";
+
+import {ActionsButtonOptions} from "./action-button-options";
 import {Clickable, ClickableState} from "./interfaces/clickable";
 import {Cloneable} from "./interfaces/cloneable";
 
@@ -19,11 +21,13 @@ export class Room extends Clickable implements Cloneable<Room> {
     this.walls.push(wall);
   }
 
-  removeWall(wall: Wall) {
+  removeWall(wall: Wall): boolean {
     const index = this.walls.findIndex(w => w.equals(wall));
     if (index !== -1) {
       this.walls.splice(index, 1);
+      return true;
     }
+    return false;
   }
 
   /**
@@ -132,6 +136,10 @@ export class Room extends Clickable implements Cloneable<Room> {
   override onHoverOut(): void {
   }
 
+  override getActionsButtonOptions(point: Point): ActionsButtonOptions {
+    return new ActionsButtonOptions(true, point.x, point.y)
+  }
+
   override onDrag(offset: Point, recursive: boolean) {
     // if (!recursive) {
     //   return;
@@ -146,6 +154,10 @@ export class Room extends Clickable implements Cloneable<Room> {
     }
 
     return fn(this);
+  }
+
+  override setVisibleState(newState: boolean) {
+    throw new Error("Method not implemented.");
   }
 
   override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {

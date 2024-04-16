@@ -1,0 +1,16 @@
+.actions-button-container {
+  display: flex;
+  gap: 5px;
+  padding: 10px;
+  position: fixed;
+  z-index: 999;
+}
+
+.actions-button {
+  display: flex;
+  justify-content: center;
+  background-color: #ccc;
+  border-radius: 20px;
+  width: 40px;
+  height: 40px;
+}

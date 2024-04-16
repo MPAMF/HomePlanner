@@ -1,6 +1,7 @@
 import {Canvas, DrawOn} from "../canvas";
 import {Point} from "../point";
 import {WallElement} from "../interfaces/wall-elements";
+import {ActionsButtonOptions} from "../action-button-options";
 
 
 export class Door extends WallElement {
@@ -9,23 +10,23 @@ export class Door extends WallElement {
     //console.log(`Drawing Door from (${this.p1.x}, ${this.p1.y}) to (${this.p2.x}, ${this.p2.y})`);
   }
 
-  isPointOnElement(point: Point): boolean {
+  override isPointOnElement(point: Point): boolean {
     return false;
   }
 
   onDrag(offset: Point, recursive: boolean): void {
   }
 
-  onHover(): void {
+  override onHover(): void {
   }
 
-  onHoverOut(): void {
+  override onHoverOut(): void {
   }
 
-  onSelect(): void {
+  override onSelect(): void {
   }
 
-  onUnselect(): void {
+  override onUnselect(): void {
   }
 
   clone(): WallElement {
@@ -44,5 +45,12 @@ export class Door extends WallElement {
 
   update(newOriginPoint: Point): void {
     this.p1 = newOriginPoint;
+  }
+
+  getActionsButtonOptions(point: Point): ActionsButtonOptions {
+    return new ActionsButtonOptions();
+  }
+
+  setVisibleState(newState: boolean): void {
   }
 }

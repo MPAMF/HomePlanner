@@ -2,6 +2,7 @@ import {Canvas, DrawOn} from "../canvas";
 import {Point} from "../point";
 import {Utils} from "../../modules/utils";
 import {WallElement} from "../interfaces/wall-elements";
+import {ActionsButtonOptions} from "../action-button-options";
 
 export class Window extends WallElement {
 
@@ -72,7 +73,6 @@ export class Window extends WallElement {
     const D: Point = new Point(alpha.x - Math.cos(angleUnitaryVector) * delta, alpha.y - Math.sin(angleUnitaryVector) * delta);
 
     return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
-
   }
 
   onDrag(offset: Point, recursive: boolean): void {
@@ -156,5 +156,12 @@ export class Window extends WallElement {
 
   update(newOriginPoint: Point): void {
     this.calculatePointPositions(newOriginPoint);
+  }
+
+  getActionsButtonOptions(point: Point): ActionsButtonOptions {
+    return new ActionsButtonOptions();
+  }
+
+  setVisibleState(newState: boolean): void {
   }
 }

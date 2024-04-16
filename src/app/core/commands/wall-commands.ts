@@ -50,22 +50,19 @@ export class AddWallCommand extends Command {
 }
 
 export class RemoveWallCommand extends Command {
-  private removedWall: Wall | null = null;
 
   constructor(private wall: Wall) {
     super();
   }
 
-  override execute(): void {
-    if (!this.board.currentRoom) {
-      return;
+  override execute(): void {// ToDo: We need to update the room system
+    for (const room of this.board.rooms) {
+        if(room.removeWall(this.wall)){
+          this.board.currentRoom = room;
+          break;
+        }
+      }
     }
-    this.board.currentRoom.removeWall(this.wall);
-    // Remove the room if there are no walls left
-    if (!this.board.currentRoom.hasAnyWalls()) {
-      this.board.currentRoom = undefined;
-    }
-  }
 
   override undo(): void {
     // TODO: The removed wall should have the same properties as the wall that was removed
@@ -172,6 +169,41 @@ export class FinaliseLastWallCommand extends Command {
     const lastWall = room.getLastWall();
     if (lastWall) {
       lastWall.isFinalized = false;
+    }
+  }
+}
+
+export class DivideWallCommand extends Command {
+  private newWall: Wall | null = null;
+
+  constructor(private wall: Wall) {
+    super();
+  }
+
+  override execute(): void {
+    for (const room of this.board.rooms){
+      for (const wall of room.walls) {
+        if (wall == this.wall) {
+          const midPoint: Point = wall.midpoint();
+          this.newWall = new Wall(midPoint, wall.p2, this.board.boardConfig.wallThickness,
+            this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor);
+          wall.p2 = midPoint;
+
+          room.addWall(this.newWall);
+          return;
+        }
+      }
+    }
+  }
+
+  override undo(): void {
+    if(this.newWall){
+      for (const room of this.board.rooms) {
+        if(room.removeWall(this.newWall)){
+          this.wall.p2 = this.newWall.p2;
+          break;
+        }
+      }
     }
   }
 }

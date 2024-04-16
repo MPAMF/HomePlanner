@@ -44,23 +44,23 @@ export class Window extends WallElement {
     }
   }
 
-  isPointOnElement(point: Point): boolean {
+  override isPointOnElement(point: Point): boolean {
     return false;
   }
 
   onDrag(offset: Point, recursive: boolean): void {
   }
 
-  onHover(): void {
+  override onHover(): void {
   }
 
-  onHoverOut(): void {
+  override onHoverOut(): void {
   }
 
-  onSelect(): void {
+  override onSelect(): void {
   }
 
-  onUnselect(): void {
+  override onUnselect(): void {
   }
 
   clone(): WallElement {

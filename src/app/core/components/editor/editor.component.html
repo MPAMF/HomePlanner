@@ -1,6 +1,7 @@
 <div class="editor">
   <app-toolbar [actionsCommandInvoker]="actionsCmdInvoker" [commandInvoker]="cmdInvoker"/>
   <app-controls [actionsCommandInvoker]="actionsCmdInvoker" [commandInvoker]="cmdInvoker"/>
+  <app-actions-button [commandInvoker]="cmdInvoker" [actionsButtonOptions]="cmdInvoker.board.actionsButtonOptions"/>
   <canvas #background *ngIf="isBrowser" class="main"></canvas>
   <canvas #spectrum *ngIf="isBrowser" class="spectrum"></canvas>
 </div>

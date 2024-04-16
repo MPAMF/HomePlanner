@@ -2,7 +2,13 @@ import {Point} from "./point";
 import {Clickable, ClickableState} from "./interfaces/clickable";
 import {Canvas, DrawOn} from "./canvas";
 import {Utils} from "../modules/utils";
+import {ActionButtonProps, ActionsButtonOptions} from "./action-button-options";
+import {Board} from "./board";
+import {CommandInvoker} from "../commands/command";
+import {DivideWallCommand} from "../commands/wall-commands";
+import {HideClickableCommand} from "../commands/clickable-commands";
 import {Cloneable} from "./interfaces/cloneable";
+
 
 export abstract class WallElement extends Clickable implements Cloneable<WallElement> {
   protected constructor(
@@ -72,8 +78,36 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
     this.length = newLength;
   }
 
+  override isPointOnElement(point: Point): boolean {
+    return false;
+  }
+
+  override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
+    // should be implemented in subclasses
+    throw new Error("Method not implemented.");
+  }
+
+  override onSelect(): void {
+  }
+
+  override onUnselect(): void {
+  }
+
+  override onHover(): void {
+  }
+
+  override onHoverOut(): void {
+  }
+
+  override getActionsButtonOptions(point: Point): ActionsButtonOptions {
+    return new ActionsButtonOptions(true, point.x, point.y, );
+  }
+
   override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
     return fn(this);
+  }
+
+  override setVisibleState(newState: boolean) {
   }
 
   abstract clone() : WallElement;
@@ -245,13 +279,15 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
     const ctx = !this.isFinalized ? canvas.snappingLine : canvas.background;
 
-    ctx.beginPath();
-    ctx.moveTo(this.p1.x, this.p1.y);
-    ctx.lineTo(this.p2.x, this.p2.y);
-    ctx.lineWidth = this.getThickness();
-    ctx.strokeStyle = this.getColor();
-    ctx.lineCap = "round";
-    ctx.stroke();
+    if (this.isVisible) {
+      ctx.beginPath();
+      ctx.moveTo(this.p1.x, this.p1.y);
+      ctx.lineTo(this.p2.x, this.p2.y);
+      ctx.lineWidth = this.getThickness();
+      ctx.strokeStyle = this.getColor();
+      ctx.lineCap = "round";
+      ctx.stroke();
+    }
 
     this.elements.forEach(element => element.draw(canvas, on));
   }
@@ -267,6 +303,28 @@ export class Wall extends Clickable implements Cloneable<Wall> {
 
   override onHoverOut(): void {
   }
+
+  override getActionsButtonOptions(point: Point): ActionsButtonOptions {
+    const newActionButtonOptions: ActionsButtonOptions = new ActionsButtonOptions(true, point.x, point.y)
+    const hideButton: ActionButtonProps = new ActionButtonProps(
+      this.isVisible ? 'visibility_off' : 'visibility',
+      (commandInvoker: CommandInvoker) => {
+        commandInvoker.execute(new HideClickableCommand(this))
+        newActionButtonOptions.isActionsButtonVisible = false;
+      }
+    );
+
+    const divideButton: ActionButtonProps = new ActionButtonProps(
+      'carpenter',
+      (commandInvoker: CommandInvoker) => {
+        commandInvoker.execute(new DivideWallCommand(this))
+        newActionButtonOptions.isActionsButtonVisible = false;
+      }
+    );
+
+    newActionButtonOptions.buttonsAndActions = [hideButton, divideButton];
+    return newActionButtonOptions;
+}
 
   override onDrag(offset: Point, recursive: boolean) {
     this.p1 = this.p1.translatePoint(offset);
@@ -284,6 +342,10 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     }
 
     return fn(this);
+  }
+
+  override setVisibleState(newState: boolean) {
+    this.isVisible = newState;
   }
 
   /**

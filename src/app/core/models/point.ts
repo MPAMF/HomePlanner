@@ -94,6 +94,14 @@ export class Point implements Cloneable<Point> {
   }
 
   /**
+   * Calculate the cross product with another point
+   * @param otherPoint The other point
+   */
+  crossProduct(otherPoint: Point): number {
+    return this.x * otherPoint.x - this.y * otherPoint.y;
+  }
+
+  /**
    * Function to clone the point
    */
   clone(): Point {

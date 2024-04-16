@@ -57,10 +57,10 @@ export class RemoveWallCommand extends Command {
 
   override execute(): void {// ToDo: We need to update the room system
     for (const room of this.board.rooms) {
-      const wallWasInThisRoom: boolean = room.removeWall(this.wall);
-      if(wallWasInThisRoom){
-        this.board.currentRoom = room;
-        return;
+        if(room.removeWall(this.wall)){
+          this.wall.p2 = this.newWall.p2;
+          break;
+        }
       }
     }
   }

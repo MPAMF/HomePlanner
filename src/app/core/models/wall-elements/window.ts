@@ -109,27 +109,12 @@ export class Window extends WallElement {
     const ADCAngle: number = 2 * Math.PI / 3;
     const BCDAngle: number = Math.PI / 3;
 
-    // Orientation
-    const unit_vector: Point = new Point(0, 0).getVector(new Point(1, 0));
-    const unit_vector_y: Point = new Point(0, 1).getVector(new Point(0, 0));
-    const wall_vector: Point = this.parentWallP1.getVector(this.parentWallP2);
-    const wall_projection: number = wall_vector.crossProduct(unit_vector);
-    const wall_projection_y: number = wall_vector.crossProduct(unit_vector_y);
-
     // Calculate position
     const parentWallLength: number = this.parentWallP1.distanceTo(this.parentWallP2);
     const unitDistance: number = this.getLength() / parentWallLength;
 
-    let Cx: number;
-    let Cy: number;
-    console.log(`wall_projection ${wall_projection} wall_projection_y ${wall_projection_y}`)
-    if(wall_projection > 0){
-      Cx = startPoint.x  + unitDistance * (this.parentWallP2.x - this.parentWallP1.x);
-      Cy = startPoint.y + unitDistance * (this.parentWallP2.y - this.parentWallP1.y);
-    } else {
-      Cx = startPoint.x  + unitDistance * (this.parentWallP1.x - this.parentWallP2.x);
-      Cy = startPoint.y + unitDistance * (this.parentWallP1.y - this.parentWallP2.y);
-    }
+    const Cx: number = startPoint.x  + unitDistance * (this.parentWallP2.x - this.parentWallP1.x);
+    const Cy: number = startPoint.y + unitDistance * (this.parentWallP2.y - this.parentWallP1.y);
 
     // Check if the point is on the wall
     const p1xSupP2x: boolean = (Cx >= this.parentWallP2.x) && (Cx <= this.parentWallP1.x);
@@ -146,13 +131,7 @@ export class Window extends WallElement {
     this.p2 = new Point(Cx, Cy);
 
     let rotationMultiplier: number = 1;
-    let angleUnitaryVector: number;
-    if(wall_projection > 0){
-      angleUnitaryVector = Utils.CalculateAngle(startPoint, new Point(Cx, Cy), new Point(0, 0), new Point(1, 0));
-    } else {
-      rotationMultiplier *= -1
-      angleUnitaryVector = Utils.CalculateAngle(new Point(Cx, Cy), startPoint, new Point(0, 0), new Point(1, 0));
-    }
+    let angleUnitaryVector: number = Utils.CalculateAngle(startPoint, new Point(Cx, Cy), new Point(0, 0), new Point(1, 0));
     angleUnitaryVector = this.parentWallP1.y >= this.parentWallP2.y ? angleUnitaryVector : (-angleUnitaryVector);
 
     let finalADCAngle: number;

@@ -14,7 +14,7 @@ export class ActionsButtonOptions {
 export class ActionButtonProps {
 
   constructor(
-    public iconsName: string,
+    public iconName: string,
     public onClickMethod: (commandInvoker: CommandInvoker) => void
   ) {}
 }

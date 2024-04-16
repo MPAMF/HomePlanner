@@ -63,7 +63,7 @@ export abstract class Clickable extends Comparable implements Drawable {
    * Get option of the actions button component
    * @param point The position of the click
    */
-  abstract getActionButtonOptions(point: Point): ActionsButtonOptions;
+  abstract getActionsButtonOptions(point: Point): ActionsButtonOptions;
 
   /**
    * Set the clickable visible status

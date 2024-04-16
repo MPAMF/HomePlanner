@@ -4,7 +4,7 @@
   <div *ngFor="let buttonAttributes of actionsButtonOptions?.buttonsAndActions;">
     <button class="actions-button" (click)="commandInvoker ? buttonAttributes.onClickMethod(commandInvoker) : null"
       [@buttonState]="'open'">
-      <mat-icon>{{buttonAttributes.iconsName}}</mat-icon>
+      <mat-icon>{{buttonAttributes.iconName}}</mat-icon>
     </button>
 
   </div>

@@ -126,7 +126,7 @@ export class Board implements Drawable {
         clickable.setState(state);
         clearCanvas(canvas.snappingLine);
         clickable.draw(canvas, DrawOn.All);
-        state == ClickableState.SELECTED && (this.actionsButtonOptions = clickable.getActionButtonOptions(point));
+        state == ClickableState.SELECTED && (this.actionsButtonOptions = clickable.getActionsButtonOptions(point));
         element = clickable;
       }
 

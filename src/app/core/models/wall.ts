@@ -99,7 +99,7 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
   override onHoverOut(): void {
   }
 
-  override getActionButtonOptions(point: Point): ActionsButtonOptions {
+  override getActionsButtonOptions(point: Point): ActionsButtonOptions {
     return new ActionsButtonOptions(true, point.x, point.y, );
   }
 
@@ -304,7 +304,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   override onHoverOut(): void {
   }
 
-  override getActionButtonOptions(point: Point): ActionsButtonOptions {
+  override getActionsButtonOptions(point: Point): ActionsButtonOptions {
     const newActionButtonOptions: ActionsButtonOptions = new ActionsButtonOptions(true, point.x, point.y)
     const hideButton: ActionButtonProps = new ActionButtonProps(
       this.isVisible ? 'visibility_off' : 'visibility',

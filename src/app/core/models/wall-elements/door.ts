@@ -1,6 +1,7 @@
-import {WallElement} from "../wall";
 import {Canvas, DrawOn} from "../canvas";
 import {Point} from "../point";
+import {WallElement} from "../interfaces/wall-elements";
+import {ActionsButtonOptions} from "../action-button-options";
 
 
 export class Door extends WallElement {
@@ -44,5 +45,12 @@ export class Door extends WallElement {
 
   update(newOriginPoint: Point): void {
     this.p1 = newOriginPoint;
+  }
+
+  getActionsButtonOptions(point: Point): ActionsButtonOptions {
+    return new ActionsButtonOptions();
+  }
+
+  setVisibleState(newState: boolean): void {
   }
 }

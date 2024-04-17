@@ -1,0 +1,11 @@
+<div class="actions-button-container" *ngIf="actionsButtonOptions?.isActionsButtonVisible"
+     [ngStyle]="{'top.px': actionsButtonOptions?.actionsButtonTopPosition, 'left.px': actionsButtonOptions?.actionsButtonLeftPosition}">
+
+  <div *ngFor="let buttonAttributes of actionsButtonOptions?.buttonsAndActions;">
+    <button class="actions-button" (click)="commandInvoker ? buttonAttributes.onClickMethod(commandInvoker) : null"
+      [@buttonState]="'open'">
+      <mat-icon>{{buttonAttributes.iconName}}</mat-icon>
+    </button>
+
+  </div>
+</div>

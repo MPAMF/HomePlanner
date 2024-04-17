@@ -1,6 +1,6 @@
 import {Command} from "./command";
 import {Wall} from "../models/wall";
-import {Point} from "../models/point";
+import {ClickablePoint, Point} from "../models/point";
 import {Room} from "../models/room";
 import {DrawState} from "../models/draw-state";
 import {DrawOn} from "../models/canvas";
@@ -50,22 +50,19 @@ export class AddWallCommand extends Command {
 }
 
 export class RemoveWallCommand extends Command {
-  private removedWall: Wall | null = null;
 
   constructor(private wall: Wall) {
     super();
   }
 
-  override execute(): void {
-    if (!this.board.currentRoom) {
-      return;
+  override execute(): void {// ToDo: We need to update the room system
+    for (const room of this.board.rooms) {
+        if(room.removeWall(this.wall)){
+          this.board.currentRoom = room;
+          break;
+        }
+      }
     }
-    this.board.currentRoom.removeWall(this.wall);
-    // Remove the room if there are no walls left
-    if (!this.board.currentRoom.hasAnyWalls()) {
-      this.board.currentRoom = undefined;
-    }
-  }
 
   override undo(): void {
     // TODO: The removed wall should have the same properties as the wall that was removed
@@ -118,7 +115,7 @@ export class EditLastWallWithPointCommand extends Command {
     }
 
     wall.p2.point = this.p2;
-    const angleInDegreesWithUnitaryVector: number = wall.calculateAngleWithTwoPoint(wall.p1.point, new Point(wall.p1.x + 1, wall.p1.y));
+    const angleInDegreesWithUnitaryVector: number = wall.calculateAngleWithTwoPoints(wall.p1.point, new Point(wall.p1.x + 1, wall.p1.y));
     const divisionResult: number = Utils.CalculatePIOverFour(angleInDegreesWithUnitaryVector);
 
     let divisionResultModuloOne: number = divisionResult % 1;
@@ -173,6 +170,42 @@ export class FinaliseRoomCommand extends Command {
     const lastWall = room.getLastWall();
     if (lastWall) {
       lastWall.isFinalized = false;
+    }
+  }
+}
+
+export class DivideWallCommand extends Command {
+  private newWall: Wall | null = null;
+
+  constructor(private wall: Wall) {
+    super();
+  }
+
+  override execute(): void {
+    for (const room of this.board.rooms){
+      for (const wall of room.walls) {
+        if (wall == this.wall) {
+          const midPoint: Point = wall.midpoint();
+          const clickableMidPoint = new ClickablePoint(midPoint);
+          this.newWall = new Wall(clickableMidPoint, wall.p2, this.board.boardConfig.wallThickness,
+            this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor);
+          wall.p2 = clickableMidPoint;
+
+          room.addWall(this.newWall);
+          return;
+        }
+      }
+    }
+  }
+
+  override undo(): void {
+    if(this.newWall){
+      for (const room of this.board.rooms) {
+        if(room.removeWall(this.newWall)){
+          this.wall.p2 = this.newWall.p2;
+          break;
+        }
+      }
     }
   }
 }

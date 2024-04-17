@@ -2,33 +2,13 @@ import {ClickablePoint, Point} from "./point";
 import {Clickable, ClickableState} from "./interfaces/clickable";
 import {Canvas, DrawOn} from "./canvas";
 import {Utils} from "../modules/utils";
+import {ActionButtonProps, ActionsButtonOptions} from "./action-button-options";
+import {Board} from "./board";
+import {CommandInvoker} from "../commands/command";
+import {DivideWallCommand} from "../commands/wall-commands";
+import {HideClickableCommand} from "../commands/clickable-commands";
 import {Cloneable} from "./interfaces/cloneable";
-
-export abstract class WallElement extends Clickable implements Cloneable<WallElement> {
-  protected constructor(
-    public p1: Point,
-    public p2: Point,
-  ) {
-    super();
-  }
-
-  override getColor(): string {
-    throw new Error("Method not implemented.");
-  }
-
-  // Calculate the length of the wall element
-  length(): number {
-    return this.p1.distanceTo(this.p2);
-  }
-
-  override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
-    return fn(this);
-  }
-
-  abstract clone() : WallElement;
-
-  abstract restore(element: WallElement) : void;
-}
+import {WallElement} from "./interfaces/wall-elements";
 
 export class Wall extends Clickable implements Cloneable<Wall> {
 
@@ -107,7 +87,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    * @param otherWall The second wall use to calculate the angle
    */
   calculateAngleWith(otherWall: Wall): number {
-    return this.calculateAngleWithTwoPoint(otherWall.p1.point, otherWall.p2.point);
+    return this.calculateAngleWithTwoPoints(otherWall.p1.point, otherWall.p2.point);
   }
 
   /**
@@ -115,19 +95,8 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    * @param point1 The first point of the vector
    * @param point2 The second point of the vector
    */
-  calculateAngleWithTwoPoint(point1: Point, point2: Point): number {
-    const vector1 = new Point(this.p2.x - this.p1.x, this.p2.y - this.p1.y);
-    const vector2 = new Point(point2.x - point1.x, point2.y - point1.y);
-    const magnitude1 = Math.sqrt(vector1.x ** 2 + vector1.y ** 2);
-    const magnitude2 = Math.sqrt(vector2.x ** 2 + vector2.y ** 2);
-    const cosineTheta = vector1.dotProduct(vector2) / (magnitude1 * magnitude2);
-
-    let angleInRadians = Math.acos(cosineTheta);
-    if (this.p2.point.isRight(point1, point2)) {
-      angleInRadians = 2 * Math.PI - angleInRadians;
-    }
-
-    return Utils.ConvertAngleToDegrees(angleInRadians);
+  calculateAngleWithTwoPoints(point1: Point, point2: Point): number {
+    return Utils.ConvertAngleToDegrees(Utils.CalculateAngle(this.p1.point, this.p2.point, point1, point2));
   }
 
   /**
@@ -156,6 +125,13 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   }
 
   /**
+   * Return the vector of the wall
+   */
+  getVector(): Point {
+    return new Point(this.p2.x - this.p1.x, this.p2.y - this.p1.y);
+  }
+
+  /**
    * Clone the wall to create a new instance with the same points
    */
   clone(): Wall {
@@ -179,32 +155,30 @@ export class Wall extends Clickable implements Cloneable<Wall> {
 
   override isPointOnElement(point: Point): boolean {
     const delta: number = this.getThickness() / 2;
-    const isP1OverP2: boolean = this.p1.y < this.p2.y;
-    const isP1LeftP2: boolean = this.p1.x < this.p2.x;
+    let angleInDegreesWithUnitaryVector: number = Utils.CalculateAngle(this.p1.point, this.p2.point, new Point(0, 0), new Point(1, 0));
+    angleInDegreesWithUnitaryVector = this.p1.y >= this.p2.y ? angleInDegreesWithUnitaryVector : (-angleInDegreesWithUnitaryVector);
+    angleInDegreesWithUnitaryVector += Math.PI/2;
 
-    const deltaA: number = (isP1OverP2 && isP1LeftP2) || (!isP1OverP2 && !isP1LeftP2) ? delta : -delta;
-    const A: Point = new Point(this.p1.x + deltaA, this.p1.y - delta);
-    const B: Point = new Point(this.p1.x - deltaA, this.p1.y + delta);
-    const C: Point = new Point(this.p2.x - deltaA, this.p2.y + delta);
-    const D: Point = new Point(this.p2.x + deltaA, this.p2.y - delta);
+    const A: Point = new Point(this.p1.x + Math.cos(angleInDegreesWithUnitaryVector) * delta, this.p1.y + Math.sin(angleInDegreesWithUnitaryVector) *  delta);
+    const B: Point = new Point(this.p2.x + Math.cos(angleInDegreesWithUnitaryVector) * delta, this.p2.y + Math.sin(angleInDegreesWithUnitaryVector) *  delta);
+    const C: Point = new Point(this.p2.x - Math.cos(angleInDegreesWithUnitaryVector) * delta, this.p2.y - Math.sin(angleInDegreesWithUnitaryVector) *  delta);
+    const D: Point = new Point(this.p1.x - Math.cos(angleInDegreesWithUnitaryVector) * delta, this.p1.y - Math.sin(angleInDegreesWithUnitaryVector) *  delta);
 
-    if (isP1LeftP2) {
-      return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
-    }
-
-    return (point.isLeft(B, A) && point.isLeft(C, B) && point.isLeft(D, C) && point.isLeft(A, D));
+    return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
   }
 
   override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
     const ctx = !this.isFinalized ? canvas.snappingLine : canvas.background;
 
-    ctx.beginPath();
-    ctx.moveTo(this.p1.x, this.p1.y);
-    ctx.lineTo(this.p2.x, this.p2.y);
-    ctx.lineWidth = this.getThickness();
-    ctx.strokeStyle = this.getColor();
-    ctx.lineCap = "round";
-    ctx.stroke();
+    if (this.isVisible) {
+      ctx.beginPath();
+      ctx.moveTo(this.p1.x, this.p1.y);
+      ctx.lineTo(this.p2.x, this.p2.y);
+      ctx.lineWidth = this.getThickness();
+      ctx.strokeStyle = this.getColor();
+      ctx.lineCap = "round";
+      ctx.stroke();
+    }
 
     this.elements.forEach(element => element.draw(canvas, on));
     this.p1.draw(canvas, on);
@@ -222,6 +196,28 @@ export class Wall extends Clickable implements Cloneable<Wall> {
 
   override onHoverOut(): void {
   }
+
+  override getActionsButtonOptions(point: Point): ActionsButtonOptions {
+    const newActionButtonOptions: ActionsButtonOptions = new ActionsButtonOptions(true, point.x, point.y)
+    const hideButton: ActionButtonProps = new ActionButtonProps(
+      this.isVisible ? 'visibility_off' : 'visibility',
+      (commandInvoker: CommandInvoker) => {
+        commandInvoker.execute(new HideClickableCommand(this))
+        newActionButtonOptions.isActionsButtonVisible = false;
+      }
+    );
+
+    const divideButton: ActionButtonProps = new ActionButtonProps(
+      'carpenter',
+      (commandInvoker: CommandInvoker) => {
+        commandInvoker.execute(new DivideWallCommand(this))
+        newActionButtonOptions.isActionsButtonVisible = false;
+      }
+    );
+
+    newActionButtonOptions.buttonsAndActions = [hideButton, divideButton];
+    return newActionButtonOptions;
+}
 
   override onDrag(offset: Point, recursive: boolean) {
     this.p1.point = this.p1.point.translatePoint(offset);
@@ -243,5 +239,33 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     }
 
     return fn(this);
+  }
+
+  override setVisibleState(newState: boolean) {
+    this.isVisible = newState;
+  }
+
+  /**
+   * Get the last wall-element added in the wall
+   */
+  public getLastWallElement(): WallElement | undefined {
+    return this.elements.length === 0 ? undefined : this.elements[this.elements.length - 1];
+  }
+
+  /**
+   * Calculate the position of the orthogonal projection onto a Wall
+   * @param point The point to project
+   * @return the projection of the point
+   */
+  projectOrthogonallyOntoWall(point: Point): Point {
+    const segmentVector: Point = new Point(this.p2.x - this.p1.x, this.p2.y - this.p1.y);
+    const pointVector: Point = this.p1.point.getVector(point);
+
+    // Calculation of the projection of the pointVector onto the segmentVector
+    const projectionMagnitude: number = (pointVector.x * segmentVector.x + pointVector.y * segmentVector.y) / this.length() ** 2;
+    const projection: Point = new Point(segmentVector.x * projectionMagnitude, segmentVector.y * projectionMagnitude);
+
+    // Add the projection at the beginning of the segment to obtain the coordinates of the projected point
+    return new Point(this.p1.x + projection.x, this.p1.y + projection.y);
   }
 }

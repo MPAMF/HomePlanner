@@ -1,6 +1,7 @@
 import {Comparable} from "./comparable";
 import {Point} from "../point";
 import {Drawable} from "./drawable";
+import {ActionsButtonOptions} from "../action-button-options";
 import {Canvas, DrawOn} from "../canvas";
 
 export enum ClickableState {
@@ -12,6 +13,8 @@ export enum ClickableState {
 export abstract class Clickable extends Comparable implements Drawable {
 
   protected state: ClickableState = ClickableState.NONE;
+
+  protected isVisible: boolean = true;
 
   protected constructor() {
     super();
@@ -55,6 +58,18 @@ export abstract class Clickable extends Comparable implements Drawable {
    * Method call when the clickable was hovered and turn to another state
    */
   abstract onHoverOut(): void;
+
+  /**
+   * Get option of the actions button component
+   * @param point The position of the click
+   */
+  abstract getActionsButtonOptions(point: Point): ActionsButtonOptions;
+
+  /**
+   * Set the clickable visible status
+   * @param newState the new visible status
+   */
+  abstract setVisibleState(newState: boolean): void;
 
   /**
    * Method call when the clickable is dragged
@@ -141,6 +156,13 @@ export abstract class Clickable extends Comparable implements Drawable {
    */
   public getState(): ClickableState {
     return this.state;
+  }
+
+  /**
+   * Get the visible status
+   */
+  public getVisibleState(): boolean {
+    return this.isVisible;
   }
 
   draw(canvas: Canvas, on: DrawOn): void {

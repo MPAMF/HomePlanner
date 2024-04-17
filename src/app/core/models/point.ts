@@ -1,6 +1,7 @@
 import {Cloneable} from "./interfaces/cloneable";
 import {Clickable, ClickableState} from "./interfaces/clickable";
 import {Canvas, DrawOn} from "./canvas";
+import { ActionsButtonOptions } from "./action-button-options";
 
 export class Point implements Cloneable<Point> {
 
@@ -96,6 +97,14 @@ export class Point implements Cloneable<Point> {
   }
 
   /**
+   * Calculate the cross product with another point
+   * @param otherPoint The other point
+   */
+  crossProduct(otherPoint: Point): number {
+    return this.x * otherPoint.x - this.y * otherPoint.y;
+  }
+
+  /**
    * Function to clone the point
    */
   clone(): Point {
@@ -139,6 +148,16 @@ export class Point implements Cloneable<Point> {
     const dyl: number = p2.y - p1.y;
 
     return (dxc * dyl - dyc * dxl) <= 0;
+  }
+
+
+  /**
+   * Calculate the vector with another point
+   * @param other The other point
+   * @returns The vector calculate with the other point
+   */
+  getVector(other: Point): Point {
+    return new Point(other.x - this.x, other.y - this.y)
   }
 
   toString(): string {
@@ -209,6 +228,14 @@ export class ClickablePoint extends Clickable implements Cloneable<ClickablePoin
 
   onUnselect(): void {
     this.opacity = 0.4;
+  }
+
+  override getActionsButtonOptions(point: Point): ActionsButtonOptions {
+    throw new Error("Method not implemented.");
+  }
+
+  override setVisibleState(newState: boolean): void {
+    this.isVisible = newState;
   }
 
   restore(element: ClickablePoint): void {

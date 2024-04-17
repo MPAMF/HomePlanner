@@ -22,7 +22,9 @@ export class ControlsComponent {
   }
 
   onActionCommand(drawState: DrawState) {
-    this.actionsCommandInvoker?.execute(new EditorDrawStateCommands(drawState));
+    this.actionsCommandInvoker?.execute(new EditorDrawStateCommands(
+      this.isActiveCommand(drawState) ? DrawState.None : drawState)
+    );
   }
 
   onClickZoomIn() {

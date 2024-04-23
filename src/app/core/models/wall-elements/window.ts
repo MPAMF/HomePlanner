@@ -1,7 +1,8 @@
-import {WallElement} from "../wall";
 import {Canvas, DrawOn} from "../canvas";
 import {Point} from "../point";
 import {Utils} from "../../modules/utils";
+import {WallElement} from "../interfaces/wall-elements";
+import {ActionsButtonOptions} from "../action-button-options";
 
 export class Window extends WallElement {
 
@@ -29,38 +30,64 @@ export class Window extends WallElement {
   }
 
   override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
-    if(this.p3 && this.p4){
-      const ctx = !this.isFinalized ? canvas.snappingLine : canvas.background;
-
-      ctx.beginPath();
-      ctx.moveTo(this.p3.x, this.p3.y);
-      ctx.lineTo(this.p1.x, this.p1.y);
-      ctx.lineTo(this.p2.x, this.p2.y);
-      ctx.lineTo(this.p4.x, this.p4.y);
-      ctx.lineWidth = this.getThickness();
-      ctx.strokeStyle = this.getColor();
-      ctx.lineCap = "round";
-      ctx.stroke();
+    if (!this.p3 || !this.p4) {
+      return;
     }
+    const ctx = !this.isFinalized ? canvas.snappingLine : canvas.background;
+
+    ctx.beginPath();
+    ctx.moveTo(this.p3.x, this.p3.y);
+    ctx.lineTo(this.p1.x, this.p1.y);
+    ctx.lineTo(this.p2.x, this.p2.y);
+    ctx.lineTo(this.p4.x, this.p4.y);
+    ctx.lineWidth = this.getThickness();
+    ctx.strokeStyle = this.getColor();
+    ctx.lineCap = "round";
+    ctx.stroke();
   }
 
-  override isPointOnElement(point: Point): boolean {
-    return false;
+  /**
+   * Create a rectangle around the window and check if the given point is into the rectangle
+   * @param point The point to check
+   * @return
+   */
+  isPointOnElement(point: Point): boolean {
+    if (!this.p3 || !this.p4) {
+      return false;
+    }
+
+    const delta: number = (this.getThickness() + this.getLength()) / 3;
+    let angleUnitaryVector: number = Utils.CalculateAngle(this.p1, this.p2, new Point(0, 0), new Point(1, 0));
+    angleUnitaryVector = this.p1.y >= this.p2.y ? angleUnitaryVector : (-angleUnitaryVector);
+
+    const midPointP1: Point = this.p1.midpointTo(this.p3);
+    const midPointP2: Point = this.p2.midpointTo(this.p4);
+
+    const alpha: Point = new Point(midPointP1.x - Math.cos(angleUnitaryVector) * delta, midPointP1.y - Math.sin(angleUnitaryVector) * delta);
+    const beta: Point = new Point(midPointP2.x + Math.cos(angleUnitaryVector) * delta, midPointP2.y + Math.sin(angleUnitaryVector) * delta);
+
+    angleUnitaryVector += Math.PI / 2;
+    const A: Point = new Point(alpha.x + Math.cos(angleUnitaryVector) * delta, alpha.y + Math.sin(angleUnitaryVector) * delta);
+    const B: Point = new Point(beta.x + Math.cos(angleUnitaryVector) * delta, beta.y + Math.sin(angleUnitaryVector) * delta);
+    const C: Point = new Point(beta.x - Math.cos(angleUnitaryVector) * delta, beta.y - Math.sin(angleUnitaryVector) * delta);
+    const D: Point = new Point(alpha.x - Math.cos(angleUnitaryVector) * delta, alpha.y - Math.sin(angleUnitaryVector) * delta);
+
+    return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
   }
 
   onDrag(offset: Point, recursive: boolean): void {
-  }
-
-  override onHover(): void {
-  }
-
-  override onHoverOut(): void {
   }
 
   override onSelect(): void {
   }
 
   override onUnselect(): void {
+  }
+
+  override onHover(): void {
+  }
+
+  override onHoverOut(): void {
   }
 
   clone(): Window {
@@ -77,7 +104,7 @@ export class Window extends WallElement {
     // Calculate measure
     const ADLength: number = this.getLength() / 2;
     const ADCAngle: number = 2 * Math.PI / 3;
-    const BDCAngle: number = Math.PI / 3;
+    const BCDAngle: number = Math.PI / 3;
 
     // Calculate position
     const parentWallLength: number = this.parentWallP1.distanceTo(this.parentWallP2);
@@ -102,17 +129,36 @@ export class Window extends WallElement {
 
     let angleInDegreesWithUnitaryVector: number = Utils.CalculateLeftAngle(startPoint, new Point(Cx, Cy), new Point(0, 0), new Point(1, 0));
     angleInDegreesWithUnitaryVector = this.parentWallP1.y >= this.parentWallP2.y ? angleInDegreesWithUnitaryVector : (-angleInDegreesWithUnitaryVector);
+    let rotationMultiplier: number = 1;
 
-    const Ax: number = startPoint.x + Math.cos(ADCAngle + angleInDegreesWithUnitaryVector) * ADLength;
-    const Ay: number = startPoint.y + Math.sin(ADCAngle + angleInDegreesWithUnitaryVector) * ADLength;
-    this.p3 = this.isRotated ? new Point(-Ax, -Ay) : new Point(Ax, Ay);
+    let finalADCAngle: number;
+    let finalBCDAngle: number;
+    if(this.isRotated){
+      rotationMultiplier *= -1
+      finalADCAngle = angleInDegreesWithUnitaryVector + BCDAngle;
+      finalBCDAngle = angleInDegreesWithUnitaryVector + ADCAngle;
+    } else {
+      finalADCAngle = angleInDegreesWithUnitaryVector + ADCAngle;
+      finalBCDAngle = angleInDegreesWithUnitaryVector + BCDAngle;
+    }
 
-    const Bx: number = Cx + Math.cos(BDCAngle + angleInDegreesWithUnitaryVector) * ADLength;
-    const By: number = Cy + Math.sin(BDCAngle + angleInDegreesWithUnitaryVector) * ADLength;
-    this.p4 = this.isRotated ? new Point(-Bx, -By) : new Point(Bx, By);
+    const Ax: number = startPoint.x + rotationMultiplier * Math.cos(finalADCAngle) * ADLength;
+    const Ay: number = startPoint.y + rotationMultiplier * Math.sin(finalADCAngle) * ADLength;
+    this.p3 = new Point(Ax, Ay);
+
+    const Bx: number = Cx + rotationMultiplier * Math.cos(finalBCDAngle) * ADLength;
+    const By: number = Cy + rotationMultiplier * Math.sin(finalBCDAngle) * ADLength;
+    this.p4 = new Point(Bx, By);
   }
 
   update(newOriginPoint: Point): void {
     this.calculatePointPositions(newOriginPoint);
+  }
+
+  getActionsButtonOptions(point: Point): ActionsButtonOptions {
+    return new ActionsButtonOptions();
+  }
+
+  setVisibleState(newState: boolean): void {
   }
 }

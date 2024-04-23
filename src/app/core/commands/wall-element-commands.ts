@@ -1,10 +1,11 @@
 import {Command} from "./command";
 import {DrawState} from "../models/draw-state";
-import {Wall, WallElement} from "../models/wall";
+import {Wall} from "../models/wall";
 import {Window} from "../models/wall-elements/window";
 import {Point} from "../models/point";
 import {DrawOn} from "../models/canvas";
 import {Door} from "../models/wall-elements/door";
+import { WallElement } from "../models/interfaces/wall-elements";
 
 export class AddWindowCommand extends Command {
 
@@ -127,7 +128,7 @@ export class AddDoorCommand extends Command {
 
     const pointInTheNearestWall: Point = this.wall.projectOrthogonallyOntoWall(this.startPoint);
 
-    this.newDoor =  new Door(
+    this.newDoor = new Door(
       pointInTheNearestWall, this.wall.p1, this.wall.p2,
       this.board.boardConfig.windowLength, this.board.boardConfig.windowThickness,
       this.board.boardConfig.windowColor, this.board.boardConfig.selectWindowColor

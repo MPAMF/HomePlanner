@@ -1,7 +1,8 @@
-import {WallElement} from "../wall";
 import {Canvas, DrawOn} from "../canvas";
 import {Point} from "../point";
 import {Utils} from "../../modules/utils";
+import {WallElement} from "../interfaces/wall-elements";
+import {ActionsButtonOptions} from "../action-button-options";
 
 
 export class Door extends WallElement {
@@ -115,5 +116,12 @@ export class Door extends WallElement {
     const Ay: number = startPoint.y + Math.sin(ADCAngle + angleInDegreesWithUnitaryVector) * this.getLength();
     this.p3 = this.isRotated ? new Point(-Ax, -Ay) : new Point(Ax, Ay);
 
+  }
+
+  getActionsButtonOptions(point: Point): ActionsButtonOptions {
+    return new ActionsButtonOptions();
+  }
+
+  setVisibleState(newState: boolean): void {
   }
 }

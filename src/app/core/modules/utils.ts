@@ -27,18 +27,38 @@ export class Utils {
   }
 
   public static CalculateAngle(point1Vector1: Point, point2Vector1: Point, point1Vector2: Point, point2Vector2: Point): number {
-    const vector1 = new Point(point2Vector1.x - point1Vector1.x, point2Vector1.y - point1Vector1.y);
-    const vector2 = new Point(point2Vector2.x - point1Vector2.x, point2Vector2.y - point1Vector2.y);
+    const vector1 = point1Vector1.getVector(point2Vector1);
+    const vector2 = point1Vector2.getVector(point2Vector2);
 
     const magnitude1 = Math.sqrt(vector1.x ** 2 + vector1.y ** 2);
     const magnitude2 = Math.sqrt(vector2.x ** 2 + vector2.y ** 2);
     const cosineTheta = vector1.dotProduct(vector2) / (magnitude1 * magnitude2);
 
-    let angleInRadians = Math.acos(cosineTheta);
+    return Math.acos(cosineTheta);
+  }
+
+  public static CalculateLeftAngle(point1Vector1: Point, point2Vector1: Point, point1Vector2: Point, point2Vector2: Point): number {
+    let angleInRadians = this.CalculateAngle(point1Vector1, point2Vector1, point1Vector2, point2Vector2);
     if (point2Vector1.isRight(point1Vector2, point2Vector2)) {
       angleInRadians = 2 * Math.PI - angleInRadians;
     }
 
     return angleInRadians;
+  }
+
+  public static CalculateTrigonometricAngle(point1Vector1: Point, point2Vector1: Point, point1Vector2: Point, point2Vector2: Point): number {
+    const cross_x: number = point1Vector1.getVector(point2Vector1).crossProduct(Point.UNIT_X_VECTOR);
+    const cross_y: number = point1Vector1.getVector(point2Vector1).crossProduct(Point.UNIT_Y_VECTOR);
+    let angleInRadians: number = this.CalculateAngle(point1Vector1, point2Vector1, point1Vector2, point2Vector2);
+
+    if ((cross_x > 0 && cross_y > 0) || cross_y > 0) {
+      angleInRadians = 2 * Math.PI - angleInRadians;
+    }
+
+    return angleInRadians;
+  }
+
+  public static CalculateTrigonometricAngleWithUnitXVector(point1Vector1: Point, point2Vector1: Point): number {
+    return this.CalculateTrigonometricAngle(point1Vector1, point2Vector1, Point.ORIGIN, Point.UNIT_X);
   }
 }

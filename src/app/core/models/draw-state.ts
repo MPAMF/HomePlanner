@@ -7,6 +7,7 @@ export enum DrawState {
   Wall,
   WallCreation,
   Door,
+  DoorPlacement,
   Window,
   WindowPlacement,
   Delete,

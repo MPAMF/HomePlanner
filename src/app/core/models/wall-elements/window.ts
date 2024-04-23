@@ -63,15 +63,12 @@ export class Window extends WallElement {
   override onUnselect(): void {
   }
 
-  clone(): WallElement {
+  clone(): Window {
     return new Window(this.p1.clone(), this.parentWallP1, this.parentWallP2, this.defaultLength, this.defaultThickness,
       this.defaultColor, this.defaultSelectedColor, this.thickness, this.color, this.selectedColor, this.length, this.isFinalized);
   }
 
-  restore(element: WallElement): void {
-    if (!(element instanceof Window)) {
-      return;
-    }
+  restore(element: Window): void {
     this.p1 = element.p1;
     this.p2 = element.p2;
   }
@@ -103,7 +100,7 @@ export class Window extends WallElement {
     this.p1 = startPoint;
     this.p2 = new Point(Cx, Cy);
 
-    let angleInDegreesWithUnitaryVector: number = Utils.CalculateAngle(startPoint, new Point(Cx, Cy), new Point(0, 0), new Point(1, 0));
+    let angleInDegreesWithUnitaryVector: number = Utils.CalculateLeftAngle(startPoint, new Point(Cx, Cy), new Point(0, 0), new Point(1, 0));
     angleInDegreesWithUnitaryVector = this.parentWallP1.y >= this.parentWallP2.y ? angleInDegreesWithUnitaryVector : (-angleInDegreesWithUnitaryVector);
 
     const Ax: number = startPoint.x + Math.cos(ADCAngle + angleInDegreesWithUnitaryVector) * ADLength;

@@ -1,6 +1,11 @@
 import {Cloneable} from "./interfaces/cloneable";
 
 export class Point implements Cloneable<Point> {
+  static ORIGIN: Point = new Point(0, 0);
+  static UNIT_X: Point = new Point(1, 0);
+  static UNIT_Y: Point = new Point(0, 1);
+  static UNIT_X_VECTOR: Point = Point.ORIGIN.getVector(Point.UNIT_X);
+  static UNIT_Y_VECTOR: Point = Point.ORIGIN.getVector(Point.UNIT_Y);
 
   /**
    * Create a new point
@@ -91,6 +96,14 @@ export class Point implements Cloneable<Point> {
    */
   dotProduct(otherPoint: Point): number {
     return this.x * otherPoint.x + this.y * otherPoint.y;
+  }
+
+  /**
+   * Calculate the cross product with another point
+   * @param otherPoint The other point
+   */
+  crossProduct(otherPoint: Point): number {
+    return this.x * otherPoint.x - this.y * otherPoint.y;
   }
 
   /**

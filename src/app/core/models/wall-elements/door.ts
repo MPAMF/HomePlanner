@@ -32,14 +32,12 @@ export class Door extends WallElement {
   override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
     if(this.p3){
       const ctx = !this.isFinalized ? canvas.snappingLine : canvas.background;
-
       const angleUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(this.p1, this.p2);
 
       ctx.beginPath();
       ctx.moveTo(this.p3.x, this.p3.y);
       ctx.lineTo(this.p1.x, this.p1.y);
       ctx.lineTo(this.p2.x, this.p2.y);
-
 
       ctx.moveTo(this.p2.x, this.p2.y);
       ctx.arc(this.p1.x, this.p1.y, this.getLength(),angleUnitaryVector, angleUnitaryVector + Math.PI/2, false);
@@ -50,8 +48,36 @@ export class Door extends WallElement {
     }
   }
 
-  override isPointOnElement(point: Point): boolean {
-    return false;
+  /**
+   * Create a rectangle around the window and check if the given point is into the rectangle
+   * @param point The point to check
+   * @return
+   */
+  isPointOnElement(point: Point): boolean {
+    if (!this.p3) {
+      return false;
+    }
+
+    let delta: number = this.getThickness();
+    let angleUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(this.p1, this.p2);
+    const p4x: number = this.p2.x + Math.cos(Math.PI/2 + angleUnitaryVector) * this.getLength();
+    const p4y: number = this.p2.y + Math.sin(Math.PI/2 + angleUnitaryVector) * this.getLength();
+    const p4: Point = this.isRotated ? new Point(-p4x, -p4y) : new Point(p4x, p4y);
+
+    const midPointP1: Point = this.p1.midpointTo(this.p3);
+    const midPointP2: Point = this.p2.midpointTo(p4);
+
+    const alpha: Point = new Point(midPointP1.x - Math.cos(angleUnitaryVector) * delta, midPointP1.y - Math.sin(angleUnitaryVector) * delta);
+    const beta: Point = new Point(midPointP2.x + Math.cos(angleUnitaryVector) * delta, midPointP2.y + Math.sin(angleUnitaryVector) * delta);
+
+    delta += this.getLength() / 2;
+    angleUnitaryVector += Math.PI / 2;
+    const A: Point = new Point(alpha.x + Math.cos(angleUnitaryVector) * delta, alpha.y + Math.sin(angleUnitaryVector) * delta);
+    const B: Point = new Point(beta.x + Math.cos(angleUnitaryVector) * delta, beta.y + Math.sin(angleUnitaryVector) * delta);
+    const C: Point = new Point(beta.x - Math.cos(angleUnitaryVector) * delta, beta.y - Math.sin(angleUnitaryVector) * delta);
+    const D: Point = new Point(alpha.x - Math.cos(angleUnitaryVector) * delta, alpha.y - Math.sin(angleUnitaryVector) * delta);
+
+    return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
   }
 
   onDrag(offset: Point, recursive: boolean): void {
@@ -86,7 +112,7 @@ export class Door extends WallElement {
 
   calculatePointPositions(startPoint: Point): void {
     // Calculate measure
-    const ADCAngle: number = Math.PI / 2;
+    const ACDAngle: number = Math.PI / 2;
 
     // Calculate position
     const parentWallLength: number = this.parentWallP1.distanceTo(this.parentWallP2);
@@ -109,13 +135,10 @@ export class Door extends WallElement {
     this.p1 = startPoint;
     this.p2 = new Point(Cx, Cy);
 
-    let angleInDegreesWithUnitaryVector: number = Utils.CalculateLeftAngle(startPoint, new Point(Cx, Cy), Point.ORIGIN, Point.UNIT_X);
-    angleInDegreesWithUnitaryVector = this.parentWallP1.y >= this.parentWallP2.y ? angleInDegreesWithUnitaryVector : (-angleInDegreesWithUnitaryVector);
-
-    const Ax: number = startPoint.x + Math.cos(ADCAngle + angleInDegreesWithUnitaryVector) * this.getLength();
-    const Ay: number = startPoint.y + Math.sin(ADCAngle + angleInDegreesWithUnitaryVector) * this.getLength();
+    const angleInDegreesWithUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(startPoint, new Point(Cx, Cy));
+    const Ax: number = startPoint.x + Math.cos(ACDAngle + angleInDegreesWithUnitaryVector) * this.getLength();
+    const Ay: number = startPoint.y + Math.sin(ACDAngle + angleInDegreesWithUnitaryVector) * this.getLength();
     this.p3 = this.isRotated ? new Point(-Ax, -Ay) : new Point(Ax, Ay);
-
   }
 
   getActionsButtonOptions(point: Point): ActionsButtonOptions {

@@ -57,8 +57,7 @@ export class Window extends WallElement {
     }
 
     const delta: number = (this.getThickness() + this.getLength()) / 3;
-    let angleUnitaryVector: number = Utils.CalculateAngle(this.p1, this.p2, new Point(0, 0), new Point(1, 0));
-    angleUnitaryVector = this.p1.y >= this.p2.y ? angleUnitaryVector : (-angleUnitaryVector);
+    let angleUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(this.p1, this.p2);
 
     const midPointP1: Point = this.p1.midpointTo(this.p3);
     const midPointP2: Point = this.p2.midpointTo(this.p4);
@@ -124,16 +123,11 @@ export class Window extends WallElement {
     if(!isCorrectlyPrintOnWall){
       return;
     }
-    this.p1 = startPoint;
-    this.p2 = new Point(Cx, Cy);
+    const angleInDegreesWithUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(startPoint, new Point(Cx, Cy));
 
-    let angleInDegreesWithUnitaryVector: number = Utils.CalculateLeftAngle(startPoint, new Point(Cx, Cy), new Point(0, 0), new Point(1, 0));
-    angleInDegreesWithUnitaryVector = this.parentWallP1.y >= this.parentWallP2.y ? angleInDegreesWithUnitaryVector : (-angleInDegreesWithUnitaryVector);
     let rotationMultiplier: number = 1;
-
-    let finalADCAngle: number;
-    let finalBCDAngle: number;
-    if(this.isRotated){
+    let finalBCDAngle, finalADCAngle: number;
+    if( this.isRotated ){
       rotationMultiplier *= -1
       finalADCAngle = angleInDegreesWithUnitaryVector + BCDAngle;
       finalBCDAngle = angleInDegreesWithUnitaryVector + ADCAngle;
@@ -144,10 +138,13 @@ export class Window extends WallElement {
 
     const Ax: number = startPoint.x + rotationMultiplier * Math.cos(finalADCAngle) * ADLength;
     const Ay: number = startPoint.y + rotationMultiplier * Math.sin(finalADCAngle) * ADLength;
-    this.p3 = new Point(Ax, Ay);
 
     const Bx: number = Cx + rotationMultiplier * Math.cos(finalBCDAngle) * ADLength;
     const By: number = Cy + rotationMultiplier * Math.sin(finalBCDAngle) * ADLength;
+
+    this.p1 = startPoint;
+    this.p2 = new Point(Cx, Cy);
+    this.p3 = new Point(Ax, Ay);
     this.p4 = new Point(Bx, By);
   }
 

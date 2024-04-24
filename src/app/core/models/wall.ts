@@ -96,7 +96,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    * @param point2 The second point of the vector
    */
   calculateAngleWithTwoPoint(point1: Point, point2: Point): number {
-    return Utils.ConvertAngleToDegrees(Utils.CalculateAngle(this.p1, this.p2, point1, point2));
+    return Utils.ConvertAngleToDegrees(Utils.CalculateLeftAngle(this.p1, this.p2, point1, point2));
   }
 
   /**

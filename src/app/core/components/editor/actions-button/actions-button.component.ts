@@ -5,6 +5,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { ActionsButtonOptions } from "../../../models/action-button-options";
 import { CommandInvoker } from "../../../commands/command";
 import {bottomToTopScaleAnimation} from "../../animations/bottom-to-top-scale-animation";
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-actions-button',
@@ -17,5 +18,6 @@ import {bottomToTopScaleAnimation} from "../../animations/bottom-to-top-scale-an
 
 export class ActionsButtonComponent {
   @Input() commandInvoker?: CommandInvoker;
+  @Input() modalElementProperties?: MatDialog;
   @Input() actionsButtonOptions?: ActionsButtonOptions;
 }

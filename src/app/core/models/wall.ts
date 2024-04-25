@@ -9,6 +9,12 @@ import {DivideWallCommand} from "../commands/wall-commands";
 import {HideClickableCommand} from "../commands/clickable-commands";
 import {Cloneable} from "./interfaces/cloneable";
 import {WallElement} from "./interfaces/wall-elements";
+import {DialogConfirmationComponent} from "../../shared/components/dialog-confirmation.component";
+import {ResetCurrentRoomCommand} from "../commands/canvas-commands";
+import {MatDialog} from "@angular/material/dialog";
+import {
+  ModalElementPropertiesComponent
+} from "../components/editor/modal-element-properties/modal-element-properties.component";
 
 export class Wall extends Clickable implements Cloneable<Wall> {
 
@@ -197,21 +203,48 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     const newActionButtonOptions: ActionsButtonOptions = new ActionsButtonOptions(true, point.x, point.y)
     const hideButton: ActionButtonProps = new ActionButtonProps(
       this.isVisible ? 'visibility_off' : 'visibility',
-      (commandInvoker: CommandInvoker) => {
-        commandInvoker.execute(new HideClickableCommand(this))
+      (commandInvoker?: CommandInvoker, modalElementProperties?: MatDialog) => {
+        commandInvoker ? commandInvoker.execute(new HideClickableCommand(this)) : null;
         newActionButtonOptions.isActionsButtonVisible = false;
       }
     );
 
     const divideButton: ActionButtonProps = new ActionButtonProps(
       'carpenter',
-      (commandInvoker: CommandInvoker) => {
-        commandInvoker.execute(new DivideWallCommand(this))
+      (commandInvoker?: CommandInvoker, modalElementProperties?: MatDialog) => {
+        commandInvoker ? commandInvoker.execute(new DivideWallCommand(this)) : null;
         newActionButtonOptions.isActionsButtonVisible = false;
       }
     );
 
-    newActionButtonOptions.buttonsAndActions = [hideButton, divideButton];
+    const settingsButton: ActionButtonProps = new ActionButtonProps(
+      'settings',
+      (commandInvoker?: CommandInvoker, modalElementProperties?: MatDialog) => {
+        if(commandInvoker && modalElementProperties){
+          const dialogRef = modalElementProperties.open(ModalElementPropertiesComponent, {
+            enterAnimationDuration: '300ms',
+            exitAnimationDuration: '300ms',
+            width: '600px',
+            data: {
+              title: 'Warning',
+              isWallOption: true,
+            }
+          });
+
+          // Subscribe to the afterClosed event
+          dialogRef?.afterClosed().subscribe(result => {
+            // Check the result to determine which button was clicked
+            if (result === 'confirm') {
+              //commandInvoker.execute(new ResetCurrentRoomCommand(this.board.currentRoom));
+            }
+          });
+        }
+
+        newActionButtonOptions.isActionsButtonVisible = false;
+      }
+    );
+
+    newActionButtonOptions.buttonsAndActions = [hideButton, divideButton, settingsButton];
     return newActionButtonOptions;
 }
 

@@ -2,7 +2,7 @@
      [ngStyle]="{'top.px': actionsButtonOptions?.actionsButtonTopPosition, 'left.px': actionsButtonOptions?.actionsButtonLeftPosition}">
 
   <div *ngFor="let buttonAttributes of actionsButtonOptions?.buttonsAndActions;">
-    <button class="actions-button" (click)="commandInvoker ? buttonAttributes.onClickMethod(commandInvoker) : null"
+    <button class="actions-button" (click)="buttonAttributes.onClickMethod(commandInvoker, modalElementProperties)"
       [@buttonState]="'open'">
       <mat-icon>{{buttonAttributes.iconName}}</mat-icon>
     </button>

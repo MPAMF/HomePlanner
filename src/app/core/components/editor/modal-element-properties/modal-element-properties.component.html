@@ -1,0 +1,16 @@
+<h1 mat-dialog-title>
+  {{ data.title }}
+  <span mat-dialog-close="cancel">
+    <mat-icon>cancel</mat-icon>
+  </span>
+</h1>
+<mat-dialog-content class="mat-typography">
+
+  <app-wall-settings *ngIf="data.isWallOption"></app-wall-settings>
+  <app-window-settings *ngIf="data.isWindowsOption"></app-window-settings>
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button class="cancel label-button" mat-dialog-close="cancel">Cancel</button>
+  <button class="primary label-button" mat-dialog-close="confirm">Confirm</button>
+</mat-dialog-actions>

@@ -29,7 +29,7 @@ export class EditorComponent {
   private snappingLineCanvas: HTMLCanvasElement | null | undefined;
   private readonly board: Board;
 
-  constructor(@Inject(PLATFORM_ID) platformId: object, private dialog: MatDialog) {
+  constructor(@Inject(PLATFORM_ID) platformId: object, public dialog: MatDialog) {
     this.board = new Board();
     this.cmdInvoker = new CommandInvoker(this.board);
     this.actionsCmdInvoker = new CommandInvoker(this.board);

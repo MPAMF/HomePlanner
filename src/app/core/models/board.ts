@@ -297,4 +297,20 @@ export class Board implements Drawable {
       w.p2 = uniquePoints[w.p2.point.toString()];
     }));
   }
+
+  /**
+   * Mark all the walls linked to the given point as finalized
+   * @param point Point to mark the linked walls of
+   * @param finalized Whether the walls should be marked as finalized or not
+   */
+  public markLinkedWalls(point: Point, finalized: boolean) {
+    for (const room of this.rooms) {
+      for (const wall of room.walls) {
+        if (wall.p1.point.equals(point) || wall.p2.point.equals(point)) {
+          wall.isFinalized = finalized;
+        }
+      }
+    }
+  }
+
 }

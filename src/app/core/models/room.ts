@@ -94,6 +94,13 @@ export class Room extends Clickable implements Cloneable<Room> {
   }
 
   /**
+   * Get all the points in the room
+   */
+  public getAllPoints(): Set<Point> {
+    return new Set(this.walls.map(wall => [wall.p1.point, wall.p2.point]).flat());
+  }
+
+  /**
    * Return true if the point is inside the room
    *
    * Source: https://alienryderflex.com/polygon/

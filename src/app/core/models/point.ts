@@ -215,6 +215,7 @@ export class ClickablePoint extends Clickable implements Cloneable<ClickablePoin
   }
 
   onDrag(offset: Point, recursive: boolean): void {
+    this.point = this.point.translatePoint(offset);
   }
 
   onHover(): void {

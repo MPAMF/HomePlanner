@@ -129,7 +129,7 @@ export class AddDoorCommand extends Command {
     const pointInTheNearestWall: Point = this.wall.projectOrthogonallyOntoWall(this.startPoint);
 
     this.newDoor = new Door(
-      pointInTheNearestWall, this.wall.p1, this.wall.p2,
+      pointInTheNearestWall, this.wall.p1.point, this.wall.p2.point,
       this.board.boardConfig.windowLength, this.board.boardConfig.windowThickness,
       this.board.boardConfig.windowColor, this.board.boardConfig.selectWindowColor
     )

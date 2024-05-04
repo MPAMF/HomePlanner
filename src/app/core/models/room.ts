@@ -1,6 +1,6 @@
 import {Wall} from "./wall";
 import {Point} from "./point";
-import {Canvas, DrawOn} from "./canvas";
+import {Canvas, clearCanvas, DrawOn} from "./canvas";
 
 import {ActionsButtonOptions} from "./action-button-options";
 import {Clickable, ClickableState} from "./interfaces/clickable";

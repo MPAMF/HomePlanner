@@ -178,11 +178,11 @@ export class Wall extends Clickable implements Cloneable<Wall> {
       ctx.strokeStyle = this.getColor();
       ctx.lineCap = "round";
       ctx.stroke();
+      this.p1.draw(canvas, on);
+      this.p2.draw(canvas, on);
     }
 
     this.elements.forEach(element => element.draw(canvas, on));
-    this.p1.draw(canvas, on);
-    this.p2.draw(canvas, on);
   }
 
   override onSelect(): void {

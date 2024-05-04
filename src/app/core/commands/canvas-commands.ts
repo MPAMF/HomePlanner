@@ -185,6 +185,7 @@ export class EndObjectDragCommand extends Command {
       throw new Error("Not implemented");
     } else if (selectedElement instanceof Window) {
       throw new Error("Not implemented");
+    } else if (selectedElement instanceof ClickablePoint) {
     }
 
     this.board.draggingApplyFn = undefined;

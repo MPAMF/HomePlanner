@@ -236,7 +236,7 @@ export class ClickablePoint extends Clickable implements Cloneable<ClickablePoin
   }
 
   override getActionsButtonOptions(point: Point): ActionsButtonOptions {
-    throw new Error("Method not implemented.");
+    return new ActionsButtonOptions(false, point.x, point.y);
   }
 
   override setVisibleState(newState: boolean): void {
@@ -256,22 +256,22 @@ export class ClickablePoint extends Clickable implements Cloneable<ClickablePoin
     context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
     context.fill();
 
-    if (this.state !== ClickableState.SELECTED) {
-      return;
-    }
-
-    const crossSize = 20;
-    // draw a cross in the intersection
-    context.beginPath();
-    // horizontal line
-    context.moveTo(this.x - crossSize, this.y);
-    context.lineTo(this.x + crossSize, this.y);
-    // vertical line
-    context.moveTo(this.x, this.y - crossSize);
-    context.lineTo(this.x, this.y + crossSize);
-    context.lineWidth = 1;
-    context.lineCap = "butt";
-    context.strokeStyle = "black";
-    context.stroke();
+    // if (this.state !== ClickableState.SELECTED) {
+    //   return;
+    // }
+    //
+    // const crossSize = 20;
+    // // draw a cross in the intersection
+    // context.beginPath();
+    // // horizontal line
+    // context.moveTo(this.x - crossSize, this.y);
+    // context.lineTo(this.x + crossSize, this.y);
+    // // vertical line
+    // context.moveTo(this.x, this.y - crossSize);
+    // context.lineTo(this.x, this.y + crossSize);
+    // context.lineWidth = 1;
+    // context.lineCap = "butt";
+    // context.strokeStyle = "black";
+    // context.stroke();
   }
 }

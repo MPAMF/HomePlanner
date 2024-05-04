@@ -4,6 +4,11 @@ import {Canvas, DrawOn} from "./canvas";
 import { ActionsButtonOptions } from "./action-button-options";
 
 export class Point implements Cloneable<Point> {
+  static ORIGIN: Point = new Point(0, 0);
+  static UNIT_X: Point = new Point(1, 0);
+  static UNIT_Y: Point = new Point(0, 1);
+  static UNIT_X_VECTOR: Point = Point.ORIGIN.getVector(Point.UNIT_X);
+  static UNIT_Y_VECTOR: Point = Point.ORIGIN.getVector(Point.UNIT_Y);
 
   /**
    * Create a new point

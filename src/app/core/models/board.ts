@@ -81,6 +81,7 @@ export class Board implements Drawable {
         break;
 
       case DrawState.Window:
+      case DrawState.Door:
         nearestWall =  this.findClosestWall(point);
         break;
     }

@@ -6,7 +6,12 @@ import {CommandInvoker} from "../commands/command";
 import {DragObjectCommand, EndObjectDragCommand, MoveCommand, StartObjectDragCommand} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
 import {applyToCanvas, DrawOn, getScale, inverseTransformPoint, zoomCanvas} from "../models/canvas";
-import {AddWindowCommand, EditLastWindowCommand, FinalizeWindowCommand} from "../commands/wall-element-commands";
+import {
+  AddDoorCommand,
+  AddWindowCommand, EditLastDoorCommand,
+  EditLastWindowCommand, FinalizeDoorCommand,
+  FinalizeWindowCommand
+} from "../commands/wall-element-commands";
 import {Utils} from "../modules/utils";
 
 export class MouseEvents extends BaseEvent {
@@ -75,7 +80,11 @@ export class MouseEvents extends BaseEvent {
         }
         break;
 
-      case DrawState.Door:
+      case DrawState.DoorPlacement:
+        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Door);
+        if(nearestWall){
+          this.cmdInvoker.execute(new EditLastDoorCommand(nearestWall, pt))
+        }
         break;
 
       default:
@@ -178,6 +187,17 @@ export class MouseEvents extends BaseEvent {
         break;
 
       case DrawState.Door:
+        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Door);
+        if(nearestWall){
+          this.cmdInvoker.execute(new AddDoorCommand(nearestWall, pt))
+        }
+        break;
+
+      case DrawState.DoorPlacement:
+        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Door);
+        if(nearestWall){
+          this.cmdInvoker.execute(new FinalizeDoorCommand(nearestWall))
+        }
         break;
 
       case DrawState.None:

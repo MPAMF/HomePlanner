@@ -1,17 +1,83 @@
 import {Canvas, DrawOn} from "../canvas";
 import {Point} from "../point";
+import {Utils} from "../../modules/utils";
 import {WallElement} from "../interfaces/wall-elements";
 import {ActionsButtonOptions} from "../action-button-options";
 
 
 export class Door extends WallElement {
 
-  override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
-    //console.log(`Drawing Door from (${this.p1.x}, ${this.p1.y}) to (${this.p2.x}, ${this.p2.y})`);
+  private p3: Point | undefined;
+
+  constructor(
+    p1: Point,
+    parentWallP1: Point,
+    parentWallP2: Point,
+    defaultLength: number,
+    defaultThickness: number,
+    defaultColor: string,
+    defaultSelectedColor: string,
+    thickness?: number,
+    color?: string,
+    selectedColor?: string,
+    length?: number,
+    isFinalized: boolean = false
+  ) {
+    super(p1, p1, parentWallP1, parentWallP2, defaultLength, defaultThickness, defaultColor,
+      defaultSelectedColor, thickness, color, selectedColor, length, isFinalized);
+
+    this.calculatePointPositions(p1);
   }
 
-  override isPointOnElement(point: Point): boolean {
-    return false;
+  override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
+    if(this.p3){
+      const ctx = !this.isFinalized ? canvas.snappingLine : canvas.background;
+      const angleUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(this.p1, this.p2);
+
+      ctx.beginPath();
+      ctx.moveTo(this.p3.x, this.p3.y);
+      ctx.lineTo(this.p1.x, this.p1.y);
+      ctx.lineTo(this.p2.x, this.p2.y);
+
+      ctx.moveTo(this.p2.x, this.p2.y);
+      ctx.arc(this.p1.x, this.p1.y, this.getLength(),angleUnitaryVector, angleUnitaryVector + Math.PI/2, false);
+      ctx.lineWidth = this.getThickness();
+      ctx.strokeStyle = this.getColor();
+      ctx.lineCap = "round";
+      ctx.stroke();
+    }
+  }
+
+  /**
+   * Create a rectangle around the window and check if the given point is into the rectangle
+   * @param point The point to check
+   * @return
+   */
+  isPointOnElement(point: Point): boolean {
+    if (!this.p3) {
+      return false;
+    }
+
+    let delta: number = this.getThickness();
+    let angleUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(this.p1, this.p2);
+    const p4x: number = this.p2.x + Math.cos(Math.PI/2 + angleUnitaryVector) * this.getLength();
+    const p4y: number = this.p2.y + Math.sin(Math.PI/2 + angleUnitaryVector) * this.getLength();
+    const p4: Point = this.isRotated ? new Point(-p4x, -p4y) : new Point(p4x, p4y);
+
+    const midPointP1: Point = this.p1.midpointTo(this.p3);
+    const midPointP2: Point = this.p2.midpointTo(p4);
+
+    const alpha: Point = new Point(midPointP1.x - Math.cos(angleUnitaryVector) * delta, midPointP1.y - Math.sin(angleUnitaryVector) * delta);
+    const beta: Point = new Point(midPointP2.x + Math.cos(angleUnitaryVector) * delta, midPointP2.y + Math.sin(angleUnitaryVector) * delta);
+
+    delta += this.getLength() / 2;
+    angleUnitaryVector += Math.PI / 2;
+    const A: Point = new Point(alpha.x + Math.cos(angleUnitaryVector) * delta, alpha.y + Math.sin(angleUnitaryVector) * delta);
+    const B: Point = new Point(beta.x + Math.cos(angleUnitaryVector) * delta, beta.y + Math.sin(angleUnitaryVector) * delta);
+    const C: Point = new Point(beta.x - Math.cos(angleUnitaryVector) * delta, beta.y - Math.sin(angleUnitaryVector) * delta);
+    const D: Point = new Point(alpha.x - Math.cos(angleUnitaryVector) * delta, alpha.y - Math.sin(angleUnitaryVector) * delta);
+
+    return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
   }
 
   onDrag(offset: Point, recursive: boolean): void {
@@ -29,22 +95,50 @@ export class Door extends WallElement {
   override onUnselect(): void {
   }
 
-  clone(): WallElement {
-    return new Door(this.p1.clone(), this.p2.clone(), this.parentWallP1, this.parentWallP2, this.defaultLength,
+  clone(): Door {
+    return new Door(this.p1.clone(), this.parentWallP1, this.parentWallP2, this.defaultLength,
       this.defaultThickness, this.defaultColor, this.defaultSelectedColor, this.thickness, this.color, this.selectedColor,
       this.length, this.isFinalized);
   }
 
-  restore(element: WallElement): void {
-    if (!(element instanceof Door)) {
-      return;
-    }
+  restore(element: Door): void {
     this.p1 = element.p1;
     this.p2 = element.p2;
   }
 
   update(newOriginPoint: Point): void {
-    this.p1 = newOriginPoint;
+    this.calculatePointPositions(newOriginPoint);
+  }
+
+  calculatePointPositions(startPoint: Point): void {
+    // Calculate measure
+    const ACDAngle: number = Math.PI / 2;
+
+    // Calculate position
+    const parentWallLength: number = this.parentWallP1.distanceTo(this.parentWallP2);
+    const unitDistance: number = this.getLength() / parentWallLength;
+
+    const Cx: number = startPoint.x  + unitDistance * (this.parentWallP2.x - this.parentWallP1.x);
+    const Cy: number = startPoint.y + unitDistance * (this.parentWallP2.y - this.parentWallP1.y);
+
+    // Check if the point is on the wall
+    const p1xSupP2x: boolean = (Cx >= this.parentWallP2.x) && (Cx <= this.parentWallP1.x);
+    const p2xSupP1x: boolean = (Cx >= this.parentWallP1.x) && (Cx <= this.parentWallP2.x);
+
+    const p1ySupP2y: boolean = (Cy >= this.parentWallP2.y) && (Cy <= this.parentWallP1.y);
+    const p2ySupP1y: boolean = (Cy >= this.parentWallP1.y) && (Cy <= this.parentWallP2.y);
+
+    const isCorrectlyPrintOnWall: boolean = (p1xSupP2x || p2xSupP1x) && (p1ySupP2y || p2ySupP1y);
+    if(!isCorrectlyPrintOnWall){
+      return;
+    }
+    this.p1 = startPoint;
+    this.p2 = new Point(Cx, Cy);
+
+    const angleInDegreesWithUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(startPoint, new Point(Cx, Cy));
+    const Ax: number = startPoint.x + Math.cos(ACDAngle + angleInDegreesWithUnitaryVector) * this.getLength();
+    const Ay: number = startPoint.y + Math.sin(ACDAngle + angleInDegreesWithUnitaryVector) * this.getLength();
+    this.p3 = this.isRotated ? new Point(-Ax, -Ay) : new Point(Ax, Ay);
   }
 
   getActionsButtonOptions(point: Point): ActionsButtonOptions {

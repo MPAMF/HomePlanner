@@ -308,6 +308,11 @@ export class Board implements Drawable {
       for (const wall of room.walls) {
         if (wall.p1.point.equals(point) || wall.p2.point.equals(point)) {
           wall.isFinalized = finalized;
+
+          wall.elements?.forEach(element => {
+            element.isFinalized = finalized;
+          });
+
         }
       }
     }

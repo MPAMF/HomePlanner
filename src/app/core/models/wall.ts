@@ -222,9 +222,9 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   override onDrag(offset: Point, recursive: boolean) {
     this.p1.point = this.p1.point.translatePoint(offset);
     this.p2.point = this.p2.point.translatePoint(offset);
-    if (!recursive) {
-      return;
-    }
+    // if (!recursive) {
+    //   return;
+    // }
     this.elements.forEach(element => element.onDrag(offset, recursive));
   }
 

@@ -80,4 +80,6 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
   abstract restore(element: WallElement) : void;
 
   abstract update(newOriginPoint: Point): void;
+
+  override onDrag(offset: Point, recursive: boolean): void {};
 }

@@ -7,8 +7,8 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
   protected constructor(
     public p1: Point,
     public p2: Point,
-    protected parentWallP1: Point,
-    protected parentWallP2: Point,
+    public parentWallP1: Point,
+    public parentWallP2: Point,
     protected defaultLength: number,
     protected defaultThickness: number,
     protected defaultColor: string,

@@ -3,16 +3,22 @@ import {Wall} from "../models/wall";
 import {DrawState} from "../models/draw-state";
 import {AddWallCommand, EditLastWallWithPointCommand, FinaliseRoomCommand,} from "../commands/wall-commands";
 import {CommandInvoker} from "../commands/command";
-import {DragObjectCommand, EndObjectDragCommand, MoveCommand, StartObjectDragCommand} from "../commands/canvas-commands";
+import {
+  DragObjectCommand,
+  EndObjectDragCommand,
+  MoveCommand,
+  StartObjectDragCommand
+} from "../commands/canvas-commands";
 import {BaseEvent} from "./base-event";
 import {applyToCanvas, DrawOn, getScale, inverseTransformPoint, zoomCanvas} from "../models/canvas";
 import {
   AddDoorCommand,
-  AddWindowCommand, EditLastDoorCommand,
-  EditLastWindowCommand, FinalizeDoorCommand,
+  AddWindowCommand,
+  EditLastDoorCommand,
+  EditLastWindowCommand,
+  FinalizeDoorCommand,
   FinalizeWindowCommand
 } from "../commands/wall-element-commands";
-import {Utils} from "../modules/utils";
 import {ClickablePoint} from "../models/clickable-point";
 
 export class MouseEvents extends BaseEvent {
@@ -75,15 +81,15 @@ export class MouseEvents extends BaseEvent {
         break;
 
       case DrawState.WindowPlacement:
-        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Window);
-        if(nearestWall){
+        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Window);
+        if (nearestWall) {
           this.cmdInvoker.execute(new EditLastWindowCommand(nearestWall, pt))
         }
         break;
 
       case DrawState.DoorPlacement:
-        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Door);
-        if(nearestWall){
+        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Door);
+        if (nearestWall) {
           this.cmdInvoker.execute(new EditLastDoorCommand(nearestWall, pt))
         }
         break;
@@ -174,29 +180,29 @@ export class MouseEvents extends BaseEvent {
         break;
 
       case DrawState.Window:
-        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Window);
-        if(nearestWall){
+        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Window);
+        if (nearestWall) {
           this.cmdInvoker.execute(new AddWindowCommand(nearestWall, pt))
         }
         break;
 
       case DrawState.WindowPlacement:
-        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Window);
-        if(nearestWall){
+        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Window);
+        if (nearestWall) {
           this.cmdInvoker.execute(new FinalizeWindowCommand(nearestWall))
         }
         break;
 
       case DrawState.Door:
-        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Door);
-        if(nearestWall){
+        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Door);
+        if (nearestWall) {
           this.cmdInvoker.execute(new AddDoorCommand(nearestWall, pt))
         }
         break;
 
       case DrawState.DoorPlacement:
-        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Door);
-        if(nearestWall){
+        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Door);
+        if (nearestWall) {
           this.cmdInvoker.execute(new FinalizeDoorCommand(nearestWall))
         }
         break;

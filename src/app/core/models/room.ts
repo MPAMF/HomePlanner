@@ -138,9 +138,13 @@ export class Room extends Clickable implements Cloneable<Room> {
   }
 
   override onHover(): void {
+    this.walls.forEach(wall => wall.setState(ClickableState.SELECTED));
   }
 
   override onHoverOut(): void {
+    if (this.state !== ClickableState.SELECTED) {
+      this.walls.forEach(wall => wall.setState(ClickableState.NONE));
+    }
   }
 
   override getActionsButtonOptions(point: Point): ActionsButtonOptions {

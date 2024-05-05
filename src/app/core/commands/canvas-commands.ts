@@ -46,7 +46,7 @@ export class StartObjectDragCommand extends Command {
   private selectedElement: Wall | Room | Door | Window | ClickablePoint | undefined;
   private selectedElementClone: Wall | Room | Door | Window | ClickablePoint | undefined;
   private walls?: Wall[];
-  private draggingApplyFn?: () => void;
+  private draggingApplyFn?: (offset?: Point) => void;
 
   constructor() {
     super();
@@ -77,9 +77,23 @@ export class StartObjectDragCommand extends Command {
     } else if (selectedElement instanceof ClickablePoint) {
       this.selectedElement = selectedElement;
       this.selectedElementClone = selectedElement.clone();
-      this.draggingApplyFn = () => {
-        selectedElement.restore(selectedElement);
+
+      // Get linked wall elements to move them
+      const walls = this.board.getWallsLinkedToPoint(selectedElement.point);
+
+      this.draggingApplyFn = (offset?: Point) => {
+        if (offset) {
+          walls.forEach(wall => {
+            wall.elements.forEach(element => {
+              const pointInTheNearestWall: Point = wall.projectOrthogonallyOntoWall(element.p1);
+              element.parentWallP1 = wall.p1.point;
+              element.parentWallP2 = wall.p2.point;
+              element.update(pointInTheNearestWall);
+            });
+          });
+        }
       }
+
       this.board.markLinkedWalls(selectedElement.point, false);
       this.board.draggingApplyFn = this.draggingApplyFn;
     } else {
@@ -129,7 +143,7 @@ export class DragObjectCommand extends Command {
     this.board.selectedElement.onDrag(this.offset, true);
 
     if (this.board.draggingApplyFn) {
-      this.board.draggingApplyFn();
+      this.board.draggingApplyFn(this.offset);
     }
 
   }

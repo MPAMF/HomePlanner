@@ -16,7 +16,7 @@ export class Board implements Drawable {
   public mousePosition: Point;
   public isPanning: boolean; // Whether the user is panning the canvas (moving the canvas around)
   public isDragging: boolean; // Whether the user is dragging an element
-  public draggingApplyFn?: () => void;
+  public draggingApplyFn?: (offset?: Point) => void;
   public currentRoom?: Room; // This room is the room that is currently being edited
   public actionsButtonOptions: ActionsButtonOptions = new ActionsButtonOptions();
   private image?: HTMLImageElement;
@@ -313,10 +313,17 @@ export class Board implements Drawable {
           wall.elements?.forEach(element => {
             element.isFinalized = finalized;
           });
-
         }
       }
     }
+  }
+
+  /**
+   * Get the walls linked to the given point
+   * @param point Point to find the linked walls of
+   */
+  public getWallsLinkedToPoint(point: Point): Wall[] {
+    return this.rooms.map(room => room.getWallsOnPoint(point)).flat();
   }
 
 }

@@ -30,22 +30,21 @@ export class Door extends WallElement {
   }
 
   override draw(canvas: Canvas, on: DrawOn = DrawOn.All): void {
-    if(this.p3){
-      const ctx = !this.isFinalized ? canvas.snappingLine : canvas.background;
-      const angleUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(this.p1, this.p2);
-
-      ctx.beginPath();
-      ctx.moveTo(this.p3.x, this.p3.y);
-      ctx.lineTo(this.p1.x, this.p1.y);
-      ctx.lineTo(this.p2.x, this.p2.y);
-
-      ctx.moveTo(this.p2.x, this.p2.y);
-      ctx.arc(this.p1.x, this.p1.y, this.getLength(),angleUnitaryVector, angleUnitaryVector + Math.PI/2, false);
-      ctx.lineWidth = this.getThickness();
-      ctx.strokeStyle = this.getColor();
-      ctx.lineCap = "round";
-      ctx.stroke();
+    if (!this.p3) {
+      return;
     }
+    const ctx = !this.isFinalized ? canvas.snappingLine : canvas.background;
+    const angleUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(this.p1, this.p2);
+    ctx.beginPath();
+    ctx.moveTo(this.p3.x, this.p3.y);
+    ctx.lineTo(this.p1.x, this.p1.y);
+    ctx.lineTo(this.p2.x, this.p2.y);
+    ctx.moveTo(this.p2.x, this.p2.y);
+    ctx.arc(this.p1.x, this.p1.y, this.getLength(), angleUnitaryVector, angleUnitaryVector + Math.PI / 2, false);
+    ctx.lineWidth = this.getThickness();
+    ctx.strokeStyle = this.getColor();
+    ctx.lineCap = "round";
+    ctx.stroke();
   }
 
   /**
@@ -80,7 +79,10 @@ export class Door extends WallElement {
     return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
   }
 
-  onDrag(offset: Point, recursive: boolean): void {
+  override onDrag(offset: Point, recursive: boolean): void {
+    this.p1 = this.p1.translatePoint(offset);
+    this.p2 = this.p2.translatePoint(offset);
+    this.p3 = this.p3?.translatePoint(offset);
   }
 
   override onHover(): void {
@@ -147,4 +149,7 @@ export class Door extends WallElement {
 
   setVisibleState(newState: boolean): void {
   }
+
+
+
 }

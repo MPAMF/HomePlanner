@@ -74,7 +74,11 @@ export class Window extends WallElement {
     return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
   }
 
-  onDrag(offset: Point, recursive: boolean): void {
+  override onDrag(offset: Point, recursive: boolean): void {
+    this.p1 = this.p1.translatePoint(offset);
+    this.p2 = this.p2.translatePoint(offset);
+    this.p3 = this.p3?.translatePoint(offset);
+    this.p4 = this.p4?.translatePoint(offset);
   }
 
   override onSelect(): void {

@@ -5,7 +5,7 @@ import {Window} from "../models/wall-elements/window";
 import {Point} from "../models/point";
 import {DrawOn} from "../models/canvas";
 import {Door} from "../models/wall-elements/door";
-import { WallElement } from "../models/interfaces/wall-elements";
+import {WallElement} from "../models/interfaces/wall-elements";
 
 export class AddWindowCommand extends Command {
 
@@ -15,7 +15,7 @@ export class AddWindowCommand extends Command {
   constructor(
     private wall: Wall,
     private startPoint: Point
-    ) {
+  ) {
     super();
   }
 
@@ -25,8 +25,8 @@ export class AddWindowCommand extends Command {
 
     const pointInTheNearestWall: Point = this.wall.projectOrthogonallyOntoWall(this.startPoint);
 
-    this.newWindow =  new Window(
-      pointInTheNearestWall, this.wall.p1, this.wall.p2,
+    this.newWindow = new Window(
+      pointInTheNearestWall, this.wall.p1.point, this.wall.p2.point,
       this.board.boardConfig.windowLength, this.board.boardConfig.windowThickness,
       this.board.boardConfig.windowColor, this.board.boardConfig.selectWindowColor
     )
@@ -37,7 +37,7 @@ export class AddWindowCommand extends Command {
   override undo(): void {
     this.board.drawState = this.previousDrawSate;
 
-    if(this.newWindow){
+    if (this.newWindow) {
       this.wall.removeElement(this.newWindow);
     }
   }
@@ -58,7 +58,7 @@ export class EditLastWindowCommand extends Command {
     const pointInTheNearestWall: Point = this.wall.projectOrthogonallyOntoWall(this.startPoint);
 
     const window: WallElement | undefined = this.wall.getLastWallElement();
-    if(!window || window.isFinalized){
+    if (!window || window.isFinalized) {
       return;
     }
 
@@ -68,7 +68,7 @@ export class EditLastWindowCommand extends Command {
 
   override undo(): void {
     const window: WallElement | undefined = this.wall.getLastWallElement();
-    if(!window){
+    if (!window) {
       return;
     }
 
@@ -91,7 +91,7 @@ export class FinalizeWindowCommand extends Command {
     this.board.drawState = DrawState.None;
 
     const window: WallElement | undefined = this.wall.getLastWallElement();
-    if(!window){
+    if (!window) {
       return;
     }
 
@@ -102,7 +102,7 @@ export class FinalizeWindowCommand extends Command {
     this.board.drawState = this.previousDrawSate;
 
     const window: WallElement | undefined = this.wall.getLastWallElement();
-    if(!window){
+    if (!window) {
       return;
     }
 
@@ -129,7 +129,7 @@ export class AddDoorCommand extends Command {
     const pointInTheNearestWall: Point = this.wall.projectOrthogonallyOntoWall(this.startPoint);
 
     this.newDoor = new Door(
-      pointInTheNearestWall, this.wall.p1, this.wall.p2,
+      pointInTheNearestWall, this.wall.p1.point, this.wall.p2.point,
       this.board.boardConfig.windowLength, this.board.boardConfig.windowThickness,
       this.board.boardConfig.windowColor, this.board.boardConfig.selectWindowColor
     )
@@ -140,7 +140,7 @@ export class AddDoorCommand extends Command {
   override undo(): void {
     this.board.drawState = this.previousDrawSate;
 
-    if(this.newDoor){
+    if (this.newDoor) {
       this.wall.removeElement(this.newDoor);
     }
   }
@@ -161,7 +161,7 @@ export class EditLastDoorCommand extends Command {
     const pointInTheNearestWall: Point = this.wall.projectOrthogonallyOntoWall(this.startPoint);
 
     const door: WallElement | undefined = this.wall.getLastWallElement();
-    if(!door || door.isFinalized){
+    if (!door || door.isFinalized) {
       return;
     }
 
@@ -171,7 +171,7 @@ export class EditLastDoorCommand extends Command {
 
   override undo(): void {
     const door: WallElement | undefined = this.wall.getLastWallElement();
-    if(!door){
+    if (!door) {
       return;
     }
 
@@ -194,7 +194,7 @@ export class FinalizeDoorCommand extends Command {
     this.board.drawState = DrawState.None;
 
     const door: WallElement | undefined = this.wall.getLastWallElement();
-    if(!door){
+    if (!door) {
       return;
     }
 
@@ -205,7 +205,7 @@ export class FinalizeDoorCommand extends Command {
     this.board.drawState = this.previousDrawSate;
 
     const door: WallElement | undefined = this.wall.getLastWallElement();
-    if(!door){
+    if (!door) {
       return;
     }
 

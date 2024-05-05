@@ -6,6 +6,7 @@ import {Room} from "../models/room";
 import {Wall} from "../models/wall";
 import {Window} from "../models/wall-elements/window";
 import {Door} from "../models/wall-elements/door";
+import {ClickablePoint} from "../models/clickable-point";
 
 export class MoveCommand extends Command {
   constructor(private delta: Point) {
@@ -42,10 +43,10 @@ export class ResetCurrentRoomCommand extends Command {
 }
 
 export class StartObjectDragCommand extends Command {
-  private selectedElement: Wall | Room | Door | Window | undefined;
-  private selectedElementClone: Wall | Room | Door | Window | undefined;
+  private selectedElement: Wall | Room | Door | Window | ClickablePoint | undefined;
+  private selectedElementClone: Wall | Room | Door | Window | ClickablePoint | undefined;
   private walls?: Wall[];
-  private draggingApplyFn?: () => void;
+  private draggingApplyFn?: (offset?: Point) => void;
 
   constructor() {
     super();
@@ -63,40 +64,38 @@ export class StartObjectDragCommand extends Command {
     if (selectedElement instanceof Wall) {
       this.selectedElement = selectedElement;
       this.selectedElementClone = selectedElement.clone();
-      const room = this.board.getRoomByWall(selectedElement);
-      if (room) {
-        const p1: { wall: Wall, p1: boolean }[] = [];
-        const p2: { wall: Wall, p1: boolean }[] = [];
-        room.walls.forEach(wall => {
-          if (wall.p1.equals(selectedElement.p1)) {
-            p1.push({wall, p1: true});
-          }
-          if (wall.p2.equals(selectedElement.p1)) {
-            p1.push({wall, p1: false});
-          }
-          if (wall.p1.equals(selectedElement.p2)) {
-            p2.push({wall, p1: true});
-          }
-          if (wall.p2.equals(selectedElement.p2)) {
-            p2.push({wall, p1: false});
-          }
-        });
-        this.walls = [...p1, ...p2].map(e => e.wall);
-        this.walls.forEach(w => w.isFinalized = false);
-        this.draggingApplyFn = () => {
-          p1.forEach(e => e.p1 ? e.wall.p1.restore(selectedElement.p1) : e.wall.p2.restore(selectedElement.p1));
-          p2.forEach(e => e.p1 ? e.wall.p1.restore(selectedElement.p2) : e.wall.p2.restore(selectedElement.p2));
-        }
-        this.board.draggingApplyFn = this.draggingApplyFn;
-      }
+      this.board.markLinkedWalls(selectedElement.p1.point, false);
+      this.board.markLinkedWalls(selectedElement.p2.point, false);
       selectedElement.isFinalized = false;
     } else if (selectedElement instanceof Room) {
       this.selectedElement = selectedElement;
       this.selectedElementClone = selectedElement.clone();
-      selectedElement.walls.forEach(wall => wall.isFinalized = false);
+      this.selectedElement.getAllPoints().forEach(point => this.board.markLinkedWalls(point, false));
     } else if (selectedElement instanceof Door || selectedElement instanceof Window) {
       this.selectedElement = selectedElement;
       this.selectedElementClone = selectedElement.clone();
+    } else if (selectedElement instanceof ClickablePoint) {
+      this.selectedElement = selectedElement;
+      this.selectedElementClone = selectedElement.clone();
+
+      // Get linked wall elements to move them
+      const walls = this.board.getWallsLinkedToPoint(selectedElement.point);
+
+      this.draggingApplyFn = (offset?: Point) => {
+        if (offset) {
+          walls.forEach(wall => {
+            wall.elements.forEach(element => {
+              const pointInTheNearestWall: Point = wall.projectOrthogonallyOntoWall(element.p1);
+              element.parentWallP1 = wall.p1.point;
+              element.parentWallP2 = wall.p2.point;
+              element.update(pointInTheNearestWall);
+            });
+          });
+        }
+      }
+
+      this.board.markLinkedWalls(selectedElement.point, false);
+      this.board.draggingApplyFn = this.draggingApplyFn;
     } else {
       throw new Error("Unknown element");
     }
@@ -117,6 +116,8 @@ export class StartObjectDragCommand extends Command {
     } else if (this.selectedElement instanceof Door && this.selectedElementClone instanceof Door) {
       this.selectedElement.restore(this.selectedElementClone);
     } else if (this.selectedElement instanceof Window && this.selectedElementClone instanceof Window) {
+      this.selectedElement.restore(this.selectedElementClone);
+    } else if (this.selectedElement instanceof ClickablePoint && this.selectedElementClone instanceof ClickablePoint) {
       this.selectedElement.restore(this.selectedElementClone);
     } else {
       throw new Error("Unknown element");
@@ -142,7 +143,7 @@ export class DragObjectCommand extends Command {
     this.board.selectedElement.onDrag(this.offset, true);
 
     if (this.board.draggingApplyFn) {
-      this.board.draggingApplyFn();
+      this.board.draggingApplyFn(this.offset);
     }
 
   }
@@ -166,16 +167,16 @@ export class EndObjectDragCommand extends Command {
 
     if (selectedElement instanceof Wall) {
       selectedElement.isFinalized = true;
-      const room = this.board.getRoomByWall(selectedElement);
-      if (room) {
-        room.walls.forEach(wall => wall.isFinalized = true);
-      }
+      this.board.markLinkedWalls(selectedElement.p1.point, true);
+      this.board.markLinkedWalls(selectedElement.p2.point, true);
     } else if (selectedElement instanceof Room) {
-      selectedElement.walls.forEach(wall => wall.isFinalized = true);
+      selectedElement.getAllPoints().forEach(point => this.board.markLinkedWalls(point, true));
     } else if (selectedElement instanceof Door) {
       throw new Error("Not implemented");
     } else if (selectedElement instanceof Window) {
       throw new Error("Not implemented");
+    } else if (selectedElement instanceof ClickablePoint) {
+      this.board.markLinkedWalls(selectedElement.point, true);
     }
 
     this.board.draggingApplyFn = undefined;

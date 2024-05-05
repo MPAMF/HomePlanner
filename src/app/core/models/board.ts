@@ -8,6 +8,7 @@ import {afterNextRender} from "@angular/core";
 import {Room} from "./room";
 import {ActionsButtonOptions} from "./action-button-options";
 import {Wall} from "./wall";
+import {ClickablePoint} from "./clickable-point";
 
 export class Board implements Drawable {
   public rooms: Room[];
@@ -15,7 +16,7 @@ export class Board implements Drawable {
   public mousePosition: Point;
   public isPanning: boolean; // Whether the user is panning the canvas (moving the canvas around)
   public isDragging: boolean; // Whether the user is dragging an element
-  public draggingApplyFn?: () => void;
+  public draggingApplyFn?: (offset?: Point) => void;
   public currentRoom?: Room; // This room is the room that is currently being edited
   public actionsButtonOptions: ActionsButtonOptions = new ActionsButtonOptions();
   private image?: HTMLImageElement;
@@ -111,6 +112,7 @@ export class Board implements Drawable {
 
       this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
         const hasChange: boolean = clickable.resetState(state);
+        clearCanvas(canvas.snappingLine);
         if (hasChange) {
           clickable.draw(canvas, DrawOn.Background);
           state == ClickableState.SELECTED && (this.actionsButtonOptions = new ActionsButtonOptions());
@@ -238,7 +240,7 @@ export class Board implements Drawable {
     }
 
     const lastWall = this.currentRoom ? this.currentRoom.getLastWall() : undefined;
-    const pt = this.drawState === DrawState.WallCreation && lastWall ? lastWall.p2 : this.mousePosition;
+    const pt = this.drawState === DrawState.WallCreation && lastWall ? lastWall.p2.point : this.mousePosition;
     drawImage(ctx, this.image, new Point(pt.x, pt.y - 30 / getScale(ctx).y), 30, 30);
   }
 
@@ -262,7 +264,7 @@ export class Board implements Drawable {
           return "move";
         }
 
-        if (this.selectedElement) {
+        if (this.selectedElement && this.hoveredElement) {
           return "move";
         }
 
@@ -277,6 +279,51 @@ export class Board implements Drawable {
    */
   public getRoomByWall(wall: Wall): Room | undefined {
     return this.rooms.find(room => room.walls.includes(wall));
+  }
+
+  /**
+   * Normalise the points of the walls
+   * This function is used to remove all duplicates points
+   * and replace all references to the old points with the new ones
+   * This function should be called after all the walls are added (room finalised)
+   */
+  public normalisePoints() {
+    const points = this.rooms.map(room => room.walls.flatMap(w => [w.p1, w.p2])).flat();
+    const uniquePoints: { [key: string]: ClickablePoint } = {};
+    // remove all duplicates (in coordinates)
+    points.forEach(p => uniquePoints[p.point.toString()] = p);
+    // now that we have unique points, we can replace all references to the old points with the new ones
+    this.rooms.forEach(room => room.walls.forEach(w => {
+      w.p1 = uniquePoints[w.p1.point.toString()];
+      w.p2 = uniquePoints[w.p2.point.toString()];
+    }));
+  }
+
+  /**
+   * Mark all the walls linked to the given point as finalized
+   * @param point Point to mark the linked walls of
+   * @param finalized Whether the walls should be marked as finalized or not
+   */
+  public markLinkedWalls(point: Point, finalized: boolean) {
+    for (const room of this.rooms) {
+      for (const wall of room.walls) {
+        if (wall.p1.point.equals(point) || wall.p2.point.equals(point)) {
+          wall.isFinalized = finalized;
+
+          wall.elements?.forEach(element => {
+            element.isFinalized = finalized;
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * Get the walls linked to the given point
+   * @param point Point to find the linked walls of
+   */
+  public getWallsLinkedToPoint(point: Point): Wall[] {
+    return this.rooms.map(room => room.getWallsOnPoint(point)).flat();
   }
 
 }

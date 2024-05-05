@@ -155,14 +155,12 @@ export class Wall extends Clickable implements Cloneable<Wall> {
 
   override isPointOnElement(point: Point): boolean {
     const delta: number = this.getThickness() / 2;
-    let angleInDegreesWithUnitaryVector: number = Utils.CalculateAngle(this.p1.point, this.p2.point, new Point(0, 0), new Point(1, 0));
-    angleInDegreesWithUnitaryVector = this.p1.y >= this.p2.y ? angleInDegreesWithUnitaryVector : (-angleInDegreesWithUnitaryVector);
-    angleInDegreesWithUnitaryVector += Math.PI/2;
+    const angleWithUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(this.p1.point,  this.p2.point) + Math.PI/2;
 
-    const A: Point = new Point(this.p1.x + Math.cos(angleInDegreesWithUnitaryVector) * delta, this.p1.y + Math.sin(angleInDegreesWithUnitaryVector) *  delta);
-    const B: Point = new Point(this.p2.x + Math.cos(angleInDegreesWithUnitaryVector) * delta, this.p2.y + Math.sin(angleInDegreesWithUnitaryVector) *  delta);
-    const C: Point = new Point(this.p2.x - Math.cos(angleInDegreesWithUnitaryVector) * delta, this.p2.y - Math.sin(angleInDegreesWithUnitaryVector) *  delta);
-    const D: Point = new Point(this.p1.x - Math.cos(angleInDegreesWithUnitaryVector) * delta, this.p1.y - Math.sin(angleInDegreesWithUnitaryVector) *  delta);
+    const A: Point = new Point(this.p1.x + Math.cos(angleWithUnitaryVector) * delta, this.p1.y + Math.sin(angleWithUnitaryVector) *  delta);
+    const B: Point = new Point(this.p2.x + Math.cos(angleWithUnitaryVector) * delta, this.p2.y + Math.sin(angleWithUnitaryVector) *  delta);
+    const C: Point = new Point(this.p2.x - Math.cos(angleWithUnitaryVector) * delta, this.p2.y - Math.sin(angleWithUnitaryVector) *  delta);
+    const D: Point = new Point(this.p1.x - Math.cos(angleWithUnitaryVector) * delta, this.p1.y - Math.sin(angleWithUnitaryVector) *  delta);
 
     return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
   }

@@ -4,11 +4,19 @@ import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/
 import {MatIconModule} from "@angular/material/icon";
 import {WallSettingsComponent} from "./subcomponent/wall-settings/wall-settings.component";
 import {WindowSettingsComponent} from "./subcomponent/window-settings/window-settings.component";
+import {Wall} from "../../../models/wall";
+import {Window} from "../../../models/wall-elements/window";
 
 export interface ModalElementPropertiesComponentData {
   title: string;
-  isWallOption: boolean;
-  isWindowsOption: boolean;
+  wallSection: {
+    isWallOption: boolean;
+    wall: Wall;
+  }
+  windowsSection: {
+    isWindowsOption: boolean;
+    window: Window;
+  }
 }
 
 @Component({

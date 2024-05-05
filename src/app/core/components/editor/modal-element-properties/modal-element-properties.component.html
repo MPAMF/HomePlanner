@@ -6,8 +6,8 @@
 </h1>
 <mat-dialog-content class="mat-typography">
 
-  <app-wall-settings *ngIf="data.isWallOption"></app-wall-settings>
-  <app-window-settings *ngIf="data.isWindowsOption"></app-window-settings>
+  <app-wall-settings *ngIf="data.wallSection.isWallOption" [wall]="data.wallSection.wall"></app-wall-settings>
+  <app-window-settings *ngIf="data.windowsSection.isWindowsOption"></app-window-settings>
 
 </mat-dialog-content>
 <mat-dialog-actions align="end">

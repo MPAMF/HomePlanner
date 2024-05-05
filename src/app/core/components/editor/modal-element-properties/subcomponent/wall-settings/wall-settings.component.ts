@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import {Component, Input} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {Wall} from "../../../../../models/wall";
 
 @Component({
   selector: 'app-wall-settings',
@@ -10,4 +11,10 @@ import { CommonModule } from '@angular/common';
 })
 export class WallSettingsComponent {
 
+  @Input() wall?: Wall;
+
+  onColorChange(event: Event): void {
+    const color: string = (event?.target as HTMLInputElement)?.value;
+    this.wall?.setColor(color);
+  }
 }

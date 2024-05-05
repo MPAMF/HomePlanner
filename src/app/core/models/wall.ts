@@ -21,12 +21,12 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   constructor(
     public p1: Point,
     public p2: Point,
-    private defaultThickness: number,
-    private defaultColor: string,
-    private defaultSelectedColor: string,
-    private thickness?: number,
-    private color?: string,
-    private selectedColor?: string,
+    public defaultThickness: number,
+    public defaultColor: string,
+    public defaultSelectedColor: string,
+    public thickness?: number,
+    public color?: string,
+    public selectedColor?: string,
     public elements: WallElement[] = [],
     public isFinalized: boolean = false
   ) {

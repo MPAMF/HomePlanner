@@ -19,6 +19,8 @@ import {
   FinalizeDoorCommand,
   FinalizeWindowCommand
 } from "../commands/wall-element-commands";
+
+import {Clickable} from "../models/interfaces/clickable";
 import {ClickablePoint} from "../models/clickable-point";
 
 export class MouseEvents extends BaseEvent {
@@ -66,7 +68,7 @@ export class MouseEvents extends BaseEvent {
       return;
     }
 
-    let nearestWall: Wall | undefined;
+    let nearestWall: Clickable | undefined;
     switch (this.board.drawState) {
       case DrawState.None:
         this.board.onMove(this.canvas, pt);
@@ -81,15 +83,15 @@ export class MouseEvents extends BaseEvent {
         break;
 
       case DrawState.WindowPlacement:
-        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Window);
-        if (nearestWall) {
+        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Window);
+        if(nearestWall && nearestWall instanceof Wall){
           this.cmdInvoker.execute(new EditLastWindowCommand(nearestWall, pt))
         }
         break;
 
       case DrawState.DoorPlacement:
-        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Door);
-        if (nearestWall) {
+        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Door);
+        if(nearestWall && nearestWall instanceof Wall){
           this.cmdInvoker.execute(new EditLastDoorCommand(nearestWall, pt))
         }
         break;
@@ -115,14 +117,19 @@ export class MouseEvents extends BaseEvent {
      * 2 = Right click
      */
     if (this.board.drawState !== DrawState.WallCreation && event.button === 2) {
-      this.board.isPanning = true;
-      this.cmdInvoker.redraw(DrawOn.All);
-      this.panStart.x = event.clientX;
-      this.panStart.y = event.clientY;
+      const clickedElement: Clickable | undefined =  this.board.onClick(this.canvas, pt, DrawState.None, true);
+
+      if( clickedElement == undefined) {
+        this.board.isPanning = true;
+        this.cmdInvoker.redraw(DrawOn.All);
+        this.panStart.x = event.clientX;
+        this.panStart.y = event.clientY;
+      }
+
       return;
     }
 
-    let nearestWall: Wall | undefined;
+    let nearestWall: Clickable | undefined;
     switch (this.board.drawState) {
       case DrawState.Wall:
         this.cmdInvoker.execute(new AddWallCommand(new Wall(new ClickablePoint(pt), new ClickablePoint(pt),
@@ -180,36 +187,35 @@ export class MouseEvents extends BaseEvent {
         break;
 
       case DrawState.Window:
-        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Window);
-        if (nearestWall) {
+        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Window);
+        if(nearestWall && nearestWall instanceof Wall){
           this.cmdInvoker.execute(new AddWindowCommand(nearestWall, pt))
         }
         break;
 
       case DrawState.WindowPlacement:
-        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Window);
-        if (nearestWall) {
+        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Window);
+        if(nearestWall && nearestWall instanceof Wall){
           this.cmdInvoker.execute(new FinalizeWindowCommand(nearestWall))
         }
         break;
 
       case DrawState.Door:
-        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Door);
-        if (nearestWall) {
+        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Door);
+        if(nearestWall && nearestWall instanceof Wall){
           this.cmdInvoker.execute(new AddDoorCommand(nearestWall, pt))
         }
         break;
 
       case DrawState.DoorPlacement:
-        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Door);
-        if (nearestWall) {
+        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Door);
+        if(nearestWall && nearestWall instanceof Wall){
           this.cmdInvoker.execute(new FinalizeDoorCommand(nearestWall))
         }
         break;
 
       case DrawState.None:
-
-        this.board.onClick(this.canvas, pt, DrawState.None);
+        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.None);
 
         if (event.button === 0 && this.board.selectedElement) {
           this.dragStart.x = event.clientX;

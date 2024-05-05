@@ -71,23 +71,24 @@ export class Board implements Drawable {
    * @param canvas The canvas
    * @param point the position of the mouse
    * @param drawState The draw state
+   * @param isRightClick Is a right click
    */
-  onClick(canvas: Canvas, point: Point, drawState: DrawState): Wall | undefined {
-    let nearestWall: Wall | undefined;
+  onClick(canvas: Canvas, point: Point, drawState: DrawState, isRightClick: boolean = false): Clickable | undefined {
+    let clickedElement: Clickable | undefined;
 
     //Select element section
     switch (drawState){
       case DrawState.None:
-        this.selectElementsOnCanvas(canvas, point, ClickableState.SELECTED);
+        clickedElement = this.selectElementsOnCanvas(canvas, point, ClickableState.SELECTED, isRightClick);
         break;
 
       case DrawState.Window:
       case DrawState.Door:
-        nearestWall =  this.findClosestWall(point);
+        clickedElement =  this.findClosestWall(point);
         break;
     }
 
-    return nearestWall;
+    return clickedElement;
   }
 
   /**
@@ -101,12 +102,13 @@ export class Board implements Drawable {
   }
 
   /**
-   * This function reset the selected state and possibly select a element on the board
+   * This function reset the selected state and possibly select an element on the board
    * @param canvas The canvas
    * @param point The position of the mouse
    * @param state
+   * @param isRightClick is a right click
    */
-  selectElementsOnCanvas(canvas: Canvas, point: Point, state: ClickableState): void {
+  selectElementsOnCanvas(canvas: Canvas, point: Point, state: ClickableState, isRightClick: boolean = false): Clickable | undefined {
     if (this.selectedElement && state == ClickableState.SELECTED
       || this.hoveredElement && state == ClickableState.HOVERED) {
 
@@ -115,8 +117,12 @@ export class Board implements Drawable {
         clearCanvas(canvas.snappingLine);
         if (hasChange) {
           clickable.draw(canvas, DrawOn.Background);
-          state == ClickableState.SELECTED && (this.actionsButtonOptions = new ActionsButtonOptions());
+
+          if(state == ClickableState.SELECTED) {
+            this.actionsButtonOptions = new ActionsButtonOptions();
+          }
         }
+
         return true;
       });
     }
@@ -129,7 +135,10 @@ export class Board implements Drawable {
         clickable.setState(state);
         clearCanvas(canvas.snappingLine);
         clickable.draw(canvas, DrawOn.All);
-        state == ClickableState.SELECTED && (this.actionsButtonOptions = clickable.getActionsButtonOptions(point));
+
+        if(state == ClickableState.SELECTED && isRightClick) {
+          this.actionsButtonOptions = clickable.getActionsButtonOptions(point);
+        }
         element = clickable;
       }
 
@@ -149,6 +158,7 @@ export class Board implements Drawable {
     // update cursor
     this.drawCursor(canvas.snappingLine);
 
+    return element;
   }
 
   /**

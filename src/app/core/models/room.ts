@@ -1,6 +1,6 @@
 import {Wall} from "./wall";
 import {Point} from "./point";
-import {Canvas, clearCanvas, DrawOn} from "./canvas";
+import {Canvas, DrawOn} from "./canvas";
 
 import {ActionsButtonOptions} from "./action-button-options";
 import {Clickable, ClickableState} from "./interfaces/clickable";
@@ -151,7 +151,11 @@ export class Room extends Clickable implements Cloneable<Room> {
     // if (!recursive) {
     //   return;
     // }
-    this.walls.forEach(wall => wall.onDrag(offset, recursive));
+    // this.getAllPoints().forEach(point => point.translatePoint(offset));
+    this.walls.forEach(wall => {
+      wall.p2.point = wall.p2.point.translatePoint(offset);
+      wall.elements.forEach(element => element.onDrag(offset, recursive))
+    });
   }
 
   override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {

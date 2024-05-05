@@ -1,10 +1,11 @@
 import {Command} from "./command";
 import {Wall} from "../models/wall";
-import {ClickablePoint, Point} from "../models/point";
+import {Point} from "../models/point";
 import {Room} from "../models/room";
 import {DrawState} from "../models/draw-state";
 import {DrawOn} from "../models/canvas";
 import {Utils} from "../modules/utils";
+import {ClickablePoint} from "../models/clickable-point";
 
 export class AddWallCommand extends Command {
 

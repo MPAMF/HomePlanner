@@ -1,4 +1,4 @@
-import {ClickablePoint, Point} from "../models/point";
+import {Point} from "../models/point";
 import {Wall} from "../models/wall";
 import {DrawState} from "../models/draw-state";
 import {AddWallCommand, EditLastWallWithPointCommand, FinaliseRoomCommand,} from "../commands/wall-commands";
@@ -13,6 +13,7 @@ import {
   FinalizeWindowCommand
 } from "../commands/wall-element-commands";
 import {Utils} from "../modules/utils";
+import {ClickablePoint} from "../models/clickable-point";
 
 export class MouseEvents extends BaseEvent {
   private panStart: Point;

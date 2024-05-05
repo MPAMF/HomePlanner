@@ -1,11 +1,12 @@
 import {Command} from "./command";
-import {ClickablePoint, Point} from "../models/point";
+import {Point} from "../models/point";
 import {applyToCanvas, DrawOn, moveCanvas} from "../models/canvas";
 import {DrawState} from "../models/draw-state";
 import {Room} from "../models/room";
 import {Wall} from "../models/wall";
 import {Window} from "../models/wall-elements/window";
 import {Door} from "../models/wall-elements/door";
+import {ClickablePoint} from "../models/clickable-point";
 
 export class MoveCommand extends Command {
   constructor(private delta: Point) {

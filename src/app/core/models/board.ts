@@ -1,6 +1,6 @@
 import {Drawable} from "./interfaces/drawable";
 import {DrawState, isWallDrawState} from "./draw-state";
-import {ClickablePoint, Point} from "./point";
+import {Point} from "./point";
 import {BoardConfig} from "./board-config";
 import {Clickable, ClickableState} from "./interfaces/clickable";
 import {applyToCanvas, Canvas, clearCanvas, drawImage, DrawOn, getScale} from "./canvas";
@@ -8,6 +8,7 @@ import {afterNextRender} from "@angular/core";
 import {Room} from "./room";
 import {ActionsButtonOptions} from "./action-button-options";
 import {Wall} from "./wall";
+import {ClickablePoint} from "./clickable-point";
 
 export class Board implements Drawable {
   public rooms: Room[];

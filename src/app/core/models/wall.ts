@@ -1,14 +1,14 @@
-import {ClickablePoint, Point} from "./point";
+import { Point} from "./point";
 import {Clickable, ClickableState} from "./interfaces/clickable";
 import {Canvas, DrawOn} from "./canvas";
 import {Utils} from "../modules/utils";
 import {ActionButtonProps, ActionsButtonOptions} from "./action-button-options";
-import {Board} from "./board";
 import {CommandInvoker} from "../commands/command";
 import {DivideWallCommand} from "../commands/wall-commands";
 import {HideClickableCommand} from "../commands/clickable-commands";
 import {Cloneable} from "./interfaces/cloneable";
 import {WallElement} from "./interfaces/wall-elements";
+import {ClickablePoint} from "./clickable-point";
 
 export class Wall extends Clickable implements Cloneable<Wall> {
 
@@ -178,6 +178,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
       ctx.strokeStyle = this.getColor();
       ctx.lineCap = "round";
       ctx.stroke();
+
       this.p1.draw(canvas, on);
       this.p2.draw(canvas, on);
     }
@@ -186,15 +187,25 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   }
 
   override onSelect(): void {
+    this.p1.setState(ClickableState.SELECTED);
+    this.p2.setState(ClickableState.SELECTED);
   }
 
   override onUnselect(): void {
+    this.p1.setState(ClickableState.NONE);
+    this.p2.setState(ClickableState.NONE);
   }
 
   override onHover(): void {
+    this.p1.setState(ClickableState.HOVERED);
+    this.p2.setState(ClickableState.HOVERED);
   }
 
   override onHoverOut(): void {
+    if (this.state !== ClickableState.SELECTED) {
+      this.p1.setState(ClickableState.NONE);
+      this.p2.setState(ClickableState.NONE);
+    }
   }
 
   override getActionsButtonOptions(point: Point): ActionsButtonOptions {
@@ -220,8 +231,8 @@ export class Wall extends Clickable implements Cloneable<Wall> {
 }
 
   override onDrag(offset: Point, recursive: boolean) {
-    this.p1.point = this.p1.point.translatePoint(offset);
-    this.p2.point = this.p2.point.translatePoint(offset);
+    this.p1.onDrag(offset, recursive);
+    this.p2.onDrag(offset, recursive);
     // if (!recursive) {
     //   return;
     // }

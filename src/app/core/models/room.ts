@@ -12,7 +12,7 @@ export class Room extends Clickable implements Cloneable<Room> {
     public name: string,
     public background: string = '', // TODO: texture
     public isFinalized: boolean = false,
-    public walls: Wall[] = []
+    public walls: Wall[] = [],
   ) {
     super();
   }
@@ -43,7 +43,7 @@ export class Room extends Clickable implements Cloneable<Room> {
    * @returns The walls on the given point
    */
   public getWallsOnPoint(point: Point): Wall[] {
-    return this.walls.filter(wall => wall.p1.equals(point) || wall.p2.equals(point));
+    return this.walls.filter(wall => wall.p1.point.equals(point) || wall.p2.point.equals(point));
   }
 
   /**
@@ -64,14 +64,14 @@ export class Room extends Clickable implements Cloneable<Room> {
       const wall = this.walls[i];
       let pt: Point;
       let distance: number;
-      const p1Distance = wall.p1.distanceTo(point);
-      const p2Distance = wall.p2.distanceTo(point);
+      const p1Distance = wall.p1.point.distanceTo(point);
+      const p2Distance = wall.p2.point.distanceTo(point);
 
       if (p1Distance < p2Distance) {
-        pt = wall.p1;
+        pt = wall.p1.point;
         distance = p1Distance;
       } else {
-        pt = wall.p2;
+        pt = wall.p2.point;
         distance = p2Distance;
       }
 
@@ -91,6 +91,13 @@ export class Room extends Clickable implements Cloneable<Room> {
    */
   public getLastWall(): Wall | undefined {
     return this.walls.length === 0 ? undefined : this.walls[this.walls.length - 1];
+  }
+
+  /**
+   * Get all the points in the room
+   */
+  public getAllPoints(): Set<Point> {
+    return new Set(this.walls.map(wall => [wall.p1.point, wall.p2.point]).flat());
   }
 
   /**
@@ -131,9 +138,13 @@ export class Room extends Clickable implements Cloneable<Room> {
   }
 
   override onHover(): void {
+    this.walls.forEach(wall => wall.setState(ClickableState.SELECTED));
   }
 
   override onHoverOut(): void {
+    if (this.state !== ClickableState.SELECTED) {
+      this.walls.forEach(wall => wall.setState(ClickableState.NONE));
+    }
   }
 
   override getActionsButtonOptions(point: Point): ActionsButtonOptions {
@@ -144,7 +155,11 @@ export class Room extends Clickable implements Cloneable<Room> {
     // if (!recursive) {
     //   return;
     // }
-    this.walls.forEach(wall => wall.onDrag(offset, recursive));
+    // this.getAllPoints().forEach(point => point.translatePoint(offset));
+    this.walls.forEach(wall => {
+      wall.p2.point = wall.p2.point.translatePoint(offset);
+      wall.elements.forEach(element => element.onDrag(offset, recursive))
+    });
   }
 
   override applyOnClickableRecursive(canvas: Canvas, fn: (clickable: Clickable) => boolean): boolean {
@@ -166,7 +181,9 @@ export class Room extends Clickable implements Cloneable<Room> {
   }
 
   clone() {
-    return new Room(this.name, this.background, this.isFinalized, this.walls.map(wall => wall.clone()));
+    return new Room(this.name, this.background, this.isFinalized,
+      this.walls.map(wall => wall.clone()),
+    );
   }
 
   restore(room: Room) {

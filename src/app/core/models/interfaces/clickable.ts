@@ -165,6 +165,5 @@ export abstract class Clickable extends Comparable implements Drawable {
     return this.isVisible;
   }
 
-  draw(canvas: Canvas, on: DrawOn): void {
-  }
+  abstract draw(canvas: Canvas, on: DrawOn): void;
 }

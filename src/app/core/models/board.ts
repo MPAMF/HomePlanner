@@ -12,6 +12,7 @@ import {ClickablePoint} from "./clickable-point";
 
 export class Board implements Drawable {
   public rooms: Room[];
+  public tempoDrawingElement: Drawable[];
   public drawState: DrawState;
   public mousePosition: Point;
   public isPanning: boolean; // Whether the user is panning the canvas (moving the canvas around)
@@ -27,6 +28,7 @@ export class Board implements Drawable {
     public boardConfig: BoardConfig = new BoardConfig()
   ) {
     this.rooms = [];
+    this.tempoDrawingElement = [];
     this.drawState = DrawState.None; // defaults to none
     this.isPanning = false;
     this.isDragging = false;
@@ -64,6 +66,10 @@ export class Board implements Drawable {
 
     // Draw all the rooms
     this.rooms.forEach(room => room.draw(canvas, on));
+
+    // Draw all tempo element
+    this.tempoDrawingElement.forEach(drawable => drawable.draw(canvas, DrawOn.SnappingLine));
+    this.tempoDrawingElement = [];
   }
 
   /**
@@ -164,9 +170,10 @@ export class Board implements Drawable {
   /**
    * Find the closest wall to the given point
    * @param point The point use to search the wall
+   * @param maxDistance The distance max to validate the wal
    * @return the closest wall if a wall exist
    */
-  public findClosestWall(point: Point): Wall | undefined {
+  public findClosestWall(point: Point, maxDistance: number | undefined = undefined): Wall | undefined {
     let nearestWall: Wall | undefined;
     let lastShortestDistance: number = -1;
 
@@ -177,16 +184,24 @@ export class Board implements Drawable {
         const pointInTheNearestWall: Point = wall.projectOrthogonallyOntoWall(point);
 
         // Check if the point is on the wall
-        const p1xSupP2x: boolean = (pointInTheNearestWall.x >= wall.p2.x) && (pointInTheNearestWall.x <= wall.p1.x);
-        const p2xSupP1x: boolean = (pointInTheNearestWall.x >= wall.p1.x) && (pointInTheNearestWall.x <= wall.p2.x);
-
-        const p1ySupP2y: boolean = (pointInTheNearestWall.y >= wall.p2.y) && (pointInTheNearestWall.y <= wall.p1.y);
-        const p2ySupP1y: boolean = (pointInTheNearestWall.y >= wall.p1.y) && (pointInTheNearestWall.y <= wall.p2.y);
-
-        const isPointOnTheWall: boolean = (p1xSupP2x || p2xSupP1x) && (p1ySupP2y || p2ySupP1y);
+        const isPointOnTheWall: boolean = wall.isCorrectlyPrintOnWall(pointInTheNearestWall);
         const newDistance: number = pointInTheNearestWall.distanceTo(point);
-        if ((lastShortestDistance > newDistance || lastShortestDistance == -1)
-          && isPointOnTheWall){
+        if (
+          (
+            ( // In the case a maw distance is given
+              maxDistance
+              && newDistance < maxDistance
+              && (lastShortestDistance > newDistance || lastShortestDistance == -1)
+            )
+            || ( // There is no maw distance
+              !maxDistance
+              && (
+                (lastShortestDistance > newDistance || lastShortestDistance == -1)
+              )
+            )
+          )
+          && isPointOnTheWall
+        ){
           lastShortestDistance = newDistance;
           nearestWall = wall;
         }

@@ -20,7 +20,7 @@ import {
   FinalizeWindowCommand
 } from "../commands/wall-element-commands";
 
-import {Clickable} from "../models/interfaces/clickable";
+import {Clickable, ClickableState} from "../models/interfaces/clickable";
 import {ClickablePoint} from "../models/clickable-point";
 
 export class MouseEvents extends BaseEvent {
@@ -75,10 +75,28 @@ export class MouseEvents extends BaseEvent {
         break;
 
       case DrawState.Wall:
+        nearestWall =  this.board.findClosestWall(pt, 30);
+
+        if( nearestWall && nearestWall instanceof Wall){
+          const point : Point = nearestWall.projectOrthogonallyOntoWall(pt);
+          const clickablePoint : ClickablePoint = new ClickablePoint(point);
+          clickablePoint.setState(ClickableState.HOVERED);
+          this.board.tempoDrawingElement.push(clickablePoint);
+        }
+
         this.cmdInvoker.redraw(DrawOn.SnappingLine);
         break;
 
       case DrawState.WallCreation:
+        nearestWall =  this.board.findClosestWall(pt, 30);
+
+        if( nearestWall && nearestWall instanceof Wall){
+          const point : Point = nearestWall.projectOrthogonallyOntoWall(pt);
+          const clickablePoint : ClickablePoint = new ClickablePoint(point);
+          clickablePoint.setState(ClickableState.HOVERED);
+          this.board.tempoDrawingElement.push(clickablePoint);
+        }
+
         this.cmdInvoker.execute(new EditLastWallWithPointCommand(pt), false);
         break;
 

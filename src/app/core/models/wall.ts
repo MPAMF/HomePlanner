@@ -277,4 +277,12 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     // Add the projection at the beginning of the segment to obtain the coordinates of the projected point
     return new Point(this.p1.x + projection.x, this.p1.y + projection.y);
   }
+
+  /**
+   * Check if the point is in the wall
+   * @param point The point to check
+   */
+  isCorrectlyPrintOnWall (point : Point) {
+    return point.isPointBetweenTwoPoint(this.p1.point, this.p2.point);
+  }
 }

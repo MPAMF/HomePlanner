@@ -1,7 +1,12 @@
 import {Point} from "../models/point";
 import {Wall} from "../models/wall";
 import {DrawState} from "../models/draw-state";
-import {AddWallCommand, EditLastWallWithPointCommand, FinaliseRoomCommand,} from "../commands/wall-commands";
+import {
+  AddWallCommand,
+  DivideWallCommand,
+  EditLastWallWithPointCommand,
+  FinaliseRoomCommand,
+} from "../commands/wall-commands";
 import {CommandInvoker} from "../commands/command";
 import {
   DragObjectCommand,
@@ -69,17 +74,17 @@ export class MouseEvents extends BaseEvent {
     }
 
     let nearestWall: Clickable | undefined;
+    let newPoint: Point;
     switch (this.board.drawState) {
       case DrawState.None:
         this.board.onMove(this.canvas, pt);
         break;
 
       case DrawState.Wall:
-        nearestWall =  this.board.findClosestWall(pt, 30);
+        nearestWall =  this.board.findClosestWall(pt, 15);
 
         if( nearestWall && nearestWall instanceof Wall){
-          const point : Point = nearestWall.projectOrthogonallyOntoWall(pt);
-          const clickablePoint : ClickablePoint = new ClickablePoint(point);
+          const clickablePoint : ClickablePoint = new ClickablePoint(nearestWall.projectOrthogonallyOntoWall(pt));
           clickablePoint.setState(ClickableState.HOVERED);
           this.board.tempoDrawingElement.push(clickablePoint);
         }
@@ -88,16 +93,18 @@ export class MouseEvents extends BaseEvent {
         break;
 
       case DrawState.WallCreation:
-        nearestWall =  this.board.findClosestWall(pt, 30);
+        nearestWall =  this.board.findClosestWall(pt, 15);
 
         if( nearestWall && nearestWall instanceof Wall){
-          const point : Point = nearestWall.projectOrthogonallyOntoWall(pt);
-          const clickablePoint : ClickablePoint = new ClickablePoint(point);
+          newPoint = nearestWall.projectOrthogonallyOntoWall(pt);
+          const clickablePoint : ClickablePoint = new ClickablePoint(newPoint);
           clickablePoint.setState(ClickableState.HOVERED);
           this.board.tempoDrawingElement.push(clickablePoint);
+        } else {
+          newPoint = pt;
         }
 
-        this.cmdInvoker.execute(new EditLastWallWithPointCommand(pt), false);
+        this.cmdInvoker.execute(new EditLastWallWithPointCommand(newPoint), false);
         break;
 
       case DrawState.WindowPlacement:
@@ -148,23 +155,31 @@ export class MouseEvents extends BaseEvent {
     }
 
     let nearestWall: Clickable | undefined;
+    let clickablePoint : ClickablePoint;
     switch (this.board.drawState) {
       case DrawState.Wall:
-        this.cmdInvoker.execute(new AddWallCommand(new Wall(new ClickablePoint(pt), new ClickablePoint(pt),
+        nearestWall =  this.board.findClosestWall(pt, 30);
+
+        if( nearestWall && nearestWall instanceof Wall){
+          const point: Point = nearestWall.projectOrthogonallyOntoWall(pt);
+          clickablePoint = new ClickablePoint(point);
+          this.cmdInvoker.execute(new DivideWallCommand(nearestWall, point));
+        } else {
+          clickablePoint = new ClickablePoint(pt);
+        }
+
+        this.cmdInvoker.execute(new AddWallCommand(new Wall(clickablePoint, new ClickablePoint(pt),
           this.board.boardConfig.wallThickness,
           this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor)));
         break;
+
       case DrawState.WallCreation: {
         const closestPt = this.board.findClosestWallPoint(pt, 10, true);
         const hasAnyWalls = this.board.currentRoom && this.board.currentRoom.hasAnyWalls();
 
+        // Process to finalise a room (The current wall join the first one)
         if (closestPt) {
           const [pt, isCurrentRoom] = closestPt;
-
-          const addWallCommand = new AddWallCommand(new Wall(new ClickablePoint(pt),
-            new ClickablePoint(pt), this.board.boardConfig.wallThickness,
-            this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor)
-          );
 
           if (isCurrentRoom && hasAnyWalls) {
             const firstWall = this.board.currentRoom!.walls[0];
@@ -172,13 +187,18 @@ export class MouseEvents extends BaseEvent {
               this.cmdInvoker.execute(new FinaliseRoomCommand());
               return;
             }
-
-            this.cmdInvoker.execute(addWallCommand);
-            return;
           }
+        }
 
-          this.cmdInvoker.execute(addWallCommand);
-          return
+        // Process to finalise a room (The current wall join a wall from another room)
+        nearestWall =  this.board.findClosestWall(pt, 30);
+
+        if( nearestWall && nearestWall instanceof Wall){
+          const point: Point = nearestWall.projectOrthogonallyOntoWall(pt);
+          clickablePoint = new ClickablePoint(point);
+          this.cmdInvoker.execute(new DivideWallCommand(nearestWall, point));
+          this.cmdInvoker.execute(new FinaliseRoomCommand());
+          return;
         }
 
         // To fix the distance between the wall paste with the angle help and the position of the mouse

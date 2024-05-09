@@ -6,6 +6,7 @@ import {DrawState} from "../models/draw-state";
 import {DrawOn} from "../models/canvas";
 import {Utils} from "../modules/utils";
 import {ClickablePoint} from "../models/clickable-point";
+import {Clickable} from "../models/interfaces/clickable";
 
 export class AddWallCommand extends Command {
 
@@ -178,19 +179,28 @@ export class FinaliseRoomCommand extends Command {
 export class DivideWallCommand extends Command {
   private newWall: Wall | null = null;
 
-  constructor(private wall: Wall) {
+  constructor(
+    private wall: Wall,
+    private point : Point | undefined = undefined
+  ) {
     super();
   }
 
   override execute(): void {
     for (const room of this.board.rooms){
       for (const wall of room.walls) {
-        if (wall == this.wall) {
-          const midPoint: Point = wall.midpoint();
-          const clickableMidPoint = new ClickablePoint(midPoint);
-          this.newWall = new Wall(clickableMidPoint, wall.p2, this.board.boardConfig.wallThickness,
-            this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor);
-          wall.p2 = clickableMidPoint;
+
+        if ( wall == this.wall ) {
+          let clickablePoint: ClickablePoint;
+          if( this.point ){
+            clickablePoint = new ClickablePoint(this.point);
+          } else {
+            clickablePoint = new ClickablePoint(wall.midpoint());
+          }
+
+          this.newWall = wall.clone();
+          this.newWall.p1 = clickablePoint;
+          wall.p2 = clickablePoint;
 
           room.addWall(this.newWall);
           return;

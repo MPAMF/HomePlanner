@@ -195,13 +195,15 @@ export class Room extends Clickable implements Cloneable<Room> {
     this.walls = room.walls.map(wall => wall.clone());
   }
 
+  /**
+   * Regroup wall by point id
+   */
   sortWalls(): SorterDictionary {
     const sorterDictionary: SorterDictionary = {};
     const size: number = this.walls.length;
 
     let wall: Wall;
     for (let index = 0; index < size; index++){
-    //for (const wall of this.walls) {
       wall = this.walls[index];
 
       if (wall.p1.id in sorterDictionary) {
@@ -224,10 +226,6 @@ export class Room extends Clickable implements Cloneable<Room> {
       }
     }
 
-    for (const id in sorterDictionary) {
-      console.log(`${this.walls.length} id: ${id} counter: ${sorterDictionary[id].counter} wallsIndex: ${sorterDictionary[id].wallsIndex}.`);
-    }
-
     return sorterDictionary;
   }
 
@@ -238,7 +236,6 @@ interface SorterDictionary {
 }
 
 class SorterInformation {
-
   public counter: number = 1;
   public wallsIndex: number[] = [];
 }

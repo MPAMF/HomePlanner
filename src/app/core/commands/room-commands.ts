@@ -57,53 +57,60 @@ export class CurrentRoomSharedIntoTwoRoomsCommand extends Command {
 
     if(this.board.rooms.length -1 >= 0 && this.board.rooms[this.board.rooms.length -1]) {
       const lastRoom: Room = this.board.rooms[this.board.rooms.length -1];
-
       const firstWall : Wall = lastRoom.walls[0];
       const lastWall : Wall = lastRoom.walls[lastRoom.walls.length -1];
 
       const list1: Wall[] = [];
       const list2: Wall[] = [];
-
+      let leftWallInRoom: boolean = false;
+      let rightWallInRoom: boolean = false;
       for (const room of this.board.rooms){
+
+        leftWallInRoom = false;
+        rightWallInRoom = false;
+        // This execution is to select the room which contain the last room
         for (const wall of room.walls) {
-
-          if(wall == this.wall) {
-            const sortedWallList  = room.sortWalls();
-            const firstIndex = sortedWallList[wall.p1.id].wallsIndex[0];
-            list1.push( room.walls[firstIndex]);
-
-            let currentIndex: number = sortedWallList[wall.p1.id].wallsIndex[1];
-            let currentWall: Wall;
-            let switchListState: boolean = false;
-
-            while (currentIndex != firstIndex) {
-              currentWall = room.walls[currentIndex];
-
-              if(switchListState) {
-                list2.push(currentWall);
-              } else {
-                list1.push(currentWall);
-              }
-
-              if(currentWall.p1.equals(firstWall.p1)  || currentWall.p1.equals(lastWall.p2)) {
-                switchListState = !switchListState;
-              }
-
-              currentIndex = sortedWallList[currentWall.p1.id].wallsIndex[1];
-            }
-
-            console.log(list1)
-            console.log(list2)
-            for (const wall of list2){
-              wall.setColor("yellow");
-            }
-
-            list1.push(...lastRoom.walls);
-            room.walls = list1;
-            lastRoom.walls.push(...list2)
-
-            return;
+          if (wall.p1.equals(firstWall.p1)) {
+            leftWallInRoom = true;
+          } else if (wall.p1.equals(lastWall.p2)) {
+            rightWallInRoom = true;
           }
+        }
+
+        // This condition is execute the reordering process on the right room
+        if ( leftWallInRoom && rightWallInRoom ) {
+          const sortedWallList  = room.sortWalls();
+          const firstIndex = sortedWallList[this.wall.p1.id].wallsIndex[0];
+          list1.push( room.walls[firstIndex]);
+
+          let currentIndex: number = sortedWallList[this.wall.p1.id].wallsIndex[1];
+          let currentWall: Wall;
+          let switchListState: boolean = false;
+
+          // Add the wall in the right room
+          while (currentIndex != firstIndex) {
+            currentWall = room.walls[currentIndex];
+
+            if(switchListState) {
+              list2.push(currentWall);
+            } else {
+              list1.push(currentWall);
+            }
+
+            // Conditions to switch between the two lists
+            if(currentWall.p1.equals(firstWall.p1)  || currentWall.p1.equals(lastWall.p2)) {
+              switchListState = !switchListState;
+            }
+
+            currentIndex = sortedWallList[currentWall.p1.id].wallsIndex[1];
+          }
+
+          // Update rooms
+          list1.push(...lastRoom.walls);
+          room.walls = list1;
+          lastRoom.walls.push(...list2)
+
+          return;
         }
       }
     }

@@ -149,22 +149,21 @@ export class DivideWallCommand extends Command {
   }
 
   override execute(): void {
+
+    if( this.clickablePoint == undefined ){
+      this.clickablePoint = new ClickablePoint(this.wall.midpoint());
+    }
+
+    this.newWall = this.wall.clone();
+    this.newWall.p1 = this.clickablePoint;
+    this.newWall.p2 = this.wall.p2;
+    this.wall.p2 = this.clickablePoint;
+
     for (const room of this.board.rooms){
       for (const wall of room.walls) {
 
         if ( wall == this.wall ) {
-          if( this.clickablePoint == undefined ){
-            this.clickablePoint = new ClickablePoint(wall.midpoint());
-          }
-
-          this.newWall = wall.clone();
-          this.newWall.p1 = this.clickablePoint;
-          this.newWall.p2 = wall.p2;
-          wall.p2 = this.clickablePoint;
-
           room.addWall(this.newWall);
-          console.log(room.walls.length)
-          return;
         }
       }
     }

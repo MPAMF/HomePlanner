@@ -286,49 +286,4 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   isCorrectlyPrintOnWall (point : Point) {
     return point.isPointBetweenTwoPoint(this.p1.point, this.p2.point);
   }
-
-  /*
-  static indexSortedWalls (walls: Wall[]): number[] {
-
-    const pivotIndex: number = 0;//Math.floor(Math.random() * walls.length);
-    const inputIndexList: number[] = [];
-
-    for (let index: number = 1; index < walls.length; index++) {
-      inputIndexList.push(index)
-    }
-
-    return Wall.recursiveSortWalls([0], inputIndexList, walls);
-  }
-
-  static recursiveSortWalls (indexSortedList: number[], inputIndexList: number[], walls: Wall[]): number[] {
-    //console.log(`indexSortedList : ${indexSortedList}, inputIndexList : ${inputIndexList}`)
-    if (inputIndexList.length <= 1) {
-      return []; // Condition d'arrêt de la récursion
-    }
-
-    const leftWall: number[] = [];
-    const rightWall: number[] = [];
-    const newInputList: number[] = [];
-
-    for (const index of inputIndexList) {
-      console.log(`walls[index].p1 : ${walls[index].p1.id}, walls[index].p2 : ${walls[index].p2.id}`)
-      if (walls[index].p1.equals(walls[indexSortedList[indexSortedList.length -1]].p2) ){
-        rightWall.push(index);
-      } else if(walls[index].p2.equals(walls[0].p1) ) {
-        leftWall.push(index);
-      } else {
-        newInputList.push(index); // Ajoutez les éléments qui ne correspondent pas aux murs de gauche ou de droite
-      }
-    }
-
-    return Wall.recursiveSortWalls(leftWall, newInputList, walls)
-      .concat(indexSortedList)
-      .concat(Wall.recursiveSortWalls(rightWall, newInputList, walls));
-  }
-
-   */
-
-  static sortWall(walls: Wall[]): number[] {
-    return [];
-  }
 }

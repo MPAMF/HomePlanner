@@ -1,4 +1,7 @@
 import {Cloneable} from "./interfaces/cloneable";
+import {Clickable, ClickableState} from "./interfaces/clickable";
+import {Canvas, DrawOn} from "./canvas";
+import { ActionsButtonOptions } from "./action-button-options";
 
 export class Point implements Cloneable<Point> {
   static ORIGIN: Point = new Point(0, 0);
@@ -33,7 +36,7 @@ export class Point implements Cloneable<Point> {
    * Check whether the point is equal to another point
    * @param other The other point
    * @returns Whether the point is equal to the other point
-    */
+   */
   equals(other: Point): boolean {
     return this.x === other.x && this.y === other.y;
   }
@@ -152,6 +155,7 @@ export class Point implements Cloneable<Point> {
     return (dxc * dyl - dyc * dxl) <= 0;
   }
 
+
   /**
    * Calculate the vector with another point
    * @param other The other point
@@ -160,5 +164,9 @@ export class Point implements Cloneable<Point> {
   getVector(other: Point): Point {
     return new Point(other.x - this.x, other.y - this.y)
   }
-}
 
+  toString(): string {
+    return `(${this.x}, ${this.y})`;
+  }
+
+}

@@ -8,6 +8,7 @@ import {afterNextRender} from "@angular/core";
 import {Room} from "./room";
 import {ActionsButtonOptions} from "./action-button-options";
 import {Wall} from "./wall";
+import {ClickablePoint} from "./clickable-point";
 
 export class Board implements Drawable {
   public rooms: Room[];
@@ -15,7 +16,7 @@ export class Board implements Drawable {
   public mousePosition: Point;
   public isPanning: boolean; // Whether the user is panning the canvas (moving the canvas around)
   public isDragging: boolean; // Whether the user is dragging an element
-  public draggingApplyFn?: () => void;
+  public draggingApplyFn?: (offset?: Point) => void;
   public currentRoom?: Room; // This room is the room that is currently being edited
   public actionsButtonOptions: ActionsButtonOptions = new ActionsButtonOptions();
   private image?: HTMLImageElement;
@@ -70,23 +71,24 @@ export class Board implements Drawable {
    * @param canvas The canvas
    * @param point the position of the mouse
    * @param drawState The draw state
+   * @param isRightClick Is a right click
    */
-  onClick(canvas: Canvas, point: Point, drawState: DrawState): Wall | undefined {
-    let nearestWall: Wall | undefined;
+  onClick(canvas: Canvas, point: Point, drawState: DrawState, isRightClick: boolean = false): Clickable | undefined {
+    let clickedElement: Clickable | undefined;
 
     //Select element section
     switch (drawState){
       case DrawState.None:
-        this.selectElementsOnCanvas(canvas, point, ClickableState.SELECTED);
+        clickedElement = this.selectElementsOnCanvas(canvas, point, ClickableState.SELECTED, isRightClick);
         break;
 
       case DrawState.Window:
       case DrawState.Door:
-        nearestWall =  this.findClosestWall(point);
+        clickedElement =  this.findClosestWall(point);
         break;
     }
 
-    return nearestWall;
+    return clickedElement;
   }
 
   /**
@@ -100,21 +102,27 @@ export class Board implements Drawable {
   }
 
   /**
-   * This function reset the selected state and possibly select a element on the board
+   * This function reset the selected state and possibly select an element on the board
    * @param canvas The canvas
    * @param point The position of the mouse
    * @param state
+   * @param isRightClick is a right click
    */
-  selectElementsOnCanvas(canvas: Canvas, point: Point, state: ClickableState): void {
+  selectElementsOnCanvas(canvas: Canvas, point: Point, state: ClickableState, isRightClick: boolean = false): Clickable | undefined {
     if (this.selectedElement && state == ClickableState.SELECTED
       || this.hoveredElement && state == ClickableState.HOVERED) {
 
       this.applyOnAllClickable(canvas, (clickable: Clickable): boolean => {
         const hasChange: boolean = clickable.resetState(state);
+        clearCanvas(canvas.snappingLine);
         if (hasChange) {
           clickable.draw(canvas, DrawOn.Background);
-          state == ClickableState.SELECTED && (this.actionsButtonOptions = new ActionsButtonOptions());
+
+          if(state == ClickableState.SELECTED) {
+            this.actionsButtonOptions = new ActionsButtonOptions();
+          }
         }
+
         return true;
       });
     }
@@ -127,7 +135,10 @@ export class Board implements Drawable {
         clickable.setState(state);
         clearCanvas(canvas.snappingLine);
         clickable.draw(canvas, DrawOn.All);
-        state == ClickableState.SELECTED && (this.actionsButtonOptions = clickable.getActionsButtonOptions(point));
+
+        if(state == ClickableState.SELECTED && isRightClick) {
+          this.actionsButtonOptions = clickable.getActionsButtonOptions(point);
+        }
         element = clickable;
       }
 
@@ -147,6 +158,7 @@ export class Board implements Drawable {
     // update cursor
     this.drawCursor(canvas.snappingLine);
 
+    return element;
   }
 
   /**
@@ -238,7 +250,7 @@ export class Board implements Drawable {
     }
 
     const lastWall = this.currentRoom ? this.currentRoom.getLastWall() : undefined;
-    const pt = this.drawState === DrawState.WallCreation && lastWall ? lastWall.p2 : this.mousePosition;
+    const pt = this.drawState === DrawState.WallCreation && lastWall ? lastWall.p2.point : this.mousePosition;
     drawImage(ctx, this.image, new Point(pt.x, pt.y - 30 / getScale(ctx).y), 30, 30);
   }
 
@@ -262,7 +274,7 @@ export class Board implements Drawable {
           return "move";
         }
 
-        if (this.selectedElement) {
+        if (this.selectedElement && this.hoveredElement) {
           return "move";
         }
 
@@ -277,6 +289,51 @@ export class Board implements Drawable {
    */
   public getRoomByWall(wall: Wall): Room | undefined {
     return this.rooms.find(room => room.walls.includes(wall));
+  }
+
+  /**
+   * Normalise the points of the walls
+   * This function is used to remove all duplicates points
+   * and replace all references to the old points with the new ones
+   * This function should be called after all the walls are added (room finalised)
+   */
+  public normalisePoints() {
+    const points = this.rooms.map(room => room.walls.flatMap(w => [w.p1, w.p2])).flat();
+    const uniquePoints: { [key: string]: ClickablePoint } = {};
+    // remove all duplicates (in coordinates)
+    points.forEach(p => uniquePoints[p.point.toString()] = p);
+    // now that we have unique points, we can replace all references to the old points with the new ones
+    this.rooms.forEach(room => room.walls.forEach(w => {
+      w.p1 = uniquePoints[w.p1.point.toString()];
+      w.p2 = uniquePoints[w.p2.point.toString()];
+    }));
+  }
+
+  /**
+   * Mark all the walls linked to the given point as finalized
+   * @param point Point to mark the linked walls of
+   * @param finalized Whether the walls should be marked as finalized or not
+   */
+  public markLinkedWalls(point: Point, finalized: boolean) {
+    for (const room of this.rooms) {
+      for (const wall of room.walls) {
+        if (wall.p1.point.equals(point) || wall.p2.point.equals(point)) {
+          wall.isFinalized = finalized;
+
+          wall.elements?.forEach(element => {
+            element.isFinalized = finalized;
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * Get the walls linked to the given point
+   * @param point Point to find the linked walls of
+   */
+  public getWallsLinkedToPoint(point: Point): Wall[] {
+    return this.rooms.map(room => room.getWallsOnPoint(point)).flat();
   }
 
 }

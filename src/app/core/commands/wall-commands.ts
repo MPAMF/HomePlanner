@@ -138,50 +138,12 @@ export class EditLastWallWithPointCommand extends Command {
   }
 }
 
-export class FinaliseRoomCommand extends Command {
-
-  constructor() {
-    super();
-  }
-
-  override execute(): void {
-    if (!this.board.currentRoom) {
-      return;
-    }
-    const currentRoom = this.board.currentRoom;
-    currentRoom.isFinalized = true;
-    const wall = currentRoom.getLastWall();
-    if (wall) {
-      wall.isFinalized = true;
-    }
-
-    this.board.rooms.push(currentRoom);
-    this.board.currentRoom = undefined;
-    this.board.drawState = DrawState.None; // When a room is finalized, the user should not be able to draw walls
-    this.board.normalisePoints();
-  }
-
-  override undo(): void {
-    const room = this.board.rooms.pop();
-    if (!room) { // Should never happen, but just in case
-      return;
-    }
-    this.board.currentRoom = room;
-    room.isFinalized = false;
-    this.board.drawState = DrawState.WallCreation;
-    const lastWall = room.getLastWall();
-    if (lastWall) {
-      lastWall.isFinalized = false;
-    }
-  }
-}
-
 export class DivideWallCommand extends Command {
   private newWall: Wall | null = null;
 
   constructor(
     private wall: Wall,
-    private point : Point | undefined = undefined
+    private clickablePoint : ClickablePoint | undefined = undefined,
   ) {
     super();
   }
@@ -191,18 +153,17 @@ export class DivideWallCommand extends Command {
       for (const wall of room.walls) {
 
         if ( wall == this.wall ) {
-          let clickablePoint: ClickablePoint;
-          if( this.point ){
-            clickablePoint = new ClickablePoint(this.point);
-          } else {
-            clickablePoint = new ClickablePoint(wall.midpoint());
+          if( this.clickablePoint == undefined ){
+            this.clickablePoint = new ClickablePoint(wall.midpoint());
           }
 
           this.newWall = wall.clone();
-          this.newWall.p1 = clickablePoint;
-          wall.p2 = clickablePoint;
+          this.newWall.p1 = this.clickablePoint;
+          this.newWall.p2 = wall.p2;
+          wall.p2 = this.clickablePoint;
 
           room.addWall(this.newWall);
+          console.log(room.walls.length)
           return;
         }
       }
@@ -210,13 +171,6 @@ export class DivideWallCommand extends Command {
   }
 
   override undo(): void {
-    if(this.newWall){
-      for (const room of this.board.rooms) {
-        if(room.removeWall(this.newWall)){
-          this.wall.p2 = this.newWall.p2;
-          break;
-        }
-      }
-    }
+
   }
 }

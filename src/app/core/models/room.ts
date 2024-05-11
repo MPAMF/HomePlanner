@@ -5,6 +5,8 @@ import {Canvas, DrawOn} from "./canvas";
 import {ActionsButtonOptions} from "./action-button-options";
 import {Clickable, ClickableState} from "./interfaces/clickable";
 import {Cloneable} from "./interfaces/cloneable";
+import {DrawState} from "./draw-state";
+import {routes} from "../../app.routes";
 
 export class Room extends Clickable implements Cloneable<Room> {
 
@@ -193,4 +195,50 @@ export class Room extends Clickable implements Cloneable<Room> {
     this.walls = room.walls.map(wall => wall.clone());
   }
 
+  sortWalls(): SorterDictionary {
+    const sorterDictionary: SorterDictionary = {};
+    const size: number = this.walls.length;
+
+    let wall: Wall;
+    for (let index = 0; index < size; index++){
+    //for (const wall of this.walls) {
+      wall = this.walls[index];
+
+      if (wall.p1.id in sorterDictionary) {
+        sorterDictionary[wall.p1.id].counter++;
+        sorterDictionary[wall.p1.id].wallsIndex[0] = index;
+        wall.p1.setState(wall.p1.getState() ==  ClickableState.SELECTED ? ClickableState.NONE : ClickableState.SELECTED)
+      } else {
+        sorterDictionary[wall.p1.id] = new SorterInformation();
+        sorterDictionary[wall.p1.id].wallsIndex[0] = index;
+        wall.p1.setState(wall.p1.getState() ==  ClickableState.SELECTED ? ClickableState.NONE : ClickableState.SELECTED)
+      }
+      if (wall.p2.id in sorterDictionary) {
+        sorterDictionary[wall.p2.id].counter++;
+        sorterDictionary[wall.p2.id].wallsIndex[1] = index;
+        wall.p2.setState(wall.p2.getState() ==  ClickableState.SELECTED ? ClickableState.NONE : ClickableState.SELECTED)
+      } else {
+        sorterDictionary[wall.p2.id] = new SorterInformation();
+        sorterDictionary[wall.p2.id].wallsIndex[1] = index;
+        wall.p2.setState(wall.p2.getState() ==  ClickableState.SELECTED ? ClickableState.NONE : ClickableState.SELECTED)
+      }
+    }
+
+    for (const id in sorterDictionary) {
+      console.log(`${this.walls.length} id: ${id} counter: ${sorterDictionary[id].counter} wallsIndex: ${sorterDictionary[id].wallsIndex}.`);
+    }
+
+    return sorterDictionary;
+  }
+
+}
+
+interface SorterDictionary {
+  [key: string]: SorterInformation;
+}
+
+class SorterInformation {
+
+  public counter: number = 1;
+  public wallsIndex: number[] = [];
 }

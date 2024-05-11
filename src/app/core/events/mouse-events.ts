@@ -5,7 +5,6 @@ import {
   AddWallCommand,
   DivideWallCommand,
   EditLastWallWithPointCommand,
-  FinaliseRoomCommand,
 } from "../commands/wall-commands";
 import {CommandInvoker} from "../commands/command";
 import {
@@ -27,6 +26,7 @@ import {
 
 import {Clickable, ClickableState} from "../models/interfaces/clickable";
 import {ClickablePoint} from "../models/clickable-point";
+import {CurrentRoomSharedIntoTwoRoomsCommand, FinaliseRoomCommand} from "../commands/room-commands";
 
 export class MouseEvents extends BaseEvent {
   private panStart: Point;
@@ -161,9 +161,10 @@ export class MouseEvents extends BaseEvent {
         nearestWall =  this.board.findClosestWall(pt, 30);
 
         if( nearestWall && nearestWall instanceof Wall){
+
           const point: Point = nearestWall.projectOrthogonallyOntoWall(pt);
           clickablePoint = new ClickablePoint(point);
-          this.cmdInvoker.execute(new DivideWallCommand(nearestWall, point));
+          this.cmdInvoker.execute(new DivideWallCommand(nearestWall, clickablePoint));
         } else {
           clickablePoint = new ClickablePoint(pt);
         }
@@ -196,8 +197,14 @@ export class MouseEvents extends BaseEvent {
         if( nearestWall && nearestWall instanceof Wall){
           const point: Point = nearestWall.projectOrthogonallyOntoWall(pt);
           clickablePoint = new ClickablePoint(point);
-          this.cmdInvoker.execute(new DivideWallCommand(nearestWall, point));
+
+          const wall = this.board?.currentRoom?.getLastWall();
+          if (!wall) return;
+          wall.p2 = clickablePoint;
+
+          this.cmdInvoker.execute(new DivideWallCommand(nearestWall, clickablePoint));
           this.cmdInvoker.execute(new FinaliseRoomCommand());
+          this.cmdInvoker.execute(new CurrentRoomSharedIntoTwoRoomsCommand(nearestWall));
           return;
         }
 

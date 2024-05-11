@@ -1,7 +1,7 @@
 import * as uuid from 'uuid';
 
 export class Comparable {
-  private readonly id: string;
+  public readonly id: string;
 
   constructor() {
     this.id = uuid.v4();

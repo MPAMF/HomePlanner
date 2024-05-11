@@ -239,7 +239,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
             exitAnimationDuration: '300ms',
             width: '600px',
             data: {
-              title: 'Warning',
+              title: 'Test',
               isWallOption: true,
             }
           });

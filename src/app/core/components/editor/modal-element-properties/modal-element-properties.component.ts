@@ -6,17 +6,16 @@ import {WallSettingsComponent} from "./subcomponent/wall-settings/wall-settings.
 import {WindowSettingsComponent} from "./subcomponent/window-settings/window-settings.component";
 import {Wall} from "../../../models/wall";
 import {Window} from "../../../models/wall-elements/window";
+import {Clickable} from "../../../models/interfaces/clickable";
 
 export interface ModalElementPropertiesComponentData {
   title: string;
-  wallSection: {
-    isWallOption: boolean;
-    wall: Wall;
-  }
-  windowsSection: {
-    isWindowsOption: boolean;
-    window: Window;
-  }
+
+  isWallOptions: boolean;
+  isWindowsOptions: boolean;
+  isDoorOptions: boolean;
+
+  clickable: Clickable;
 }
 
 @Component({

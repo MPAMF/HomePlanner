@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {Wall} from "../../../../../models/wall";
+import {Clickable} from "../../../../../models/interfaces/clickable";
 
 @Component({
   selector: 'app-wall-settings',
@@ -11,10 +12,12 @@ import {Wall} from "../../../../../models/wall";
 })
 export class WallSettingsComponent {
 
-  @Input() wall?: Wall;
+  @Input() clickable?: Clickable;
 
   onColorChange(event: Event): void {
-    const color: string = (event?.target as HTMLInputElement)?.value;
-    this.wall?.setColor(color);
+    if(this.clickable && this.clickable instanceof Wall){
+      const color: string = (event?.target as HTMLInputElement)?.value;
+      this.clickable.setColor(color);
+    }
   }
 }

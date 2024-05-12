@@ -13,7 +13,7 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(TranslateModule.forRoot({
         loader: {
           provide: TranslateLoader,
-          useFactory: (http: HttpClient) => new TranslateHttpLoader(http, './assets/i18n', '.json'),
+          useFactory: (http: HttpClient) => new TranslateHttpLoader(http, './assets/i18n/', '.json'),
           deps: [HttpClient]
         }
       }

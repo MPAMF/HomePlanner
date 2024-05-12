@@ -156,10 +156,6 @@ export class Window extends WallElement {
     this.calculatePointPositions(newOriginPoint);
   }
 
-  getActionsButtonOptions(point: Point): ActionsButtonOptions {
-    return new ActionsButtonOptions();
-  }
-
   setVisibleState(newState: boolean): void {
   }
 

@@ -2,6 +2,14 @@ import {Clickable, ClickableState} from "./clickable";
 import {Cloneable} from "./cloneable";
 import {Point} from "../point";
 import {Canvas} from "../canvas";
+import {ActionButtonProps, ActionsButtonOptions} from "../action-button-options";
+import {CommandInvoker} from "../../commands/command";
+import {MatDialog} from "@angular/material/dialog";
+import {HideClickableCommand} from "../../commands/clickable-commands";
+import {DivideWallCommand} from "../../commands/wall-commands";
+import {
+  ModalElementPropertiesComponent
+} from "../../components/editor/modal-element-properties/modal-element-properties.component";
 
 export abstract class WallElement extends Clickable implements Cloneable<WallElement> {
   protected constructor(
@@ -89,5 +97,38 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
 
   override setColor(newColor?: string) {
     this.color = newColor;
+  }
+
+  override getActionsButtonOptions(point: Point): ActionsButtonOptions {
+    const newActionButtonOptions: ActionsButtonOptions = new ActionsButtonOptions(true, point.x, point.y)
+
+    const settingsButton: ActionButtonProps = new ActionButtonProps(
+      'settings',
+      (commandInvoker?: CommandInvoker, modalElementProperties?: MatDialog) => {
+        if (commandInvoker && modalElementProperties) {
+          const dialogRef = modalElementProperties.open(ModalElementPropertiesComponent, {
+            enterAnimationDuration: '300ms',
+            exitAnimationDuration: '300ms',
+            width: '600px',
+            data: {
+              clickable: this
+            }
+          });
+
+          // Subscribe to the afterClosed event
+          dialogRef?.afterClosed().subscribe(result => {
+            // Check the result to determine which button was clicked
+            if (result === 'confirm') {
+              //commandInvoker.execute(new ResetCurrentRoomCommand(this.board.currentRoom));
+            }
+          });
+        }
+
+        newActionButtonOptions.isActionsButtonVisible = false;
+      }
+    );
+
+    newActionButtonOptions.buttonsAndActions = [settingsButton];
+    return newActionButtonOptions;
   }
 }

@@ -19,7 +19,7 @@ export class AddWindowCommand extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
     this.previousDrawSate = this.board.drawState;
     this.board.drawState = DrawState.WindowPlacement;
 
@@ -54,7 +54,7 @@ export class EditLastWindowCommand extends Command {
     super(DrawOn.SnappingLine);
   }
 
-  override execute(): void {
+  override do(): void {
     const pointInTheNearestWall: Point = this.wall.projectOrthogonallyOntoWall(this.startPoint);
 
     const window: WallElement | undefined = this.wall.getLastWallElement();
@@ -86,7 +86,7 @@ export class FinalizeWindowCommand extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
     this.previousDrawSate = this.board.drawState;
     this.board.drawState = DrawState.None;
 
@@ -122,7 +122,7 @@ export class AddDoorCommand extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
     this.previousDrawSate = this.board.drawState;
     this.board.drawState = DrawState.WindowPlacement;
 
@@ -157,7 +157,7 @@ export class EditLastDoorCommand extends Command {
     super(DrawOn.SnappingLine);
   }
 
-  override execute(): void {
+  override do(): void {
     const pointInTheNearestWall: Point = this.wall.projectOrthogonallyOntoWall(this.startPoint);
 
     const door: WallElement | undefined = this.wall.getLastWallElement();
@@ -189,7 +189,7 @@ export class FinalizeDoorCommand extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
     this.previousDrawSate = this.board.drawState;
     this.board.drawState = DrawState.None;
 

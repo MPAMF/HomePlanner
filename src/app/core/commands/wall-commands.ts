@@ -15,7 +15,7 @@ export class AddWallCommand extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
     if (!this.board.currentRoom) {
       this.board.currentRoom = new Room("Room 1"); // TODO: replace hardcoded name
     } else {
@@ -56,7 +56,7 @@ export class RemoveWallCommand extends Command {
     super();
   }
 
-  override execute(): void {// ToDo: We need to update the room system
+  override do(): void {// ToDo: We need to update the room system
     for (const room of this.board.rooms) {
         if(room.removeWall(this.wall)){
           this.board.currentRoom = room;
@@ -102,7 +102,7 @@ export class EditLastWallWithPointCommand extends Command {
     super(DrawOn.SnappingLine);
   }
 
-  override execute(): void {
+  override do(): void {
     if (this.board.drawState !== DrawState.WallCreation || !this.board.currentRoom) {
       return;
     }
@@ -143,7 +143,7 @@ export class FinaliseRoomCommand extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
     if (!this.board.currentRoom) {
       return;
     }
@@ -182,7 +182,7 @@ export class DivideWallCommand extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
     for (const room of this.board.rooms){
       for (const wall of room.walls) {
         if (wall == this.wall) {

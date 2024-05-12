@@ -143,10 +143,6 @@ export class Door extends WallElement {
     this.p3 = this.isRotated ? new Point(-Ax, -Ay) : new Point(Ax, Ay);
   }
 
-  getActionsButtonOptions(point: Point): ActionsButtonOptions {
-    return new ActionsButtonOptions();
-  }
-
   override setVisibleState(newState: boolean): void {
   }
 

@@ -1,12 +1,12 @@
 <div class="wallSetting">
   <div class="colorSetting">
-    <label for="colorPicker">Choose the wall color :</label>
-    <input type="color" id="colorPicker1" [(ngModel)]="selectedColor" (change)="onColorChange(selectedColor)">
-    <input type="color" id="colorPicker" name="colorPicker" value="#ff0000">
+    <label for="colorPicker">{{ "Choose the wall color:" | translate }}</label>
+    <input type="color" id="colorPicker" [(ngModel)]="color" (change)="onColorChange()">
   </div>
 
   <div class="selectedColorSetting">
-
+    <label for="selectedColorPicker">{{ "Choose the selected wall color:" | translate }}</label>
+    <input type="color" id="selectedColorPicker" [(ngModel)]="selectedColor" (change)="onSelectedColorChange()">
   </div>
 
   <div class="thicknessSetting">

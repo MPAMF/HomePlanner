@@ -2,14 +2,15 @@ import {MouseEvents} from "./mouse-events";
 import {CommandInvoker} from "../commands/command";
 import {KeyboardEvents} from "./keyboard-events";
 import {MatDialog} from "@angular/material/dialog";
+import {TranslateService} from "@ngx-translate/core";
 
 export class EventHandler {
   public readonly mouseEvents: MouseEvents;
   public readonly keyboardEvents: KeyboardEvents;
 
-  constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker, dialog: MatDialog) {
+  constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker, dialog: MatDialog, translateService: TranslateService) {
     this.mouseEvents = new MouseEvents(cmdInvoker, actionCmdInvoker);
-    this.keyboardEvents = new KeyboardEvents(cmdInvoker, actionCmdInvoker, dialog);
+    this.keyboardEvents = new KeyboardEvents(cmdInvoker, actionCmdInvoker, dialog, translateService);
     this.bind();
   }
 

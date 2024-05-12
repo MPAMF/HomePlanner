@@ -4,11 +4,12 @@ import {CommandInvoker} from "../../../commands/command";
 import {EditorDrawStateCommands} from "../../../commands/editor-commands";
 import {DrawState} from "../../../models/draw-state";
 import {MatIconModule} from "@angular/material/icon";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-controls',
   standalone: true,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, MatIconModule, TranslateModule],
   templateUrl: './controls.component.html',
   styleUrl: './controls.component.scss'
 })

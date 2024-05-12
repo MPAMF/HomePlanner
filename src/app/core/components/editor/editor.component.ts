@@ -9,6 +9,7 @@ import {ControlsComponent} from "./controls/controls.component";
 import {MatDialog} from "@angular/material/dialog";
 import {DialogConfirmationComponent} from "../../../shared/components/dialog-confirmation.component";
 import {ActionsButtonComponent} from "./actions-button/actions-button.component";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-editor',
@@ -29,7 +30,7 @@ export class EditorComponent {
   private snappingLineCanvas: HTMLCanvasElement | null | undefined;
   private readonly board: Board;
 
-  constructor(@Inject(PLATFORM_ID) platformId: object, public dialog: MatDialog) {
+  constructor(@Inject(PLATFORM_ID) platformId: object, public dialog: MatDialog, private translateService: TranslateService) {
     this.board = new Board();
     this.cmdInvoker = new CommandInvoker(this.board);
     this.actionsCmdInvoker = new CommandInvoker(this.board);
@@ -87,6 +88,6 @@ export class EditorComponent {
     this.backgroundCanvas.height = this.backgroundCanvas.getBoundingClientRect().height;
     this.snappingLineCanvas.width = this.snappingLineCanvas.getBoundingClientRect().width;
     this.snappingLineCanvas.height = this.snappingLineCanvas.getBoundingClientRect().height;
-    this.eventHandler = new EventHandler(this.cmdInvoker, this.actionsCmdInvoker, this.dialog);
+    this.eventHandler = new EventHandler(this.cmdInvoker, this.actionsCmdInvoker, this.dialog, this.translateService);
   }
 }

@@ -241,6 +241,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
             data: {
               title: 'Test',
               isWallOptions: true,
+              clickable: this
             }
           });
 

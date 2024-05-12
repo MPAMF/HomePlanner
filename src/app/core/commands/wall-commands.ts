@@ -156,13 +156,17 @@ export class DivideWallCommand extends Command {
 
     this.newWall = this.wall.clone();
     this.newWall.p1 = this.clickablePoint;
-    //this.newWall.p2 = this.wall.p2;
     this.wall.p2 = this.clickablePoint;
 
     for (const room of this.board.rooms){
       for (const wall of room.walls) {
 
-        if ( wall == this.wall ) {
+        if ( wall == this.wall) {
+          if(this.wall.roomNeedSwitchPoint[room.id] && this.board.currentRoom){
+            this.wall.roomNeedSwitchPoint[this.board.currentRoom.id] = true;
+            this.newWall.roomNeedSwitchPoint[this.board.currentRoom.id] = true;
+          }
+
           room.addWall(this.newWall);
         }
       }

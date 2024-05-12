@@ -2,6 +2,7 @@ import {Command} from "./command";
 import {Wall} from "../models/wall";
 import {Room} from "../models/room";
 import {DrawState} from "../models/draw-state";
+import {ClickablePoint} from "../models/clickable-point";
 
 
 export class FinaliseRoomCommand extends Command {
@@ -74,6 +75,9 @@ export class SplitRoomCommand extends Command {
 
         // This condition is execute the reordering process on the right room
         if (leftWallInRoom && rightWallInRoom) {
+
+
+
           const sortedWallList = room.sortWalls();
           const firstIndex = sortedWallList[this.wall.p1.id].wallsIndex[0];
           list1.push(room.walls[firstIndex]);
@@ -97,7 +101,23 @@ export class SplitRoomCommand extends Command {
               switchListState = !switchListState;
             }
 
-            currentIndex = sortedWallList[currentWall.p1.id].wallsIndex[1];
+            currentIndex = sortedWallList[currentWall.getP1(room.id).id].wallsIndex[1];
+          }
+
+          for( const wall of list1){
+            if(wall.roomNeedSwitchPoint[room.id]){
+              wall.roomNeedSwitchPoint[room.id] = !wall.roomNeedSwitchPoint[room.id];
+            } else {
+              wall.roomNeedSwitchPoint[room.id] = true;
+            }
+          }
+
+          for( const wall of list1){
+            if(wall.roomNeedSwitchPoint[room.id]){
+              wall.setColor('blue')
+            } else {
+              //wall.setColor('black')
+            }
           }
 
           // Update rooms
@@ -105,10 +125,7 @@ export class SplitRoomCommand extends Command {
           room.walls = list1;
           lastRoom.walls.push(...list2);
 
-          for( const wall of room.walls){
-            wall.setColor('yellow')
-          }
-          room.sortWalls();
+          lastRoom.sortWalls();
           return;
         }
       }

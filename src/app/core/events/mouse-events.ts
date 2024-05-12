@@ -166,7 +166,7 @@ export class MouseEvents extends BaseEvent {
         }
 
         this.cmdInvoker.execute(new AddWallCommand(new Wall(clickablePoint, new ClickablePoint(pt),
-          this.board.boardConfig.wallThickness,
+          {}, this.board.boardConfig.wallThickness,
           this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor)));
         break;
 
@@ -212,7 +212,7 @@ export class MouseEvents extends BaseEvent {
         }
 
         this.cmdInvoker.execute(new AddWallCommand(new Wall(new ClickablePoint(pt), new ClickablePoint(pt),
-          this.board.boardConfig.wallThickness,
+          {}, this.board.boardConfig.wallThickness,
           this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor)));
 
         break;

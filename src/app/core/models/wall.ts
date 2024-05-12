@@ -9,12 +9,14 @@ import {HideClickableCommand} from "../commands/clickable-commands";
 import {Cloneable} from "./interfaces/cloneable";
 import {WallElement} from "./interfaces/wall-elements";
 import {ClickablePoint} from "./clickable-point";
+import {RoomNeedSwitchPoint} from "./interfaces/roomNeedSwitchPoint";
 
 export class Wall extends Clickable implements Cloneable<Wall> {
 
   constructor(
     public p1: ClickablePoint,
     public p2: ClickablePoint,
+    public roomNeedSwitchPoint: RoomNeedSwitchPoint,
     private defaultThickness: number,
     private defaultColor: string,
     private defaultSelectedColor: string,
@@ -22,10 +24,19 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     private color?: string,
     private selectedColor?: string,
     public elements: WallElement[] = [],
-    public isFinalized: boolean = false
+    public isFinalized: boolean = false,
   ) {
     super();
   }
+
+  getP1(roomId: string) {
+    return this.roomNeedSwitchPoint[roomId] ? this.p2 : this.p1;
+  }
+
+  getP2(roomId: string) {
+    return this.roomNeedSwitchPoint[roomId] ? this.p1 : this.p2;
+  }
+
 
   /**
    * Get the wall thickness or the default one
@@ -135,9 +146,9 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    * Clone the wall to create a new instance with the same points
    */
   clone(): Wall {
-    return new Wall(this.p1.clone(), this.p2.clone(), this.defaultThickness, this.defaultColor,
-      this.defaultSelectedColor, this.thickness,
-      this.color, this.selectedColor, this.elements.map(el => el.clone()), this.isFinalized);
+    return new Wall(this.p1.clone(), this.p2.clone(), this.roomNeedSwitchPoint, this.defaultThickness, this.defaultColor,
+      this.defaultSelectedColor, this.thickness, this.color, this.selectedColor,
+      this.elements.map(el => el.clone()), this.isFinalized);
   }
 
   restore(wall: Wall) {

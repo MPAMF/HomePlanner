@@ -5,8 +5,6 @@ import {Canvas, DrawOn} from "./canvas";
 import {ActionsButtonOptions} from "./action-button-options";
 import {Clickable, ClickableState} from "./interfaces/clickable";
 import {Cloneable} from "./interfaces/cloneable";
-import {DrawState} from "./draw-state";
-import {routes} from "../../app.routes";
 
 export class Room extends Clickable implements Cloneable<Room> {
 
@@ -159,7 +157,7 @@ export class Room extends Clickable implements Cloneable<Room> {
     // }
     // this.getAllPoints().forEach(point => point.translatePoint(offset));
     this.walls.forEach(wall => {
-      wall.p2.point = wall.p2.point.translatePoint(offset);
+      wall.getP2(this.id).point = wall.getP2(this.id).point.translatePoint(offset);
       wall.elements.forEach(element => element.onDrag(offset, recursive))
     });
   }
@@ -206,20 +204,20 @@ export class Room extends Clickable implements Cloneable<Room> {
     for (let index = 0; index < size; index++){
       wall = this.walls[index];
 
-      if (wall.p1.id in sorterDictionary) {
+      if (wall.getP1(this.id).id in sorterDictionary) {
         console.log(`${index}`)
-        sorterDictionary[wall.p1.id].counter++;
-        sorterDictionary[wall.p1.id].wallsIndex[0] = index;
+        sorterDictionary[wall.getP1(this.id).id].counter++;
+        sorterDictionary[wall.getP1(this.id).id].wallsIndex[0] = index;
       } else {
-        sorterDictionary[wall.p1.id] = new SorterInformation();
-        sorterDictionary[wall.p1.id].wallsIndex[0] = index;
+        sorterDictionary[wall.getP1(this.id).id] = new SorterInformation();
+        sorterDictionary[wall.getP1(this.id).id].wallsIndex[0] = index;
       }
-      if (wall.p2.id in sorterDictionary) {
-        sorterDictionary[wall.p2.id].counter++;
-        sorterDictionary[wall.p2.id].wallsIndex[1] = index;
+      if (wall.getP2(this.id).id in sorterDictionary) {
+        sorterDictionary[wall.getP2(this.id).id].counter++;
+        sorterDictionary[wall.getP2(this.id).id].wallsIndex[1] = index;
       } else {
-        sorterDictionary[wall.p2.id] = new SorterInformation();
-        sorterDictionary[wall.p2.id].wallsIndex[1] = index;
+        sorterDictionary[wall.getP2(this.id).id] = new SorterInformation();
+        sorterDictionary[wall.getP2(this.id).id].wallsIndex[1] = index;
       }
     }
 

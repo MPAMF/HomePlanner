@@ -14,7 +14,7 @@ export class HideClickableCommand extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
     this.previousVisibleSate = this.wall.getVisibleState();
     this.wall.setVisibleState(!this.previousVisibleSate);
   }

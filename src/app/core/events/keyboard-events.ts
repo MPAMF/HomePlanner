@@ -5,10 +5,11 @@ import {DrawState} from "../models/draw-state";
 import {MatDialog} from "@angular/material/dialog";
 import {ResetCurrentRoomCommand} from "../commands/canvas-commands";
 import {DialogConfirmationComponent} from "../../shared/components/dialog-confirmation.component";
+import {TranslateService} from "@ngx-translate/core";
 
 export class KeyboardEvents extends BaseEvent {
 
-  constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker, dialog: MatDialog) {
+  constructor(cmdInvoker: CommandInvoker, actionCmdInvoker: CommandInvoker, dialog: MatDialog, private translateService: TranslateService) {
     super(cmdInvoker, actionCmdInvoker, dialog);
   }
 
@@ -73,8 +74,8 @@ export class KeyboardEvents extends BaseEvent {
       exitAnimationDuration: '300ms',
       width: '400px',
       data: {
-        title: 'Warning',
-        content: 'Enclose the room to continue! Make sure all walls are enclosed.'
+        title: this.translateService.instant('Warning'),
+        content: this.translateService.instant('Enclose the room to continue! Make sure all walls are enclosed.')
       }
     });
 

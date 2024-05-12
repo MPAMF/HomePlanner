@@ -2,17 +2,23 @@ import {Component, Input} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {CommandInvoker} from "../../../commands/command";
 import {MatIconModule} from "@angular/material/icon";
+import {TranslateModule} from "@ngx-translate/core";
+import {MatDialog} from "@angular/material/dialog";
+import {SettingsComponent} from "../../settings/settings.component";
 
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, MatIconModule, TranslateModule],
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.scss'
 })
 export class ToolbarComponent {
   @Input() commandInvoker?: CommandInvoker;
   @Input() actionsCommandInvoker?: CommandInvoker;
+
+  constructor(private matDialog: MatDialog) {
+  }
 
   onClickUndo() {
     if (!this.commandInvoker || !this.commandInvoker.canUndo()) return;
@@ -24,4 +30,11 @@ export class ToolbarComponent {
     this.commandInvoker.redo();
   }
 
+  openSettingsModal() {
+    this.matDialog.open(SettingsComponent, {
+      enterAnimationDuration: '300ms',
+      exitAnimationDuration: '300ms',
+      width: '400px',
+    });
+  }
 }

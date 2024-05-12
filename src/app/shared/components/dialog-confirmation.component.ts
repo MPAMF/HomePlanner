@@ -2,6 +2,7 @@ import {Component, Inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {MatIconModule} from "@angular/material/icon";
+import {TranslateModule} from "@ngx-translate/core";
 
 export interface DialogConfirmationComponentData {
   title: string;
@@ -11,7 +12,7 @@ export interface DialogConfirmationComponentData {
 @Component({
   selector: 'app-dialog-confirmation',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatIconModule],
+  imports: [CommonModule, MatDialogModule, MatIconModule, TranslateModule],
   templateUrl: './dialog-confirmation.component.html',
   styleUrl: './dialog-confirmation.component.scss'
 })

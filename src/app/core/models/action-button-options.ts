@@ -1,5 +1,6 @@
 import {Board} from "./board";
 import {CommandInvoker} from "../commands/command";
+import {MatDialog} from "@angular/material/dialog";
 
 export class ActionsButtonOptions {
 
@@ -15,6 +16,6 @@ export class ActionButtonProps {
 
   constructor(
     public iconName: string,
-    public onClickMethod: (commandInvoker: CommandInvoker) => void
+    public onClickMethod: (commandInvoker?: CommandInvoker, modalElementProperties?: MatDialog) => void
   ) {}
 }

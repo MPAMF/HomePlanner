@@ -8,7 +8,7 @@ export class EditorDrawStateCommands extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
     this.lastDrawState = this.board.drawState;
     this.board.drawState = this.drawState;
   }

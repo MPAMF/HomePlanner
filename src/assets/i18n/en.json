@@ -1,0 +1,23 @@
+{
+  "All projects": "All projects",
+  "Undo": "Undo",
+  "Redo": "Redo",
+  "Save": "Save",
+  "Import component": "Import component",
+  "Export component": "Export component",
+  "Settings": "Settings",
+  "Choose the color:": "Choose the color:",
+  "Choose the selected color:": "Choose the selected color:",
+  "Zoom in": "Zoom in",
+  "Zoom out": "Zoom out",
+  "Move": "Move",
+  "Add a door": "Add a door",
+  "Add a window": "Add a window",
+  "Draw": "Draw",
+  "Cancel": "Cancel",
+  "Warning": "Warning",
+  "Confirm": "Confirm",
+  "Enclose the room to continue! Make sure all walls are enclosed.": "Enclose the room to continue! Make sure all walls are enclosed.",
+  "Element properties": "Element properties",
+  "Thickness:": "Thickness:"
+}

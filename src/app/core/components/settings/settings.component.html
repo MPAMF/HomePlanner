@@ -1,0 +1,27 @@
+<h1 mat-dialog-title>
+  {{ "Settings" | translate }}
+  <span mat-dialog-close="cancel">
+    <mat-icon>cancel</mat-icon>
+  </span>
+</h1>
+<mat-dialog-content class="mat-typography">
+
+  <mat-form-field>
+    <mat-label>{{ "Choose the language:" | translate }}</mat-label>
+    <mat-select [(value)]="selectedLanguage" (selectionChange)="languageSelected()">
+      <mat-option value="en">
+        English
+      </mat-option>
+      <mat-option value="fr">
+        Français
+      </mat-option>
+      <mat-option value="es">
+        Español
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button class="primary label-button" mat-dialog-close="confirm">Ok</button>
+</mat-dialog-actions>

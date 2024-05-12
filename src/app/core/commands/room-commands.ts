@@ -1,12 +1,7 @@
 import {Command} from "./command";
 import {Wall} from "../models/wall";
-import {Point} from "../models/point";
 import {Room} from "../models/room";
 import {DrawState} from "../models/draw-state";
-import {DrawOn} from "../models/canvas";
-import {Utils} from "../modules/utils";
-import {ClickablePoint} from "../models/clickable-point";
-import {Clickable} from "../models/interfaces/clickable";
 
 
 export class FinaliseRoomCommand extends Command {
@@ -55,16 +50,16 @@ export class CurrentRoomSharedIntoTwoRoomsCommand extends Command {
 
   override execute(): void {
 
-    if(this.board.rooms.length -1 >= 0 && this.board.rooms[this.board.rooms.length -1]) {
-      const lastRoom: Room = this.board.rooms[this.board.rooms.length -1];
-      const firstWall : Wall = lastRoom.walls[0];
-      const lastWall : Wall = lastRoom.walls[lastRoom.walls.length -1];
+    if (this.board.rooms.length >= 1 && this.board.rooms[this.board.rooms.length - 1]) {
+      const lastRoom: Room = this.board.rooms[this.board.rooms.length - 1];
+      const firstWall: Wall = lastRoom.walls[0];
+      const lastWall: Wall = lastRoom.walls[lastRoom.walls.length - 1];
 
       const list1: Wall[] = [];
       const list2: Wall[] = [];
       let leftWallInRoom: boolean = false;
       let rightWallInRoom: boolean = false;
-      for (const room of this.board.rooms){
+      for (const room of this.board.rooms) {
 
         leftWallInRoom = false;
         rightWallInRoom = false;
@@ -78,10 +73,10 @@ export class CurrentRoomSharedIntoTwoRoomsCommand extends Command {
         }
 
         // This condition is execute the reordering process on the right room
-        if ( leftWallInRoom && rightWallInRoom ) {
-          const sortedWallList  = room.sortWalls();
+        if (leftWallInRoom && rightWallInRoom) {
+          const sortedWallList = room.sortWalls();
           const firstIndex = sortedWallList[this.wall.p1.id].wallsIndex[0];
-          list1.push( room.walls[firstIndex]);
+          list1.push(room.walls[firstIndex]);
 
           let currentIndex: number = sortedWallList[this.wall.p1.id].wallsIndex[1];
           let currentWall: Wall;
@@ -91,14 +86,14 @@ export class CurrentRoomSharedIntoTwoRoomsCommand extends Command {
           while (currentIndex != firstIndex) {
             currentWall = room.walls[currentIndex];
 
-            if(switchListState) {
+            if (switchListState) {
               list2.push(currentWall);
             } else {
               list1.push(currentWall);
             }
 
             // Conditions to switch between the two lists
-            if(currentWall.p1.equals(firstWall.p1)  || currentWall.p1.equals(lastWall.p2)) {
+            if (currentWall.p1.equals(firstWall.p1) || currentWall.p1.equals(lastWall.p2)) {
               switchListState = !switchListState;
             }
 

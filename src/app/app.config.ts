@@ -11,6 +11,7 @@ import {TranslateHttpLoader} from "@ngx-translate/http-loader";
 export const appConfig: ApplicationConfig = {
   providers: [provideRouter(routes), provideClientHydration(), provideAnimations(), provideHttpClient(),
     importProvidersFrom(TranslateModule.forRoot({
+      defaultLanguage: 'en',
         loader: {
           provide: TranslateLoader,
           useFactory: (http: HttpClient) => new TranslateHttpLoader(http, './assets/i18n/', '.json'),

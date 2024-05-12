@@ -42,7 +42,7 @@ export class Door extends WallElement {
     ctx.moveTo(this.p2.x, this.p2.y);
     ctx.arc(this.p1.x, this.p1.y, this.getLength(), angleUnitaryVector, angleUnitaryVector + Math.PI / 2, false);
     ctx.lineWidth = this.getThickness();
-    ctx.strokeStyle = this.getColor();
+    ctx.strokeStyle = this.getDrawColor();
     ctx.lineCap = "round";
     ctx.stroke();
   }
@@ -147,9 +147,23 @@ export class Door extends WallElement {
     return new ActionsButtonOptions();
   }
 
-  setVisibleState(newState: boolean): void {
+  override setVisibleState(newState: boolean): void {
   }
 
+  override getColor(): string | undefined {
+    return this.color;
+  }
 
+  override getSelectedColor(): string | undefined {
+    return this.selectedColor;
+  }
+
+  override setSelectedColor(color?: string): void {
+    this.selectedColor = color;
+  }
+
+  override setColor(newColor?: string) {
+    this.color = newColor;
+  }
 
 }

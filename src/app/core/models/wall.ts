@@ -1,4 +1,4 @@
-import { Point} from "./point";
+import {Point} from "./point";
 import {Clickable, ClickableState} from "./interfaces/clickable";
 import {Canvas, DrawOn} from "./canvas";
 import {Utils} from "../modules/utils";
@@ -8,8 +8,6 @@ import {DivideWallCommand} from "../commands/wall-commands";
 import {HideClickableCommand} from "../commands/clickable-commands";
 import {Cloneable} from "./interfaces/cloneable";
 import {WallElement} from "./interfaces/wall-elements";
-import {DialogConfirmationComponent} from "../../shared/components/dialog-confirmation.component";
-import {ResetCurrentRoomCommand} from "../commands/canvas-commands";
 import {MatDialog} from "@angular/material/dialog";
 import {
   ModalElementPropertiesComponent
@@ -49,9 +47,10 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   }
 
   /**
-   * Get the wall color or the default one
+   * Get the wall color or the default one, depending on the state
+   * @return the color of the wall
    */
-  override getColor(): string {
+  override getDrawColor(): string {
     switch (this.state) {
       case ClickableState.NONE:
         return this.color ?? this.defaultColor;
@@ -62,16 +61,8 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   }
 
   /**
-   * Set the color of the wall
-   * @param newColor the new color
-   */
-  setColor(newColor: string): void {
-    this.color = newColor;
-  }
-
-  /**
    * Add a wall element to the wall
-   * @param element the new ellement to add
+   * @param element the new element to add
    */
   addElement(element: WallElement): void {
     this.elements.push(element);
@@ -161,12 +152,12 @@ export class Wall extends Clickable implements Cloneable<Wall> {
 
   override isPointOnElement(point: Point): boolean {
     const delta: number = this.getThickness() / 2;
-    const angleWithUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(this.p1.point,  this.p2.point) + Math.PI/2;
+    const angleWithUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(this.p1.point, this.p2.point) + Math.PI / 2;
 
-    const A: Point = new Point(this.p1.x + Math.cos(angleWithUnitaryVector) * delta, this.p1.y + Math.sin(angleWithUnitaryVector) *  delta);
-    const B: Point = new Point(this.p2.x + Math.cos(angleWithUnitaryVector) * delta, this.p2.y + Math.sin(angleWithUnitaryVector) *  delta);
-    const C: Point = new Point(this.p2.x - Math.cos(angleWithUnitaryVector) * delta, this.p2.y - Math.sin(angleWithUnitaryVector) *  delta);
-    const D: Point = new Point(this.p1.x - Math.cos(angleWithUnitaryVector) * delta, this.p1.y - Math.sin(angleWithUnitaryVector) *  delta);
+    const A: Point = new Point(this.p1.x + Math.cos(angleWithUnitaryVector) * delta, this.p1.y + Math.sin(angleWithUnitaryVector) * delta);
+    const B: Point = new Point(this.p2.x + Math.cos(angleWithUnitaryVector) * delta, this.p2.y + Math.sin(angleWithUnitaryVector) * delta);
+    const C: Point = new Point(this.p2.x - Math.cos(angleWithUnitaryVector) * delta, this.p2.y - Math.sin(angleWithUnitaryVector) * delta);
+    const D: Point = new Point(this.p1.x - Math.cos(angleWithUnitaryVector) * delta, this.p1.y - Math.sin(angleWithUnitaryVector) * delta);
 
     return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
   }
@@ -179,7 +170,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
       ctx.moveTo(this.p1.x, this.p1.y);
       ctx.lineTo(this.p2.x, this.p2.y);
       ctx.lineWidth = this.getThickness();
-      ctx.strokeStyle = this.getColor();
+      ctx.strokeStyle = this.getDrawColor();
       ctx.lineCap = "round";
       ctx.stroke();
 
@@ -233,7 +224,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     const settingsButton: ActionButtonProps = new ActionButtonProps(
       'settings',
       (commandInvoker?: CommandInvoker, modalElementProperties?: MatDialog) => {
-        if(commandInvoker && modalElementProperties){
+        if (commandInvoker && modalElementProperties) {
           const dialogRef = modalElementProperties.open(ModalElementPropertiesComponent, {
             enterAnimationDuration: '300ms',
             exitAnimationDuration: '300ms',
@@ -260,7 +251,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
 
     newActionButtonOptions.buttonsAndActions = [hideButton, divideButton, settingsButton];
     return newActionButtonOptions;
-}
+  }
 
   override onDrag(offset: Point, recursive: boolean) {
     this.p1.onDrag(offset, recursive);
@@ -311,4 +302,29 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     // Add the projection at the beginning of the segment to obtain the coordinates of the projected point
     return new Point(this.p1.x + projection.x, this.p1.y + projection.y);
   }
+
+  override getColor(): string | undefined {
+    return this.color;
+  }
+
+  override getSelectedColor(): string | undefined {
+    return this.selectedColor;
+  }
+
+  /**
+   * Set the color of the wall
+   * @param newColor the new color
+   */
+  override setColor(newColor: string): void {
+    this.color = newColor;
+  }
+
+  /**
+   * Set the selected color of the wall
+   * @param newColor the new color
+   */
+  override setSelectedColor(newColor: string): void {
+    this.selectedColor = newColor;
+  }
+
 }

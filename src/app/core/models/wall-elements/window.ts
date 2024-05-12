@@ -41,7 +41,7 @@ export class Window extends WallElement {
     ctx.lineTo(this.p2.x, this.p2.y);
     ctx.lineTo(this.p4.x, this.p4.y);
     ctx.lineWidth = this.getThickness();
-    ctx.strokeStyle = this.getColor();
+    ctx.strokeStyle = this.getDrawColor();
     ctx.lineCap = "round";
     ctx.stroke();
   }
@@ -162,4 +162,21 @@ export class Window extends WallElement {
 
   setVisibleState(newState: boolean): void {
   }
+
+  override getColor(): string | undefined {
+    return this.color;
+  }
+
+  override getSelectedColor(): string | undefined {
+    return this.selectedColor;
+  }
+
+  override setSelectedColor(color?: string): void {
+    this.selectedColor = color;
+  }
+
+  override setColor(newColor?: string) {
+    this.color = newColor;
+  }
+
 }

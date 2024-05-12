@@ -41,7 +41,7 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
   /**
    * Get the wall color or the default one
    */
-  override getColor(): string {
+  override getDrawColor(): string {
     switch (this.state) {
       case ClickableState.NONE:
         return this.color ?? this.defaultColor;

@@ -16,22 +16,22 @@ export class WallSettingsComponent {
   private _clickable?: Clickable;
   @Input() set clickable(clickable: Clickable) {
     this._clickable = clickable;
-    this.color = clickable.getColor();
-    this.selectedColor = clickable.getColor();
+    this.color = clickable.getColor() || '#000000';
+    this.selectedColor = clickable.getSelectedColor() || '#ff0000';
   }
 
-  public color = '#ff0000';
+  public color = '#000000';
   public selectedColor = '#ff0000';
 
   onColorChange(): void {
-    if (this.clickable && this.clickable instanceof Wall) {
-      this.clickable.setColor(this.color);
+    if (this._clickable) {
+      this._clickable.setColor(this.color);
     }
   }
 
   onSelectedColorChange(): void {
-    if (this.clickable && this.clickable instanceof Wall) {
-      this.clickable.setColor(this.selectedColor);
+    if (this._clickable) {
+      this._clickable.setSelectedColor(this.selectedColor);
     }
   }
 }

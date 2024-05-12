@@ -35,9 +35,31 @@ export abstract class Clickable extends Comparable implements Drawable {
   abstract isPointOnElement(point: Point): boolean;
 
   /**
-   * Get the wall color or the default one
+   * Get the wall color or the default one, depending on the state
    */
-  abstract getColor(): string;
+  abstract getDrawColor(): string;
+
+  /**
+   * Get the wall color
+   */
+  abstract getColor(): string|undefined;
+
+  /**
+   * Get the wall selected color
+   */
+  abstract getSelectedColor(): string|undefined;
+
+  /**
+   * Set the wall color
+   * @param color The new color
+   */
+  abstract setColor(color?: string): void;
+
+  /**
+   * Set the wall selected color
+   * @param color The new color
+   */
+  abstract setSelectedColor(color?: string): void;
 
   /**
    * Method call when the clickable turns to selected

@@ -39,7 +39,7 @@ export class ClickablePoint extends Clickable implements Cloneable<ClickablePoin
     return new ClickablePoint(this.point.clone());
   }
 
-  getColor(): string {
+  override getDrawColor(): string {
     throw new Error("Method not implemented.");
   }
 
@@ -94,5 +94,21 @@ export class ClickablePoint extends Clickable implements Cloneable<ClickablePoin
     context.beginPath();
     context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
     context.fill();
+  }
+
+  override getColor(): string | undefined {
+    throw new Error("Method not implemented.");
+  }
+
+  override getSelectedColor(): string | undefined {
+    throw new Error("Method not implemented.");
+  }
+
+  override setColor(color?: string): void {
+    throw new Error("Method not implemented.");
+  }
+
+  override setSelectedColor(color?: string): void {
+    throw new Error("Method not implemented.");
   }
 }

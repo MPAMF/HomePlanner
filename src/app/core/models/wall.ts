@@ -304,11 +304,11 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   }
 
   override getColor(): string | undefined {
-    return this.color;
+    return this.color || this.defaultColor;
   }
 
   override getSelectedColor(): string | undefined {
-    return this.selectedColor;
+    return this.selectedColor || this.defaultSelectedColor;
   }
 
   /**

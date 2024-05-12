@@ -51,14 +51,6 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
     }
   }
 
-  /**
-   * Set the color of the wall element
-   * @param newColor the new color
-   */
-  setColor(newColor: string): void {
-    this.color = newColor;
-  }
-
   getLength(): number {
     return this.length ?? this.defaultLength;
   }
@@ -82,4 +74,20 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
   abstract update(newOriginPoint: Point): void;
 
   override onDrag(offset: Point, recursive: boolean): void {}
+
+  override getColor(): string | undefined {
+    return this.color || this.defaultColor;
+  }
+
+  override getSelectedColor(): string | undefined {
+    return this.selectedColor || this.defaultSelectedColor;
+  }
+
+  override setSelectedColor(color?: string): void {
+    this.selectedColor = color;
+  }
+
+  override setColor(newColor?: string) {
+    this.color = newColor;
+  }
 }

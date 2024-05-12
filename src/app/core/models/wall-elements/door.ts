@@ -150,20 +150,4 @@ export class Door extends WallElement {
   override setVisibleState(newState: boolean): void {
   }
 
-  override getColor(): string | undefined {
-    return this.color;
-  }
-
-  override getSelectedColor(): string | undefined {
-    return this.selectedColor;
-  }
-
-  override setSelectedColor(color?: string): void {
-    this.selectedColor = color;
-  }
-
-  override setColor(newColor?: string) {
-    this.color = newColor;
-  }
-
 }

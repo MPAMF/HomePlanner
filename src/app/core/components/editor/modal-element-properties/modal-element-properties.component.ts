@@ -6,6 +6,7 @@ import {Clickable} from "../../../models/interfaces/clickable";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
 import {Wall} from "../../../models/wall";
+import {WallElement} from "../../../models/interfaces/wall-elements";
 
 export interface ModalElementPropertiesComponentData {
   title: string;
@@ -23,6 +24,7 @@ export class ModalElementPropertiesComponent implements OnInit {
   public color = '#000000';
   public selectedColor = '#ff0000';
   public thickness = 1;
+  public length = 1;
 
   constructor(
     public dialogRef: MatDialogRef<ModalElementPropertiesComponent>,
@@ -37,16 +39,20 @@ export class ModalElementPropertiesComponent implements OnInit {
     if (this.isWall()) {
       this.thickness = (this.data.clickable as Wall).getThickness();
     }
+
+    if (this.isWallElement()) {
+      this.length = (this.data.clickable as WallElement).getLength();
+    }
   }
 
   onColorChange(): void {
-    if (this.data.clickable) {
+    if (this.data.clickable && this.color !== "") {
       this.data.clickable.setColor(this.color);
     }
   }
 
   onSelectedColorChange(): void {
-    if (this.data.clickable) {
+    if (this.data.clickable && this.selectedColor !== "") {
       this.data.clickable.setSelectedColor(this.selectedColor);
     }
   }
@@ -57,8 +63,18 @@ export class ModalElementPropertiesComponent implements OnInit {
     }
   }
 
+  onLengthChange(): void {
+    if (this.isWallElement()) {
+      (this.data.clickable as WallElement).setLength(this.length);
+    }
+  }
+
   isWall(): boolean {
     return this.data.clickable instanceof Wall;
+  }
+
+  isWallElement(): boolean {
+    return this.data.clickable instanceof WallElement;
   }
 
 }

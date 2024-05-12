@@ -30,7 +30,7 @@ export class SettingsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.selectedLanguage = this.translateService.currentLang;
+    this.selectedLanguage = this.translateService.currentLang || this.translateService.defaultLang;
   }
 
   languageSelected() {

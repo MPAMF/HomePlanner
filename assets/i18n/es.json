@@ -1,0 +1,23 @@
+{
+  "All projects": "Todos los proyectos",
+  "Undo": "Deshacer",
+  "Redo": "Rehacer",
+  "Save": "Guardar",
+  "Import component": "Importar componente",
+  "Export component": "Exportar componente",
+  "Settings": "Ajustes",
+  "Choose the color:": "Elegir el color:",
+  "Choose the selected color:": "Elegir el color seleccionado:",
+  "Zoom in": "Acercar",
+  "Zoom out": "Alejar",
+  "Move": "Mover",
+  "Add a door": "Agregar una puerta",
+  "Add a window": "Agregar una ventana",
+  "Draw": "Dibujar",
+  "Cancel": "Cancelar",
+  "Warning": "Advertencia",
+  "Confirm": "Confirmar",
+  "Enclose the room to continue! Make sure all walls are enclosed.": "¡Encierre la habitación para continuar! Asegúrese de que todas las paredes estén cerradas.",
+  "Element properties": "Propiedades del elemento",
+  "Thickness:": "Espesor:"
+}

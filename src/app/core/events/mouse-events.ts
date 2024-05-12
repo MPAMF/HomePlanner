@@ -1,11 +1,7 @@
 import {Point} from "../models/point";
 import {Wall} from "../models/wall";
 import {DrawState} from "../models/draw-state";
-import {
-  AddWallCommand,
-  DivideWallCommand,
-  EditLastWallWithPointCommand,
-} from "../commands/wall-commands";
+import {AddWallCommand, DivideWallCommand, EditLastWallWithPointCommand,} from "../commands/wall-commands";
 import {CommandInvoker} from "../commands/command";
 import {
   DragObjectCommand,
@@ -26,7 +22,7 @@ import {
 
 import {Clickable, ClickableState} from "../models/interfaces/clickable";
 import {ClickablePoint} from "../models/clickable-point";
-import {CurrentRoomSharedIntoTwoRoomsCommand, FinaliseRoomCommand} from "../commands/room-commands";
+import {FinaliseRoomCommand, SplitRoomsCommand} from "../commands/room-commands";
 
 export class MouseEvents extends BaseEvent {
   private panStart: Point;
@@ -81,25 +77,25 @@ export class MouseEvents extends BaseEvent {
         break;
 
       case DrawState.Wall:
-        nearestWall =  this.board.findClosestWall(pt, 15);
+        nearestWall = this.board.findClosestWall(pt, 15);
 
-        if( nearestWall && nearestWall instanceof Wall){
-          const clickablePoint : ClickablePoint = new ClickablePoint(nearestWall.projectOrthogonallyOntoWall(pt));
+        if (nearestWall && nearestWall instanceof Wall) {
+          const clickablePoint: ClickablePoint = new ClickablePoint(nearestWall.projectOrthogonallyOntoWall(pt));
           clickablePoint.setState(ClickableState.HOVERED);
-          this.board.tempoDrawingElement.push(clickablePoint);
+          this.board.tempDrawableElements.push(clickablePoint);
         }
 
         this.cmdInvoker.redraw(DrawOn.SnappingLine);
         break;
 
       case DrawState.WallCreation:
-        nearestWall =  this.board.findClosestWall(pt, 15);
+        nearestWall = this.board.findClosestWall(pt, 15);
 
-        if( nearestWall && nearestWall instanceof Wall){
+        if (nearestWall && nearestWall instanceof Wall) {
           newPoint = nearestWall.projectOrthogonallyOntoWall(pt);
-          const clickablePoint : ClickablePoint = new ClickablePoint(newPoint);
+          const clickablePoint: ClickablePoint = new ClickablePoint(newPoint);
           clickablePoint.setState(ClickableState.HOVERED);
-          this.board.tempoDrawingElement.push(clickablePoint);
+          this.board.tempDrawableElements.push(clickablePoint);
         } else {
           newPoint = pt;
         }
@@ -108,15 +104,15 @@ export class MouseEvents extends BaseEvent {
         break;
 
       case DrawState.WindowPlacement:
-        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Window);
-        if(nearestWall && nearestWall instanceof Wall){
+        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Window);
+        if (nearestWall && nearestWall instanceof Wall) {
           this.cmdInvoker.execute(new EditLastWindowCommand(nearestWall, pt))
         }
         break;
 
       case DrawState.DoorPlacement:
-        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Door);
-        if(nearestWall && nearestWall instanceof Wall){
+        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Door);
+        if (nearestWall && nearestWall instanceof Wall) {
           this.cmdInvoker.execute(new EditLastDoorCommand(nearestWall, pt))
         }
         break;
@@ -142,9 +138,9 @@ export class MouseEvents extends BaseEvent {
      * 2 = Right click
      */
     if (this.board.drawState !== DrawState.WallCreation && event.button === 2) {
-      const clickedElement: Clickable | undefined =  this.board.onClick(this.canvas, pt, DrawState.None, true);
+      const clickedElement: Clickable | undefined = this.board.onClick(this.canvas, pt, DrawState.None, true);
 
-      if( clickedElement == undefined) {
+      if (clickedElement == undefined) {
         this.board.isPanning = true;
         this.cmdInvoker.redraw(DrawOn.All);
         this.panStart.x = event.clientX;
@@ -155,12 +151,12 @@ export class MouseEvents extends BaseEvent {
     }
 
     let nearestWall: Clickable | undefined;
-    let clickablePoint : ClickablePoint;
+    let clickablePoint: ClickablePoint;
     switch (this.board.drawState) {
       case DrawState.Wall:
-        nearestWall =  this.board.findClosestWall(pt, 30);
+        nearestWall = this.board.findClosestWall(pt, 30);
 
-        if( nearestWall && nearestWall instanceof Wall){
+        if (nearestWall && nearestWall instanceof Wall) {
 
           const point: Point = nearestWall.projectOrthogonallyOntoWall(pt);
           clickablePoint = new ClickablePoint(point);
@@ -192,9 +188,9 @@ export class MouseEvents extends BaseEvent {
         }
 
         // Process to finalise a room (The current wall join a wall from another room)
-        nearestWall =  this.board.findClosestWall(pt, 30);
+        nearestWall = this.board.findClosestWall(pt, 30);
 
-        if( nearestWall && nearestWall instanceof Wall){
+        if (nearestWall && nearestWall instanceof Wall) {
           const point: Point = nearestWall.projectOrthogonallyOntoWall(pt);
           clickablePoint = new ClickablePoint(point);
 
@@ -204,7 +200,7 @@ export class MouseEvents extends BaseEvent {
 
           this.cmdInvoker.execute(new DivideWallCommand(nearestWall, clickablePoint));
           this.cmdInvoker.execute(new FinaliseRoomCommand());
-          this.cmdInvoker.execute(new CurrentRoomSharedIntoTwoRoomsCommand(nearestWall));
+          this.cmdInvoker.execute(new SplitRoomsCommand(nearestWall));
           return;
         }
 
@@ -232,35 +228,35 @@ export class MouseEvents extends BaseEvent {
         break;
 
       case DrawState.Window:
-        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Window);
-        if(nearestWall && nearestWall instanceof Wall){
+        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Window);
+        if (nearestWall && nearestWall instanceof Wall) {
           this.cmdInvoker.execute(new AddWindowCommand(nearestWall, pt))
         }
         break;
 
       case DrawState.WindowPlacement:
-        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Window);
-        if(nearestWall && nearestWall instanceof Wall){
+        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Window);
+        if (nearestWall && nearestWall instanceof Wall) {
           this.cmdInvoker.execute(new FinalizeWindowCommand(nearestWall))
         }
         break;
 
       case DrawState.Door:
-        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Door);
-        if(nearestWall && nearestWall instanceof Wall){
+        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Door);
+        if (nearestWall && nearestWall instanceof Wall) {
           this.cmdInvoker.execute(new AddDoorCommand(nearestWall, pt))
         }
         break;
 
       case DrawState.DoorPlacement:
-        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.Door);
-        if(nearestWall && nearestWall instanceof Wall){
+        nearestWall = this.board.onClick(this.canvas, pt, DrawState.Door);
+        if (nearestWall && nearestWall instanceof Wall) {
           this.cmdInvoker.execute(new FinalizeDoorCommand(nearestWall))
         }
         break;
 
       case DrawState.None:
-        nearestWall =  this.board.onClick(this.canvas, pt, DrawState.None);
+        nearestWall = this.board.onClick(this.canvas, pt, DrawState.None);
 
         if (event.button === 0 && this.board.selectedElement) {
           this.dragStart.x = event.clientX;

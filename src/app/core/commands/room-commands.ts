@@ -42,7 +42,7 @@ export class FinaliseRoomCommand extends Command {
   }
 }
 
-export class CurrentRoomSharedIntoTwoRoomsCommand extends Command {
+export class SplitRoomsCommand extends Command {
 
   constructor(private wall: Wall,) {
     super();

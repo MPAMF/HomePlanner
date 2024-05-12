@@ -139,18 +139,18 @@ export class EditLastWallWithPointCommand extends Command {
 }
 
 export class DivideWallCommand extends Command {
-  private newWall: Wall | null = null;
+  private newWall?: Wall;
 
   constructor(
     private wall: Wall,
-    private clickablePoint : ClickablePoint | undefined = undefined,
+    private clickablePoint? : ClickablePoint,
   ) {
     super();
   }
 
   override execute(): void {
 
-    if( this.clickablePoint == undefined ){
+    if( !this.clickablePoint ){
       this.clickablePoint = new ClickablePoint(this.wall.midpoint());
     }
 

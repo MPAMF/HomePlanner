@@ -12,7 +12,7 @@ import {ClickablePoint} from "./clickable-point";
 
 export class Board implements Drawable {
   public rooms: Room[];
-  public tempoDrawingElement: Drawable[];
+  public tempDrawableElements: Drawable[];
   public drawState: DrawState;
   public mousePosition: Point;
   public isPanning: boolean; // Whether the user is panning the canvas (moving the canvas around)
@@ -28,7 +28,7 @@ export class Board implements Drawable {
     public boardConfig: BoardConfig = new BoardConfig()
   ) {
     this.rooms = [];
-    this.tempoDrawingElement = [];
+    this.tempDrawableElements = [];
     this.drawState = DrawState.None; // defaults to none
     this.isPanning = false;
     this.isDragging = false;
@@ -68,8 +68,8 @@ export class Board implements Drawable {
     this.rooms.forEach(room => room.draw(canvas, on));
 
     // Draw all tempo element
-    this.tempoDrawingElement.forEach(drawable => drawable.draw(canvas, DrawOn.SnappingLine));
-    this.tempoDrawingElement = [];
+    this.tempDrawableElements.forEach(drawable => drawable.draw(canvas, DrawOn.SnappingLine));
+    this.tempDrawableElements = [];
   }
 
   /**
@@ -184,16 +184,16 @@ export class Board implements Drawable {
         const pointInTheNearestWall: Point = wall.projectOrthogonallyOntoWall(point);
 
         // Check if the point is on the wall
-        const isPointOnTheWall: boolean = wall.isCorrectlyPrintOnWall(pointInTheNearestWall);
+        const isPointOnTheWall: boolean = wall.isPointOnSegment(pointInTheNearestWall);
         const newDistance: number = pointInTheNearestWall.distanceTo(point);
         if (
           (
-            ( // In the case a maw distance is given
+            ( // In the case a distance is given
               maxDistance
               && newDistance < maxDistance
               && (lastShortestDistance > newDistance || lastShortestDistance == -1)
             )
-            || ( // There is no maw distance
+            || ( // There is no distance
               !maxDistance
               && (
                 (lastShortestDistance > newDistance || lastShortestDistance == -1)

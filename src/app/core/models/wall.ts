@@ -1,4 +1,4 @@
-import { Point} from "./point";
+import {Point} from "./point";
 import {Clickable, ClickableState} from "./interfaces/clickable";
 import {Canvas, DrawOn} from "./canvas";
 import {Utils} from "../modules/utils";
@@ -9,7 +9,6 @@ import {HideClickableCommand} from "../commands/clickable-commands";
 import {Cloneable} from "./interfaces/cloneable";
 import {WallElement} from "./interfaces/wall-elements";
 import {ClickablePoint} from "./clickable-point";
-import {identity} from "rxjs";
 
 export class Wall extends Clickable implements Cloneable<Wall> {
 
@@ -156,12 +155,12 @@ export class Wall extends Clickable implements Cloneable<Wall> {
 
   override isPointOnElement(point: Point): boolean {
     const delta: number = this.getThickness() / 2;
-    const angleWithUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(this.p1.point,  this.p2.point) + Math.PI/2;
+    const angleWithUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(this.p1.point, this.p2.point) + Math.PI / 2;
 
-    const A: Point = new Point(this.p1.x + Math.cos(angleWithUnitaryVector) * delta, this.p1.y + Math.sin(angleWithUnitaryVector) *  delta);
-    const B: Point = new Point(this.p2.x + Math.cos(angleWithUnitaryVector) * delta, this.p2.y + Math.sin(angleWithUnitaryVector) *  delta);
-    const C: Point = new Point(this.p2.x - Math.cos(angleWithUnitaryVector) * delta, this.p2.y - Math.sin(angleWithUnitaryVector) *  delta);
-    const D: Point = new Point(this.p1.x - Math.cos(angleWithUnitaryVector) * delta, this.p1.y - Math.sin(angleWithUnitaryVector) *  delta);
+    const A: Point = new Point(this.p1.x + Math.cos(angleWithUnitaryVector) * delta, this.p1.y + Math.sin(angleWithUnitaryVector) * delta);
+    const B: Point = new Point(this.p2.x + Math.cos(angleWithUnitaryVector) * delta, this.p2.y + Math.sin(angleWithUnitaryVector) * delta);
+    const C: Point = new Point(this.p2.x - Math.cos(angleWithUnitaryVector) * delta, this.p2.y - Math.sin(angleWithUnitaryVector) * delta);
+    const D: Point = new Point(this.p1.x - Math.cos(angleWithUnitaryVector) * delta, this.p1.y - Math.sin(angleWithUnitaryVector) * delta);
 
     return (point.isLeft(D, A) && point.isLeft(C, D) && point.isLeft(B, C) && point.isLeft(A, B));
   }
@@ -227,7 +226,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
 
     newActionButtonOptions.buttonsAndActions = [hideButton, divideButton];
     return newActionButtonOptions;
-}
+  }
 
   override onDrag(offset: Point, recursive: boolean) {
     this.p1.onDrag(offset, recursive);
@@ -280,10 +279,10 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   }
 
   /**
-   * Check if the point is in the wall
+   * Check if the point is on the wall segment
    * @param point The point to check
    */
-  isCorrectlyPrintOnWall (point : Point) {
+  isPointOnSegment(point: Point) {
     return point.isPointBetweenTwoPoint(this.p1.point, this.p2.point);
   }
 }

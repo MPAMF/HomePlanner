@@ -1,34 +1,64 @@
-import {Component, Inject} from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {Component, Inject, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {MatIconModule} from "@angular/material/icon";
-import {WallSettingsComponent} from "./subcomponent/wall-settings/wall-settings.component";
-import {WindowSettingsComponent} from "./subcomponent/window-settings/window-settings.component";
-import {Wall} from "../../../models/wall";
-import {Window} from "../../../models/wall-elements/window";
 import {Clickable} from "../../../models/interfaces/clickable";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {TranslateModule} from "@ngx-translate/core";
+import {Wall} from "../../../models/wall";
 
 export interface ModalElementPropertiesComponentData {
   title: string;
-
-  isWallOptions: boolean;
-  isWindowsOptions: boolean;
-  isDoorOptions: boolean;
-
   clickable: Clickable;
 }
 
 @Component({
   selector: 'app-modal-element-properties',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatIconModule, WallSettingsComponent, WindowSettingsComponent],
+  imports: [CommonModule, MatDialogModule, MatIconModule, ReactiveFormsModule, TranslateModule, FormsModule],
   templateUrl: './modal-element-properties.component.html',
   styleUrl: './modal-element-properties.component.scss'
 })
-export class ModalElementPropertiesComponent {
+export class ModalElementPropertiesComponent implements OnInit {
+  public color = '#000000';
+  public selectedColor = '#ff0000';
+  public thickness = 1;
+
   constructor(
     public dialogRef: MatDialogRef<ModalElementPropertiesComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ModalElementPropertiesComponentData
   ) {
   }
+
+  ngOnInit(): void {
+    this.color = this.data.clickable?.getColor() ?? '#000000';
+    this.selectedColor = this.data.clickable?.getSelectedColor() ?? '#ff0000';
+
+    if (this.isWall()) {
+      this.thickness = (this.data.clickable as Wall).getThickness();
+    }
+  }
+
+  onColorChange(): void {
+    if (this.data.clickable) {
+      this.data.clickable.setColor(this.color);
+    }
+  }
+
+  onSelectedColorChange(): void {
+    if (this.data.clickable) {
+      this.data.clickable.setSelectedColor(this.selectedColor);
+    }
+  }
+
+  onThicknessChange(): void {
+    if (this.isWall()) {
+      (this.data.clickable as Wall).setThickness(this.thickness);
+    }
+  }
+
+  isWall(): boolean {
+    return this.data.clickable instanceof Wall;
+  }
+
 }

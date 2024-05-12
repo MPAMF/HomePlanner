@@ -240,7 +240,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
             width: '600px',
             data: {
               title: 'Test',
-              isWallOption: true,
+              isWallOptions: true,
             }
           });
 

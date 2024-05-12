@@ -1,7 +1,8 @@
 <div class="wallSetting">
   <div class="colorSetting">
-    <label for="colorPicker">Choisir une couleur :</label>
-    <input type="color" id="colorPicker" (change)="onColorChange($event)">
+    <label for="colorPicker">Choose the wall color :</label>
+    <input type="color" id="colorPicker1" [(ngModel)]="selectedColor" (change)="onColorChange(selectedColor)">
+    <input type="color" id="colorPicker" name="colorPicker" value="#ff0000">
   </div>
 
   <div class="selectedColorSetting">

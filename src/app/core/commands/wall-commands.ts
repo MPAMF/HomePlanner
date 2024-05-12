@@ -156,7 +156,7 @@ export class DivideWallCommand extends Command {
 
     this.newWall = this.wall.clone();
     this.newWall.p1 = this.clickablePoint;
-    this.newWall.p2 = this.wall.p2;
+    //this.newWall.p2 = this.wall.p2;
     this.wall.p2 = this.clickablePoint;
 
     for (const room of this.board.rooms){

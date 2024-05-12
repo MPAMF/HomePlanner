@@ -207,23 +207,24 @@ export class Room extends Clickable implements Cloneable<Room> {
       wall = this.walls[index];
 
       if (wall.p1.id in sorterDictionary) {
+        console.log(`${index}`)
         sorterDictionary[wall.p1.id].counter++;
         sorterDictionary[wall.p1.id].wallsIndex[0] = index;
-        wall.p1.setState(wall.p1.getState() ==  ClickableState.SELECTED ? ClickableState.NONE : ClickableState.SELECTED)
       } else {
         sorterDictionary[wall.p1.id] = new SorterInformation();
         sorterDictionary[wall.p1.id].wallsIndex[0] = index;
-        wall.p1.setState(wall.p1.getState() ==  ClickableState.SELECTED ? ClickableState.NONE : ClickableState.SELECTED)
       }
       if (wall.p2.id in sorterDictionary) {
         sorterDictionary[wall.p2.id].counter++;
         sorterDictionary[wall.p2.id].wallsIndex[1] = index;
-        wall.p2.setState(wall.p2.getState() ==  ClickableState.SELECTED ? ClickableState.NONE : ClickableState.SELECTED)
       } else {
         sorterDictionary[wall.p2.id] = new SorterInformation();
         sorterDictionary[wall.p2.id].wallsIndex[1] = index;
-        wall.p2.setState(wall.p2.getState() ==  ClickableState.SELECTED ? ClickableState.NONE : ClickableState.SELECTED)
       }
+    }
+
+    for (const id in sorterDictionary) {
+      console.log(`${this.walls.length} id: ${id} counter: ${sorterDictionary[id].counter} wallsIndex: ${sorterDictionary[id].wallsIndex}.`);
     }
 
     return sorterDictionary;

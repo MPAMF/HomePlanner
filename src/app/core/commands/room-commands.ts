@@ -42,7 +42,7 @@ export class FinaliseRoomCommand extends Command {
   }
 }
 
-export class SplitRoomsCommand extends Command {
+export class SplitRoomCommand extends Command {
 
   constructor(private wall: Wall,) {
     super();
@@ -103,8 +103,12 @@ export class SplitRoomsCommand extends Command {
           // Update rooms
           list1.push(...lastRoom.walls);
           room.walls = list1;
-          lastRoom.walls.push(...list2)
+          lastRoom.walls.push(...list2);
 
+          for( const wall of room.walls){
+            wall.setColor('yellow')
+          }
+          room.sortWalls();
           return;
         }
       }

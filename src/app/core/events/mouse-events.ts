@@ -22,7 +22,7 @@ import {
 
 import {Clickable, ClickableState} from "../models/interfaces/clickable";
 import {ClickablePoint} from "../models/clickable-point";
-import {FinaliseRoomCommand, SplitRoomsCommand} from "../commands/room-commands";
+import {FinaliseRoomCommand, SplitRoomCommand} from "../commands/room-commands";
 
 export class MouseEvents extends BaseEvent {
   private panStart: Point;
@@ -200,7 +200,7 @@ export class MouseEvents extends BaseEvent {
 
           this.cmdInvoker.execute(new DivideWallCommand(nearestWall, clickablePoint));
           this.cmdInvoker.execute(new FinaliseRoomCommand());
-          this.cmdInvoker.execute(new SplitRoomsCommand(nearestWall));
+          this.cmdInvoker.execute(new SplitRoomCommand(nearestWall));
           return;
         }
 

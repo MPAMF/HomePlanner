@@ -4,6 +4,8 @@ import {Room} from "../models/room";
 import {DrawState} from "../models/draw-state";
 import {ClickablePoint} from "../models/clickable-point";
 import {RoomNeedSwitchPoint} from "../models/interfaces/roomNeedSwitchPoint";
+import {Point} from "../models/point";
+import {ClickableState} from "../models/interfaces/clickable";
 
 
 export class FinaliseRoomCommand extends Command {
@@ -61,7 +63,7 @@ export class SplitRoomCommand extends Command {
       const list2: Wall[] = [];
       let leftWallInRoom: boolean = false;
       let rightWallInRoom: boolean = false;
-      //const diagonalMidPoint: Point = ;
+      let diagonalMidPoint: Point;
       for (const room of this.board.rooms) {
 
         leftWallInRoom = false;
@@ -77,17 +79,10 @@ export class SplitRoomCommand extends Command {
             wall.roomNeedSwitchPoint[lastRoom.id] = new RoomNeedSwitchPoint(true);
           }
         }
-  /*
-        for( const wall of room.walls){
-          if(wall.roomNeedSwitchPoint[lastRoom.id]){
-            wall.setColor('blue')
-          } else {
-            //wall.setColor('black')
-          }
-        }*/
 
         // This condition is execute the reordering process on the right room
         if (leftWallInRoom && rightWallInRoom) {
+
           const sortedWallList = room.sortWalls();
           const firstIndex = sortedWallList[this.wall.p1.id].wallsIndex[0];
           list1.push(room.walls[firstIndex]);
@@ -114,38 +109,55 @@ export class SplitRoomCommand extends Command {
             currentIndex = sortedWallList[currentWall.getP1(room.id).id].wallsIndex[1];
           }
 
-
-          for( const wall of list1){
-            /*
-            if(wall.roomNeedSwitchPoint[room.id].isSwitch){
-              wall.roomNeedSwitchPoint[room.id].isSwitch = !wall.roomNeedSwitchPoint[room.id].isSwitch;
-            } else {
-              wall.roomNeedSwitchPoint[room.id] = new RoomNeedSwitchPoint(true);
-            }
-            //wall.setColor('yellow')
-
-             */
-          }
-          for( const wall of list2){
-
-            if(wall.roomNeedSwitchPoint[lastRoom.id] && wall.roomNeedSwitchPoint[lastRoom.id].isSwitch){
-              wall.roomNeedSwitchPoint[lastRoom.id].isSwitch = !wall.roomNeedSwitchPoint[lastRoom.id].isSwitch;
-              wall.setColor('blue')
-            }else {
-              wall.roomNeedSwitchPoint[lastRoom.id] = new RoomNeedSwitchPoint(true);
-            }
-
-            if(wall.roomNeedSwitchPoint[lastRoom.id] && wall.roomNeedSwitchPoint[lastRoom.id].isSwitch){
-              wall.setColor('yellow')
-            }
-          }
-
           // Update rooms
           list1.push(...lastRoom.walls);
           room.walls = list1;
           lastRoom.walls.push(...list2);
 
-          lastRoom.sortWalls();
+          diagonalMidPoint = findCenterPoint(list1);
+          let point = new ClickablePoint(diagonalMidPoint);
+          point.setState(ClickableState.SELECTED)
+          this.board.tempDrawableElements.push(point)
+          for( const wall of  room.walls){
+
+
+            if(diagonalMidPoint.isLeft(wall.p1.point, wall.p2.point)){
+              if(wall.roomNeedSwitchPoint[room.id] && wall.roomNeedSwitchPoint[room.id].isSwitch){
+                wall.roomNeedSwitchPoint[room.id].isSwitch = true;
+              }else {
+                wall.roomNeedSwitchPoint[room.id] = new RoomNeedSwitchPoint(true);
+              }
+            } else {
+              if(wall.roomNeedSwitchPoint[room.id] && wall.roomNeedSwitchPoint[room.id].isSwitch){
+                wall.roomNeedSwitchPoint[room.id].isSwitch = false;
+              }else {
+                wall.roomNeedSwitchPoint[room.id] = new RoomNeedSwitchPoint();
+              }
+            }
+          }
+
+          diagonalMidPoint = findCenterPoint(list2);
+          point = new ClickablePoint(diagonalMidPoint);
+          point.setState(ClickableState.SELECTED)
+          this.board.tempDrawableElements.push(point)
+          for( const wall of lastRoom.walls){
+
+            if(diagonalMidPoint.isLeft(wall.p1.point, wall.p2.point)){
+              if(wall.roomNeedSwitchPoint[lastRoom.id] && wall.roomNeedSwitchPoint[lastRoom.id].isSwitch){
+                wall.roomNeedSwitchPoint[lastRoom.id].isSwitch = true;
+              }else {
+                wall.roomNeedSwitchPoint[lastRoom.id] = new RoomNeedSwitchPoint(true);
+              }
+            } else {
+              if(wall.roomNeedSwitchPoint[lastRoom.id] && wall.roomNeedSwitchPoint[lastRoom.id].isSwitch){
+                wall.roomNeedSwitchPoint[lastRoom.id].isSwitch = false;
+              }else {
+                wall.roomNeedSwitchPoint[lastRoom.id] = new RoomNeedSwitchPoint();
+              }
+            }
+          }
+
+          room.sortWalls();
           return;
         }
       }
@@ -155,4 +167,25 @@ export class SplitRoomCommand extends Command {
   override undo(): void {
 
   }
+}
+
+function findCenterPoint(walls: Wall[]): Point {
+  let startX = 0;
+  let startY = 0;
+  let endX = 0;
+  let endY = 0;
+
+  // Trouver les coordonnées de départ et d'arrivée pour chaque segment
+  walls.forEach(wall => {
+    startX += wall.p1.point.x;
+    startY += wall.p1.point.y;
+    endX += wall.p2.point.x;
+    endY += wall.p2.point.y;
+  });
+
+  // Calculer les coordonnées moyennes
+  const centerX = (startX + endX) / (2 * walls.length);
+  const centerY = (startY + endY) / (2 * walls.length);
+
+  return new Point(centerX, centerY);
 }

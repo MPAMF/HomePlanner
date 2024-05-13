@@ -30,11 +30,11 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   }
 
   getP1(roomId: string) {
-    return this.roomNeedSwitchPoint[roomId] ? this.p2 : this.p1;
+    return this.roomNeedSwitchPoint[roomId].isSwitch ? this.p2 : this.p1;
   }
 
   getP2(roomId: string) {
-    return this.roomNeedSwitchPoint[roomId] ? this.p1 : this.p2;
+    return this.roomNeedSwitchPoint[roomId].isSwitch ? this.p1 : this.p2;
   }
 
 

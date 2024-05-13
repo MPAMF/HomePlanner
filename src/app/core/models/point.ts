@@ -169,4 +169,18 @@ export class Point implements Cloneable<Point> {
     return `(${this.x}, ${this.y})`;
   }
 
+  /**
+   * Check if the point is between the two given point
+   * @param p1 The first given point
+   * @param p2 The second given point
+   */
+  isPointBetweenTwoPoint (p1 : Point, p2 : Point) {
+    const p1xSupP2x: boolean = (this.x >= p2.x) && (this.x <= p1.x);
+    const p2xSupP1x: boolean = (this.x >= p1.x) && (this.x <= p2.x);
+
+    const p1ySupP2y: boolean = (this.y >= p2.y) && (this.y <= p1.y);
+    const p2ySupP1y: boolean = (this.y >= p1.y) && (this.y <= p2.y);
+
+    return (p1xSupP2x || p2xSupP1x) && (p1ySupP2y || p2ySupP1y);
+  }
 }

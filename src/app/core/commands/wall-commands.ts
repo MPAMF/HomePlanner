@@ -6,6 +6,8 @@ import {DrawState} from "../models/draw-state";
 import {DrawOn} from "../models/canvas";
 import {Utils} from "../modules/utils";
 import {ClickablePoint} from "../models/clickable-point";
+import {Clickable} from "../models/interfaces/clickable";
+import {RoomNeedSwitchPoint} from "../models/interfaces/room-need-switch-point";
 
 export class AddWallCommand extends Command {
 
@@ -25,6 +27,7 @@ export class AddWallCommand extends Command {
       }
     }
 
+    this.wall.roomNeedSwitchPoint[this.board.currentRoom.id] = new RoomNeedSwitchPoint();
     this.previousDrawSate = this.board.drawState;
     this.board.drawState = DrawState.WallCreation;
     this.board.currentRoom.addWall(this.wall);
@@ -176,37 +179,41 @@ export class FinaliseRoomCommand extends Command {
 }
 
 export class DivideWallCommand extends Command {
-  private newWall: Wall | null = null;
+  private newWall?: Wall;
 
-  constructor(private wall: Wall) {
+  constructor(
+    private wall: Wall,
+    private clickablePoint? : ClickablePoint,
+  ) {
     super();
   }
 
   override do(): void {
+
+    if( !this.clickablePoint ){
+      this.clickablePoint = new ClickablePoint(this.wall.midpoint());
+    }
+
+    this.newWall = this.wall.clone();
+    this.newWall.p1 = this.clickablePoint;
+    this.wall.p2 = this.clickablePoint;
+
     for (const room of this.board.rooms){
       for (const wall of room.walls) {
-        if (wall == this.wall) {
-          const midPoint: Point = wall.midpoint();
-          const clickableMidPoint = new ClickablePoint(midPoint);
-          this.newWall = new Wall(clickableMidPoint, wall.p2, this.board.boardConfig.wallThickness,
-            this.board.boardConfig.wallColor, this.board.boardConfig.selectWallColor);
-          wall.p2 = clickableMidPoint;
+
+        if ( wall == this.wall) {
+          if(this.wall.roomNeedSwitchPoint[room.id] && this.wall.roomNeedSwitchPoint[room.id].isSwitch && this.board.currentRoom){
+            this.wall.roomNeedSwitchPoint[this.board.currentRoom.id] = new RoomNeedSwitchPoint(true);
+            this.newWall.roomNeedSwitchPoint[this.board.currentRoom.id] = new RoomNeedSwitchPoint(true);
+          }
 
           room.addWall(this.newWall);
-          return;
         }
       }
     }
   }
 
   override undo(): void {
-    if(this.newWall){
-      for (const room of this.board.rooms) {
-        if(room.removeWall(this.newWall)){
-          this.wall.p2 = this.newWall.p2;
-          break;
-        }
-      }
-    }
+
   }
 }

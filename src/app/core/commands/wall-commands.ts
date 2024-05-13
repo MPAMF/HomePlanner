@@ -7,7 +7,7 @@ import {DrawOn} from "../models/canvas";
 import {Utils} from "../modules/utils";
 import {ClickablePoint} from "../models/clickable-point";
 import {Clickable} from "../models/interfaces/clickable";
-import {RoomNeedSwitchPoint} from "../models/interfaces/roomNeedSwitchPoint";
+import {RoomNeedSwitchPoint} from "../models/interfaces/room-need-switch-point";
 
 export class AddWallCommand extends Command {
 

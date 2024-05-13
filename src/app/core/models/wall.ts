@@ -9,7 +9,7 @@ import {HideClickableCommand} from "../commands/clickable-commands";
 import {Cloneable} from "./interfaces/cloneable";
 import {WallElement} from "./interfaces/wall-elements";
 import {ClickablePoint} from "./clickable-point";
-import {RoomNeedSwitchPointDictionary} from "./interfaces/roomNeedSwitchPoint";
+import {RoomNeedSwitchPointDictionary} from "./interfaces/room-need-switch-point";
 
 export class Wall extends Clickable implements Cloneable<Wall> {
 

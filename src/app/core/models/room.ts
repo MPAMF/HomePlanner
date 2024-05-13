@@ -205,7 +205,6 @@ export class Room extends Clickable implements Cloneable<Room> {
       wall = this.walls[index];
 
       if (wall.getP1(this.id).id in sorterDictionary) {
-        console.log(`${index}`)
         sorterDictionary[wall.getP1(this.id).id].counter++;
         sorterDictionary[wall.getP1(this.id).id].wallsIndex[0] = index;
       } else {
@@ -221,13 +220,8 @@ export class Room extends Clickable implements Cloneable<Room> {
       }
     }
 
-    for (const id in sorterDictionary) {
-      console.log(`${this.walls.length} id: ${id} counter: ${sorterDictionary[id].counter} wallsIndex: ${sorterDictionary[id].wallsIndex}.`);
-    }
-
     return sorterDictionary;
   }
-
 }
 
 interface SorterDictionary {

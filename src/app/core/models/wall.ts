@@ -140,6 +140,16 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   }
 
   /**
+   * Normalize the wall vector
+   */
+  normalize(): void {
+    const vector: Point = this.getVector();
+    const length: number = this.length();
+    this.p2.x = this.p1.x + vector.x / length;
+    this.p2.y = this.p1.y + vector.y / length;
+  }
+
+  /**
    * Clone the wall to create a new instance with the same points
    */
   clone(): Wall {
@@ -180,16 +190,77 @@ export class Wall extends Clickable implements Cloneable<Wall> {
       ctx.beginPath();
       ctx.moveTo(this.p1.x, this.p1.y);
       ctx.lineTo(this.p2.x, this.p2.y);
+      ctx.setLineDash([]);
       ctx.lineWidth = this.getThickness();
       ctx.strokeStyle = this.getDrawColor();
       ctx.lineCap = "round";
       ctx.stroke();
+
+      // draw units
+
+      const pt = this.findPointC(this.p1.point, this.p2.point, 20, true);
+      const pt2 = this.findPointC(this.p2.point, this.p1.point, 20);
+
+      ctx.setLineDash([7, 5]);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "black";
+
+      ctx.beginPath();
+
+      ctx.moveTo(this.p1.x, this.p1.y);
+      ctx.lineTo(pt.x, pt.y);
+
+      ctx.moveTo(this.p2.x, this.p2.y);
+      ctx.lineTo(pt2.x, pt2.y);
+
+      ctx.moveTo(pt.x, pt.y);
+      ctx.lineTo(pt2.x, pt2.y);
+
+      const angle = Math.atan2(pt2.y - pt.y, pt2.x - pt.x);
+      const textX = (pt.x + pt2.x) / 2 + Math.cos(angle) * 10;
+      const textY = (pt.y + pt2.y) / 2 + Math.sin(angle) * 10;
+
+      ctx.font = "12px Arial";
+      ctx.fillStyle = "black";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      const cm = this.px2cm(this.length());
+
+      ctx.fillText(`${cm.toFixed(2)} cm`, textX, textY);
+
+      ctx.stroke();
+
 
       this.p1.draw(canvas, on);
       this.p2.draw(canvas, on);
     }
 
     this.elements.forEach(element => element.draw(canvas, on));
+  }
+
+  private normalizeVector(vec: Point, length: number): Point {
+    const norm: number = Math.sqrt(vec.x ** 2 + vec.y ** 2);
+    return new Point((vec.x / norm) * length, (vec.y / norm) * length);
+  }
+
+  private findPointC(A: Point, B: Point, L: number, sameSide: boolean = false): Point {
+    const AB = new Point(B.x - A.x, B.y - A.y);
+    const CA = new Point(-AB.y, AB.x);
+    const C = this.normalizeVector(CA, L * (sameSide ? 1 : -1));
+    return new Point(C.x + A.x, C.y + A.y);
+  }
+
+  /**
+   * Convert pixels to centimeters
+   * @param px The pixels to convert
+   * @private The centimeters
+   */
+  private px2cm(px: number) {
+    const cpi = 2.54; // centimeters per inch
+    const dpi = 96; // dots per inch
+    const ppd = window.devicePixelRatio; // pixels per dot
+    return (px * cpi / (dpi * ppd));
   }
 
   override onSelect(): void {

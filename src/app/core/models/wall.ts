@@ -9,14 +9,14 @@ import {HideClickableCommand} from "../commands/clickable-commands";
 import {Cloneable} from "./interfaces/cloneable";
 import {WallElement} from "./interfaces/wall-elements";
 import {ClickablePoint} from "./clickable-point";
-import {RoomNeedSwitchPoint} from "./interfaces/roomNeedSwitchPoint";
+import {RoomNeedSwitchPointDictionary} from "./interfaces/roomNeedSwitchPoint";
 
 export class Wall extends Clickable implements Cloneable<Wall> {
 
   constructor(
     public p1: ClickablePoint,
     public p2: ClickablePoint,
-    public roomNeedSwitchPoint: RoomNeedSwitchPoint,
+    public roomNeedSwitchPoint: RoomNeedSwitchPointDictionary,
     private defaultThickness: number,
     private defaultColor: string,
     private defaultSelectedColor: string,

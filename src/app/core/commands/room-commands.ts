@@ -3,6 +3,7 @@ import {Wall} from "../models/wall";
 import {Room} from "../models/room";
 import {DrawState} from "../models/draw-state";
 import {ClickablePoint} from "../models/clickable-point";
+import {RoomNeedSwitchPoint} from "../models/interfaces/roomNeedSwitchPoint";
 
 
 export class FinaliseRoomCommand extends Command {
@@ -60,6 +61,7 @@ export class SplitRoomCommand extends Command {
       const list2: Wall[] = [];
       let leftWallInRoom: boolean = false;
       let rightWallInRoom: boolean = false;
+      //const diagonalMidPoint: Point = ;
       for (const room of this.board.rooms) {
 
         leftWallInRoom = false;
@@ -71,13 +73,21 @@ export class SplitRoomCommand extends Command {
           } else if (wall.p1.equals(lastWall.p2)) {
             rightWallInRoom = true;
           }
+          if(wall.roomNeedSwitchPoint[room.id] && wall.roomNeedSwitchPoint[room.id].isSwitch){
+            wall.roomNeedSwitchPoint[lastRoom.id] = new RoomNeedSwitchPoint(true);
+          }
         }
+  /*
+        for( const wall of room.walls){
+          if(wall.roomNeedSwitchPoint[lastRoom.id]){
+            wall.setColor('blue')
+          } else {
+            //wall.setColor('black')
+          }
+        }*/
 
         // This condition is execute the reordering process on the right room
         if (leftWallInRoom && rightWallInRoom) {
-
-
-
           const sortedWallList = room.sortWalls();
           const firstIndex = sortedWallList[this.wall.p1.id].wallsIndex[0];
           list1.push(room.walls[firstIndex]);
@@ -97,26 +107,36 @@ export class SplitRoomCommand extends Command {
             }
 
             // Conditions to switch between the two lists
-            if (currentWall.p1.equals(firstWall.p1) || currentWall.p1.equals(lastWall.p2)) {
+            if (currentWall.getP1(room.id).equals(firstWall.p1) || currentWall.getP1(room.id).equals(lastWall.p2)) {
               switchListState = !switchListState;
             }
 
             currentIndex = sortedWallList[currentWall.getP1(room.id).id].wallsIndex[1];
           }
 
-          for( const wall of list1){
-            if(wall.roomNeedSwitchPoint[room.id]){
-              wall.roomNeedSwitchPoint[room.id] = !wall.roomNeedSwitchPoint[room.id];
-            } else {
-              wall.roomNeedSwitchPoint[room.id] = true;
-            }
-          }
 
           for( const wall of list1){
-            if(wall.roomNeedSwitchPoint[room.id]){
-              wall.setColor('blue')
+            /*
+            if(wall.roomNeedSwitchPoint[room.id].isSwitch){
+              wall.roomNeedSwitchPoint[room.id].isSwitch = !wall.roomNeedSwitchPoint[room.id].isSwitch;
             } else {
-              //wall.setColor('black')
+              wall.roomNeedSwitchPoint[room.id] = new RoomNeedSwitchPoint(true);
+            }
+            //wall.setColor('yellow')
+
+             */
+          }
+          for( const wall of list2){
+
+            if(wall.roomNeedSwitchPoint[lastRoom.id] && wall.roomNeedSwitchPoint[lastRoom.id].isSwitch){
+              wall.roomNeedSwitchPoint[lastRoom.id].isSwitch = !wall.roomNeedSwitchPoint[lastRoom.id].isSwitch;
+              wall.setColor('blue')
+            }else {
+              wall.roomNeedSwitchPoint[lastRoom.id] = new RoomNeedSwitchPoint(true);
+            }
+
+            if(wall.roomNeedSwitchPoint[lastRoom.id] && wall.roomNeedSwitchPoint[lastRoom.id].isSwitch){
+              wall.setColor('yellow')
             }
           }
 

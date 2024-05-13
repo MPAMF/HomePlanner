@@ -7,6 +7,7 @@ import {DrawOn} from "../models/canvas";
 import {Utils} from "../modules/utils";
 import {ClickablePoint} from "../models/clickable-point";
 import {Clickable} from "../models/interfaces/clickable";
+import {RoomNeedSwitchPoint} from "../models/interfaces/roomNeedSwitchPoint";
 
 export class AddWallCommand extends Command {
 
@@ -26,6 +27,7 @@ export class AddWallCommand extends Command {
       }
     }
 
+    this.wall.roomNeedSwitchPoint[this.board.currentRoom.id] = new RoomNeedSwitchPoint();
     this.previousDrawSate = this.board.drawState;
     this.board.drawState = DrawState.WallCreation;
     this.board.currentRoom.addWall(this.wall);
@@ -162,9 +164,9 @@ export class DivideWallCommand extends Command {
       for (const wall of room.walls) {
 
         if ( wall == this.wall) {
-          if(this.wall.roomNeedSwitchPoint[room.id] && this.board.currentRoom){
-            this.wall.roomNeedSwitchPoint[this.board.currentRoom.id] = true;
-            this.newWall.roomNeedSwitchPoint[this.board.currentRoom.id] = true;
+          if(this.wall.roomNeedSwitchPoint[room.id] && this.wall.roomNeedSwitchPoint[room.id].isSwitch && this.board.currentRoom){
+            this.wall.roomNeedSwitchPoint[this.board.currentRoom.id] = new RoomNeedSwitchPoint(true);
+            this.newWall.roomNeedSwitchPoint[this.board.currentRoom.id] = new RoomNeedSwitchPoint(true);
           }
 
           room.addWall(this.newWall);

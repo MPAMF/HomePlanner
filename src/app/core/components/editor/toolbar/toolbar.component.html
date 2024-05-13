@@ -35,33 +35,33 @@
     <div class="buttons-group transparent">
       <button class="label-button">
         <mat-icon>navigate_before</mat-icon>
-        All projects
+        {{ "All projects" | translate }}
       </button>
     </div>
 
     <div class="buttons-group">
-      <button (click)="onClickUndo()" [disabled]="!commandInvoker.canUndo()" title="Undo">
+      <button (click)="onClickUndo()" [disabled]="!commandInvoker.canUndo()" title="{{'Undo' | translate}}">
         <mat-icon>undo</mat-icon>
       </button>
-      <button (click)="onClickRedo()" [disabled]="!commandInvoker.canRedo()" title="Redo">
+      <button (click)="onClickRedo()" [disabled]="!commandInvoker.canRedo()" title="{{'Redo' | translate}}">
         <mat-icon>redo</mat-icon>
       </button>
     </div>
 
     <div class="flex">
       <div class="buttons-group">
-        <button title="Save">
+        <button title="{{'Save' | translate}}">
           <mat-icon>save</mat-icon>
         </button>
-        <button title="Import component">
+        <button title="{{ 'Import component' | translate}}">
           <mat-icon>save_alt</mat-icon>
         </button>
-        <button title="Export component">
+        <button title="{{'Export component' | translate}}">
           <mat-icon>ios_share</mat-icon>
         </button>
       </div>
       <div class="buttons-group">
-        <button title="Settings">
+        <button title="{{'Settings' | translate}}" (click)="openSettingsModal()">
           <mat-icon>settings</mat-icon>
         </button>
       </div>

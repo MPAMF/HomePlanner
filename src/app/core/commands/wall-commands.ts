@@ -17,7 +17,7 @@ export class AddWallCommand extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
     if (!this.board.currentRoom) {
       this.board.currentRoom = new Room("Room 1"); // TODO: replace hardcoded name
     } else {
@@ -59,7 +59,7 @@ export class RemoveWallCommand extends Command {
     super();
   }
 
-  override execute(): void {// ToDo: We need to update the room system
+  override do(): void {// ToDo: We need to update the room system
     for (const room of this.board.rooms) {
         if(room.removeWall(this.wall)){
           this.board.currentRoom = room;
@@ -105,7 +105,7 @@ export class EditLastWallWithPointCommand extends Command {
     super(DrawOn.SnappingLine);
   }
 
-  override execute(): void {
+  override do(): void {
     if (this.board.drawState !== DrawState.WallCreation || !this.board.currentRoom) {
       return;
     }
@@ -140,6 +140,44 @@ export class EditLastWallWithPointCommand extends Command {
   }
 }
 
+export class FinaliseRoomCommand extends Command {
+
+  constructor() {
+    super();
+  }
+
+  override do(): void {
+    if (!this.board.currentRoom) {
+      return;
+    }
+    const currentRoom = this.board.currentRoom;
+    currentRoom.isFinalized = true;
+    const wall = currentRoom.getLastWall();
+    if (wall) {
+      wall.isFinalized = true;
+    }
+
+    this.board.rooms.push(currentRoom);
+    this.board.currentRoom = undefined;
+    this.board.drawState = DrawState.None; // When a room is finalized, the user should not be able to draw walls
+    this.board.normalisePoints();
+  }
+
+  override undo(): void {
+    const room = this.board.rooms.pop();
+    if (!room) { // Should never happen, but just in case
+      return;
+    }
+    this.board.currentRoom = room;
+    room.isFinalized = false;
+    this.board.drawState = DrawState.WallCreation;
+    const lastWall = room.getLastWall();
+    if (lastWall) {
+      lastWall.isFinalized = false;
+    }
+  }
+}
+
 export class DivideWallCommand extends Command {
   private newWall?: Wall;
 
@@ -150,7 +188,7 @@ export class DivideWallCommand extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
 
     if( !this.clickablePoint ){
       this.clickablePoint = new ClickablePoint(this.wall.midpoint());

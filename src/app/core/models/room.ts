@@ -125,7 +125,7 @@ export class Room extends Clickable implements Cloneable<Room> {
     return oddNodes;
   }
 
-  override getColor(): string {
+  override getDrawColor(): string {
     throw new Error("Method not implemented.");
   }
 
@@ -221,6 +221,22 @@ export class Room extends Clickable implements Cloneable<Room> {
     }
 
     return sorterDictionary;
+  }
+
+  getColor(): string | undefined {
+    throw new Error("Method not implemented.");
+  }
+
+  getSelectedColor(): string | undefined {
+    throw new Error("Method not implemented.");
+  }
+
+  setColor(color?: string): void {
+    throw new Error("Method not implemented.");
+  }
+
+  setSelectedColor(color?: string): void {
+    throw new Error("Method not implemented.");
   }
 }
 

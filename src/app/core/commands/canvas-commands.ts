@@ -13,7 +13,7 @@ export class MoveCommand extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
     applyToCanvas(this.canvas, (ctx) => moveCanvas(ctx, this.delta));
   }
 
@@ -28,7 +28,7 @@ export class ResetCurrentRoomCommand extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
     this.board.currentRoom = undefined;
     this.board.drawState = DrawState.None;
   }
@@ -52,7 +52,7 @@ export class StartObjectDragCommand extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
     const selectedElement = this.board.selectedElement;
     if (!selectedElement) {
       return;
@@ -135,7 +135,7 @@ export class DragObjectCommand extends Command {
     super(DrawOn.SnappingLine);
   }
 
-  override execute(): void {
+  override do(): void {
     if (!this.board.selectedElement || !this.board.isDragging) {
       return;
     }
@@ -159,7 +159,7 @@ export class EndObjectDragCommand extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
     const selectedElement = this.board.selectedElement;
     if (!selectedElement || !this.board.isDragging) {
       return;

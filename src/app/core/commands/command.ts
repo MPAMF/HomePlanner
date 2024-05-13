@@ -2,7 +2,7 @@ import {Board} from "../models/board";
 import {Canvas, DrawOn} from "../models/canvas";
 
 export interface ICommand {
-  execute(): void;
+  do(): void;
 
   undo(): void;
 }
@@ -44,7 +44,7 @@ export abstract class Command implements ICommand {
     this._canvas = canvas;
   }
 
-  execute(): void {
+  do(): void {
   }
 
   undo(): void {
@@ -69,7 +69,7 @@ export class CommandInvoker {
     this.canvas && (command.canvas = this.canvas);
 
     // execute the command
-    command.execute();
+    command.do();
 
     // redraw the board if needed
     if (command.redrawOn !== undefined) {
@@ -103,7 +103,7 @@ export class CommandInvoker {
     if (this.historyIndex < this.history.length - 1) {
       this.historyIndex++;
       const command = this.history[this.historyIndex];
-      command.execute();
+      command.do();
       if (command.redrawOn !== undefined) {
         this.redraw(command.redrawOn);
       }

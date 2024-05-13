@@ -14,7 +14,7 @@ export class FinaliseRoomCommand extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
     if (!this.board.currentRoom) {
       return;
     }
@@ -52,7 +52,7 @@ export class SplitRoomCommand extends Command {
     super();
   }
 
-  override execute(): void {
+  override do(): void {
 
     if (this.board.rooms.length >= 1 && this.board.rooms[this.board.rooms.length - 1]) {
       const lastRoom: Room = this.board.rooms[this.board.rooms.length - 1];

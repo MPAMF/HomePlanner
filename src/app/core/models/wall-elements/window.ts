@@ -41,7 +41,7 @@ export class Window extends WallElement {
     ctx.lineTo(this.p2.x, this.p2.y);
     ctx.lineTo(this.p4.x, this.p4.y);
     ctx.lineWidth = this.getThickness();
-    ctx.strokeStyle = this.getColor();
+    ctx.strokeStyle = this.getDrawColor();
     ctx.lineCap = "round";
     ctx.stroke();
   }
@@ -150,10 +150,7 @@ export class Window extends WallElement {
     this.calculatePointPositions(newOriginPoint);
   }
 
-  getActionsButtonOptions(point: Point): ActionsButtonOptions {
-    return new ActionsButtonOptions();
-  }
-
   setVisibleState(newState: boolean): void {
   }
+
 }

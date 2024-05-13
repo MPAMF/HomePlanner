@@ -7,7 +7,7 @@ import {CommandInvoker} from "../commands/command";
 import {DivideWallCommand} from "../commands/wall-commands";
 import {HideClickableCommand} from "../commands/clickable-commands";
 import {Cloneable} from "./interfaces/cloneable";
-import {WallElement} from "./interfaces/wall-elements";
+import {WallElement} from "./wall-element";
 import {MatDialog} from "@angular/material/dialog";
 import {
   ModalElementPropertiesComponent

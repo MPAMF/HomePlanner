@@ -1,15 +1,15 @@
-import {Clickable, ClickableState} from "./clickable";
-import {Cloneable} from "./cloneable";
-import {Point} from "../point";
-import {Canvas} from "../canvas";
-import {ActionButtonProps, ActionsButtonOptions} from "../action-button-options";
-import {CommandInvoker} from "../../commands/command";
+import {Clickable, ClickableState} from "./interfaces/clickable";
+import {Cloneable} from "./interfaces/cloneable";
+import {Point} from "./point";
+import {Canvas} from "./canvas";
+import {ActionButtonProps, ActionsButtonOptions} from "./action-button-options";
+import {CommandInvoker} from "../commands/command";
 import {MatDialog} from "@angular/material/dialog";
-import {HideClickableCommand} from "../../commands/clickable-commands";
-import {DivideWallCommand} from "../../commands/wall-commands";
+import {HideClickableCommand} from "../commands/clickable-commands";
+import {DivideWallCommand} from "../commands/wall-commands";
 import {
   ModalElementPropertiesComponent
-} from "../../components/editor/modal-element-properties/modal-element-properties.component";
+} from "../components/editor/modal-element-properties/modal-element-properties.component";
 
 export abstract class WallElement extends Clickable implements Cloneable<WallElement> {
   protected constructor(

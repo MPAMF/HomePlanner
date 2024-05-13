@@ -1,7 +1,7 @@
 import {Canvas, DrawOn} from "../canvas";
 import {Point} from "../point";
 import {Utils} from "../../modules/utils";
-import {WallElement} from "../interfaces/wall-elements";
+import {WallElement} from "../wall-element";
 import {ActionsButtonOptions} from "../action-button-options";
 
 

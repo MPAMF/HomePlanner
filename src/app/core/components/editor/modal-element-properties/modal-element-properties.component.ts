@@ -6,7 +6,8 @@ import {Clickable} from "../../../models/interfaces/clickable";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
 import {Wall} from "../../../models/wall";
-import {WallElement} from "../../../models/interfaces/wall-elements";
+import {WallElement} from "../../../models/wall-element";
+import {Room} from "../../../models/room";
 
 export interface ModalElementPropertiesComponentData {
   title: string;
@@ -75,6 +76,10 @@ export class ModalElementPropertiesComponent implements OnInit {
 
   isWallElement(): boolean {
     return this.data.clickable instanceof WallElement;
+  }
+
+  isRoom(): boolean {
+    return this.data.clickable instanceof Room;
   }
 
 }

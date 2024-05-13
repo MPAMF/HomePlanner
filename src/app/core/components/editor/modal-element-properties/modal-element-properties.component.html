@@ -19,7 +19,7 @@
       <input type="color" id="selectedColorPicker" [(ngModel)]="selectedColor" (change)="onSelectedColorChange()">
     </div>
 
-    <div *ngIf="isWall()">
+    <div *ngIf="isWall() || isRoom()">
       <br>
       <div class="thicknessSetting">
         <label for="thickness">{{ "Thickness:" | translate }}</label>

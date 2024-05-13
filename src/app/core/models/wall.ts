@@ -334,7 +334,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    * Set the color of the wall
    * @param newColor the new color
    */
-  override setColor(newColor: string): void {
+  override setColor(newColor?: string): void {
     this.color = newColor;
   }
 
@@ -342,7 +342,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    * Set the selected color of the wall
    * @param newColor the new color
    */
-  override setSelectedColor(newColor: string): void {
+  override setSelectedColor(newColor?: string): void {
     this.selectedColor = newColor;
   }
 }

@@ -44,6 +44,18 @@ export class ModalElementPropertiesComponent implements OnInit {
     if (this.isWallElement()) {
       this.length = (this.data.clickable as WallElement).getLength();
     }
+
+    if (this.isRoom()) {
+      const room = this.data.clickable as Room;
+      if (room.hasAnyWalls()) {
+        // Get the first wall of the room
+        const wall = room.walls[0];
+
+        this.color = wall.getColor() ?? '#000000';
+        this.selectedColor = wall.getSelectedColor() ?? '#ff0000';
+        this.thickness = wall.getThickness();
+      }
+    }
   }
 
   onColorChange(): void {
@@ -61,6 +73,9 @@ export class ModalElementPropertiesComponent implements OnInit {
   onThicknessChange(): void {
     if (this.isWall()) {
       (this.data.clickable as Wall).setThickness(this.thickness);
+    } else if (this.isRoom()) {
+      const room = this.data.clickable as Room;
+      room.walls.forEach(wall => wall.setThickness(this.thickness));
     }
   }
 

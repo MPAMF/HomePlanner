@@ -258,20 +258,21 @@ export class Room extends Clickable implements Cloneable<Room> {
   }
 
   getColor(): string | undefined {
-    throw new Error("Method not implemented.");
+    return undefined;
   }
 
   getSelectedColor(): string | undefined {
-    throw new Error("Method not implemented.");
+    return undefined;
   }
 
   setColor(color?: string): void {
-    throw new Error("Method not implemented.");
+    this.walls.forEach(wall => wall.setColor(color));
   }
 
   setSelectedColor(color?: string): void {
-    throw new Error("Method not implemented.");
+    this.walls.forEach(wall => wall.setSelectedColor(color));
   }
+
 }
 
 interface SorterDictionary {

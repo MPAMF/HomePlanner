@@ -191,7 +191,7 @@ export class Room extends Clickable implements Cloneable<Room> {
     // }
     // this.getAllPoints().forEach(point => point.translatePoint(offset));
     this.walls.forEach(wall => {
-      wall.p2.point = wall.p2.point.translatePoint(offset);
+      wall.getP2(this.id).point = wall.getP2(this.id).point.translatePoint(offset);
       wall.elements.forEach(element => element.onDrag(offset, recursive))
     });
   }
@@ -227,6 +227,36 @@ export class Room extends Clickable implements Cloneable<Room> {
     this.walls = room.walls.map(wall => wall.clone());
   }
 
+  /**
+   * Regroup wall by point id
+   */
+  sortWalls(): SorterDictionary {
+    const sorterDictionary: SorterDictionary = {};
+    const size: number = this.walls.length;
+
+    let wall: Wall;
+    for (let index = 0; index < size; index++){
+      wall = this.walls[index];
+
+      if (wall.getP1(this.id).id in sorterDictionary) {
+        sorterDictionary[wall.getP1(this.id).id].counter++;
+        sorterDictionary[wall.getP1(this.id).id].wallsIndex[0] = index;
+      } else {
+        sorterDictionary[wall.getP1(this.id).id] = new SorterInformation();
+        sorterDictionary[wall.getP1(this.id).id].wallsIndex[0] = index;
+      }
+      if (wall.getP2(this.id).id in sorterDictionary) {
+        sorterDictionary[wall.getP2(this.id).id].counter++;
+        sorterDictionary[wall.getP2(this.id).id].wallsIndex[1] = index;
+      } else {
+        sorterDictionary[wall.getP2(this.id).id] = new SorterInformation();
+        sorterDictionary[wall.getP2(this.id).id].wallsIndex[1] = index;
+      }
+    }
+
+    return sorterDictionary;
+  }
+
   getColor(): string | undefined {
     throw new Error("Method not implemented.");
   }
@@ -242,5 +272,13 @@ export class Room extends Clickable implements Cloneable<Room> {
   setSelectedColor(color?: string): void {
     throw new Error("Method not implemented.");
   }
+}
 
+interface SorterDictionary {
+  [key: string]: SorterInformation;
+}
+
+class SorterInformation {
+  public counter: number = 1;
+  public wallsIndex: number[] = [];
 }

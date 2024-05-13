@@ -114,16 +114,10 @@ export class Window extends WallElement {
 
     const Cx: number = startPoint.x  + unitDistance * (this.parentWallP2.x - this.parentWallP1.x);
     const Cy: number = startPoint.y + unitDistance * (this.parentWallP2.y - this.parentWallP1.y);
+    const C: Point = new Point(Cx, Cy);
 
     // Check if the point is on the wall
-    const p1xSupP2x: boolean = (Cx >= this.parentWallP2.x) && (Cx <= this.parentWallP1.x);
-    const p2xSupP1x: boolean = (Cx >= this.parentWallP1.x) && (Cx <= this.parentWallP2.x);
-
-    const p1ySupP2y: boolean = (Cy >= this.parentWallP2.y) && (Cy <= this.parentWallP1.y);
-    const p2ySupP1y: boolean = (Cy >= this.parentWallP1.y) && (Cy <= this.parentWallP2.y);
-
-    const isCorrectlyPrintOnWall: boolean = (p1xSupP2x || p2xSupP1x) && (p1ySupP2y || p2ySupP1y);
-    if(!isCorrectlyPrintOnWall){
+    if(!C.isPointBetweenTwoPoint(this.parentWallP1, this.parentWallP2)){
       return;
     }
     const angleInDegreesWithUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(startPoint, new Point(Cx, Cy));

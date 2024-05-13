@@ -13,12 +13,14 @@ import {
   ModalElementPropertiesComponent
 } from "../components/editor/modal-element-properties/modal-element-properties.component";
 import {ClickablePoint} from "./clickable-point";
+import {RoomNeedSwitchPointDictionary} from "./interfaces/room-need-switch-point";
 
 export class Wall extends Clickable implements Cloneable<Wall> {
 
   constructor(
     public p1: ClickablePoint,
     public p2: ClickablePoint,
+    public roomNeedSwitchPoint: RoomNeedSwitchPointDictionary,
     private defaultThickness: number,
     private defaultColor: string,
     private defaultSelectedColor: string,
@@ -26,10 +28,19 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     private color?: string,
     private selectedColor?: string,
     public elements: WallElement[] = [],
-    public isFinalized: boolean = false
+    public isFinalized: boolean = false,
   ) {
     super();
   }
+
+  getP1(roomId: string) {
+    return this.roomNeedSwitchPoint[roomId].isSwitch ? this.p2 : this.p1;
+  }
+
+  getP2(roomId: string) {
+    return this.roomNeedSwitchPoint[roomId].isSwitch ? this.p1 : this.p2;
+  }
+
 
   /**
    * Get the wall thickness or the default one
@@ -132,9 +143,9 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    * Clone the wall to create a new instance with the same points
    */
   clone(): Wall {
-    return new Wall(this.p1.clone(), this.p2.clone(), this.defaultThickness, this.defaultColor,
-      this.defaultSelectedColor, this.thickness,
-      this.color, this.selectedColor, this.elements.map(el => el.clone()), this.isFinalized);
+    return new Wall(this.p1.clone(), this.p2.clone(), this.roomNeedSwitchPoint, this.defaultThickness, this.defaultColor,
+      this.defaultSelectedColor, this.thickness, this.color, this.selectedColor,
+      this.elements.map(el => el.clone()), this.isFinalized);
   }
 
   restore(wall: Wall) {
@@ -303,6 +314,14 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     return new Point(this.p1.x + projection.x, this.p1.y + projection.y);
   }
 
+  /**
+   * Check if the point is on the wall segment
+   * @param point The point to check
+   */
+  isPointOnSegment(point: Point) {
+    return point.isPointBetweenTwoPoint(this.p1.point, this.p2.point);
+  }
+
   override getColor(): string | undefined {
     return this.color || this.defaultColor;
   }
@@ -326,5 +345,4 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   override setSelectedColor(newColor: string): void {
     this.selectedColor = newColor;
   }
-
 }

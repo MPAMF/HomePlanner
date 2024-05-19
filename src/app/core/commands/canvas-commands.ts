@@ -172,9 +172,9 @@ export class EndObjectDragCommand extends Command {
     } else if (selectedElement instanceof Room) {
       selectedElement.getAllPoints().forEach(point => this.board.markLinkedWalls(point, true));
     } else if (selectedElement instanceof Door) {
-      throw new Error("Not implemented");
+      // TODO:
     } else if (selectedElement instanceof Window) {
-      throw new Error("Not implemented");
+      // TODO:
     } else if (selectedElement instanceof ClickablePoint) {
       this.board.markLinkedWalls(selectedElement.point, true);
     }

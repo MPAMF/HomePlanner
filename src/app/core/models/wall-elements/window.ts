@@ -17,11 +17,11 @@ export class Window extends WallElement {
     defaultThickness: number,
     defaultColor: string,
     defaultSelectedColor: string,
+    isFinalized: boolean = false,
     thickness?: number,
     color?: string,
     selectedColor?: string,
     length?: number,
-    isFinalized: boolean = false
   ) {
     super(p1, p1, parentWallP1, parentWallP2, defaultLength, defaultThickness, defaultColor,
       defaultSelectedColor, thickness, color, selectedColor, length, isFinalized);
@@ -95,7 +95,7 @@ export class Window extends WallElement {
 
   clone(): Window {
     return new Window(this.p1.clone(), this.parentWallP1, this.parentWallP2, this.defaultLength, this.defaultThickness,
-      this.defaultColor, this.defaultSelectedColor, this.thickness, this.color, this.selectedColor, this.length, this.isFinalized);
+      this.defaultColor, this.defaultSelectedColor, this.isFinalized, this.thickness, this.color, this.selectedColor, this.length);
   }
 
   restore(element: Window): void {

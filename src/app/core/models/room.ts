@@ -197,7 +197,7 @@ export class Room extends Clickable implements Cloneable<Room> {
   /**
    * Regroup wall by point id
    */
-  sortWalls(printInfo: boolean = false): SorterDictionary {
+  sortWalls(): SorterDictionary {
     const sorterDictionary: SorterDictionary = {};
     const size: number = this.walls.length;
 
@@ -219,13 +219,6 @@ export class Room extends Clickable implements Cloneable<Room> {
       } else {
         sorterDictionary[wall.getP2(this.id).id] = new SorterInformation();
         sorterDictionary[wall.getP2(this.id).id].wallsIndex[1] = index;
-      }
-    }
-
-    if(printInfo){
-      for (const key in sorterDictionary) {
-        const sorterInfo = sorterDictionary[key];
-        console.log(`wallsIndex ${sorterInfo.counter} for ${key}:`, sorterInfo.wallsIndex);
       }
     }
 
@@ -255,5 +248,5 @@ interface SorterDictionary {
 
 class SorterInformation {
   public counter: number = 1;
-  public wallsIndex: number[] = [-1, -1];
+  public wallsIndex: number[] = [];
 }

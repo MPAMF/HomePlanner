@@ -6,6 +6,7 @@ import {ClickablePoint} from "../models/clickable-point";
 import {RoomNeedSwitchPoint} from "../models/interfaces/room-need-switch-point";
 import {Point} from "../models/point";
 import {ClickableState} from "../models/interfaces/clickable";
+import {Utils} from "../modules/utils";
 
 
 export class FinaliseRoomCommand extends Command {
@@ -63,7 +64,6 @@ export class SplitRoomCommand extends Command {
       const list2: Wall[] = [];
       let leftWallInRoom: boolean = false;
       let rightWallInRoom: boolean = false;
-      let diagonalMidPoint: Point;
       for (const room of this.board.rooms) {
 
         leftWallInRoom = false;
@@ -106,17 +106,43 @@ export class SplitRoomCommand extends Command {
             currentIndex = sortedWallList[currentWall.getP1(room.id).id].wallsIndex[1];
           }
 
-          // Update rooms
-          list1.push(...lastRoom.walls);
+          // Update rooms section
+
+          // Switch between p1 and p2 if the wall disposition isn't cyclic
+          for (const wall of lastRoom.walls){
+            if(list1.some(cyclicWall => wall.getP1(room.id).equals(cyclicWall.getP1(room.id)))){
+              if (wall.roomNeedSwitchPoint[room.id] && wall.roomNeedSwitchPoint[room.id].isSwitch){
+                wall.roomNeedSwitchPoint[room.id].isSwitch = true;
+              } else {
+                wall.roomNeedSwitchPoint[room.id] = new RoomNeedSwitchPoint(true);
+              }
+            }
+
+            list1.push(wall);
+          }
           room.walls = list1;
-          lastRoom.walls.push(...list2);
 
-          diagonalMidPoint = findCenterPoint(list1);
-          fillWallSwitchPoint(room, diagonalMidPoint);
-          diagonalMidPoint = findCenterPoint(list2);
-          fillWallSwitchPoint(lastRoom, diagonalMidPoint);
+          // transfers switches from the old room to the new one
+          for (const wall of list2){
+            if (wall.roomNeedSwitchPoint[room.id] && wall.roomNeedSwitchPoint[room.id].isSwitch){
+              wall.roomNeedSwitchPoint[lastRoom.id] = new RoomNeedSwitchPoint(wall.roomNeedSwitchPoint[room.id].isSwitch);
+            }
+          }
 
-          room.sortWalls();
+          // Switch between p1 and p2 if the wall disposition isn't cyclic
+          for (const wall of lastRoom.walls){
+            if(list2.some(cyclicWall => wall.getP1(lastRoom.id).equals(cyclicWall.getP1(lastRoom.id)))){
+              if (wall.roomNeedSwitchPoint[lastRoom.id] && wall.roomNeedSwitchPoint[lastRoom.id].isSwitch){
+                wall.roomNeedSwitchPoint[lastRoom.id].isSwitch = true;
+              } else {
+                wall.roomNeedSwitchPoint[lastRoom.id] = new RoomNeedSwitchPoint(true);
+              }
+            }
+
+            list2.push(wall);
+          }
+          lastRoom.walls = list2;
+
           return;
         }
       }
@@ -125,43 +151,5 @@ export class SplitRoomCommand extends Command {
 
   override undo(): void {
 
-  }
-}
-
-function findCenterPoint(walls: Wall[]): Point {
-  let startX = 0;
-  let startY = 0;
-  let endX = 0;
-  let endY = 0;
-
-  walls.forEach(wall => {
-    startX += wall.p1.point.x;
-    startY += wall.p1.point.y;
-    endX += wall.p2.point.x;
-    endY += wall.p2.point.y;
-  });
-
-  const centerX = (startX + endX) / (2 * walls.length);
-  const centerY = (startY + endY) / (2 * walls.length);
-
-  return new Point(centerX, centerY);
-}
-
-function fillWallSwitchPoint(room: Room, diagonalMidPoint: Point): void {
-  for( const wall of room.walls){
-
-    if(diagonalMidPoint.isLeft(wall.p1.point, wall.p2.point)){
-      if(wall.roomNeedSwitchPoint[room.id] && wall.roomNeedSwitchPoint[room.id].isSwitch){
-        wall.roomNeedSwitchPoint[room.id].isSwitch = true;
-      }else {
-        wall.roomNeedSwitchPoint[room.id] = new RoomNeedSwitchPoint(true);
-      }
-    } else {
-      if(wall.roomNeedSwitchPoint[room.id] && wall.roomNeedSwitchPoint[room.id].isSwitch){
-        wall.roomNeedSwitchPoint[room.id].isSwitch = false;
-      }else {
-        wall.roomNeedSwitchPoint[room.id] = new RoomNeedSwitchPoint();
-      }
-    }
   }
 }

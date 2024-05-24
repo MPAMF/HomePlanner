@@ -5,6 +5,7 @@ import {Canvas, DrawOn} from "./canvas";
 import {ActionsButtonOptions} from "./action-button-options";
 import {Clickable, ClickableState} from "./interfaces/clickable";
 import {Cloneable} from "./interfaces/cloneable";
+import {RoomNeedSwitchPoint} from "./interfaces/room-need-switch-point";
 
 export class Room extends Clickable implements Cloneable<Room> {
 
@@ -196,7 +197,7 @@ export class Room extends Clickable implements Cloneable<Room> {
   /**
    * Regroup wall by point id
    */
-  sortWalls(): SorterDictionary {
+  sortWalls(printInfo: boolean = false): SorterDictionary {
     const sorterDictionary: SorterDictionary = {};
     const size: number = this.walls.length;
 
@@ -211,12 +212,20 @@ export class Room extends Clickable implements Cloneable<Room> {
         sorterDictionary[wall.getP1(this.id).id] = new SorterInformation();
         sorterDictionary[wall.getP1(this.id).id].wallsIndex[0] = index;
       }
+
       if (wall.getP2(this.id).id in sorterDictionary) {
         sorterDictionary[wall.getP2(this.id).id].counter++;
         sorterDictionary[wall.getP2(this.id).id].wallsIndex[1] = index;
       } else {
         sorterDictionary[wall.getP2(this.id).id] = new SorterInformation();
         sorterDictionary[wall.getP2(this.id).id].wallsIndex[1] = index;
+      }
+    }
+
+    if(printInfo){
+      for (const key in sorterDictionary) {
+        const sorterInfo = sorterDictionary[key];
+        console.log(`wallsIndex ${sorterInfo.counter} for ${key}:`, sorterInfo.wallsIndex);
       }
     }
 
@@ -246,5 +255,5 @@ interface SorterDictionary {
 
 class SorterInformation {
   public counter: number = 1;
-  public wallsIndex: number[] = [];
+  public wallsIndex: number[] = [-1, -1];
 }

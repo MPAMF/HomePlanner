@@ -76,25 +76,10 @@ export class Board implements Drawable {
    * Interaction to do on the board when the user click
    * @param canvas The canvas
    * @param point the position of the mouse
-   * @param drawState The draw state
    * @param isRightClick Is a right click
    */
-  onClick(canvas: Canvas, point: Point, drawState: DrawState, isRightClick: boolean = false): Clickable | undefined {
-    let clickedElement: Clickable | undefined;
-
-    //Select element section
-    switch (drawState){
-      case DrawState.None:
-        clickedElement = this.selectElementsOnCanvas(canvas, point, ClickableState.SELECTED, isRightClick);
-        break;
-
-      case DrawState.Window:
-      case DrawState.Door:
-        clickedElement =  this.findClosestWall(point);
-        break;
-    }
-
-    return clickedElement;
+  onClick(canvas: Canvas, point: Point, isRightClick: boolean = false): Clickable | undefined {
+    return  this.selectElementsOnCanvas(canvas, point, ClickableState.SELECTED, isRightClick);
   }
 
   /**

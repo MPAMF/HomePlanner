@@ -248,6 +248,17 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     return new Point((vec.x / norm) * length, (vec.y / norm) * length);
   }
 
+  /**
+   * Calculates the coordinates of a point C that lies on a line perpendicular to the line segment AB
+   * at a specified distance L from point A. The point C can be either on the same side or the opposite
+   * side of the line segment AB depending on the `sameSide` parameter.
+   *
+   * @param {Point} A - The starting point of the line segment AB. This is an object with `x` and `y` properties representing the coordinates.
+   * @param {Point} B - The ending point of the line segment AB. This is an object with `x` and `y` properties representing the coordinates.
+   * @param {number} L - The distance from point A to point C. This is a scalar value.
+   * @param {boolean} [sameSide=false] - A flag indicating whether point C should be on the same side of the line segment AB as point B. If `true`, point C will be on the same side; if `false`, it will be on the opposite side.
+   * @returns {Point} - A new `Point` object representing the coordinates of point C.
+   */
   private findPointC(A: Point, B: Point, L: number, sameSide: boolean = false): Point {
     const AB = new Point(B.x - A.x, B.y - A.y);
     const CA = new Point(-AB.y, AB.x);

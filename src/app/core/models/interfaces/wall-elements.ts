@@ -5,11 +5,11 @@ import {Canvas} from "../canvas";
 import {ActionButtonProps, ActionsButtonOptions} from "../action-button-options";
 import {CommandInvoker} from "../../commands/command";
 import {MatDialog} from "@angular/material/dialog";
-import {HideClickableCommand} from "../../commands/clickable-commands";
-import {DivideWallCommand} from "../../commands/wall-commands";
+import {RotateWallElementCommand} from "../../commands/clickable-commands";
 import {
   ModalElementPropertiesComponent
 } from "../../components/editor/modal-element-properties/modal-element-properties.component";
+
 
 export abstract class WallElement extends Clickable implements Cloneable<WallElement> {
   protected constructor(
@@ -26,7 +26,7 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
     protected selectedColor?: string,
     protected length?: number,
     public isFinalized: boolean = false,
-    protected isRotated: boolean = false
+    public isRotated: boolean = false
   ) {
     super();
   }
@@ -100,7 +100,15 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
   }
 
   override getActionsButtonOptions(point: Point): ActionsButtonOptions {
-    const newActionButtonOptions: ActionsButtonOptions = new ActionsButtonOptions(true, point.x, point.y)
+    const newActionButtonOptions: ActionsButtonOptions = new ActionsButtonOptions(true, point.x, point.y);
+
+    const rotateButton: ActionButtonProps = new ActionButtonProps(
+      'cached',
+      (commandInvoker?: CommandInvoker, modalElementProperties?: MatDialog) => {
+        commandInvoker ? commandInvoker.execute(new RotateWallElementCommand(this)) : null;
+        newActionButtonOptions.isActionsButtonVisible = false;
+      }
+    );
 
     const settingsButton: ActionButtonProps = new ActionButtonProps(
       'settings',
@@ -128,7 +136,7 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
       }
     );
 
-    newActionButtonOptions.buttonsAndActions = [settingsButton];
+    newActionButtonOptions.buttonsAndActions = [settingsButton, rotateButton];
     return newActionButtonOptions;
   }
 }

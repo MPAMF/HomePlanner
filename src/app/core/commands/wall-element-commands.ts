@@ -7,6 +7,7 @@ import {DrawOn} from "../models/canvas";
 import {Door} from "../models/wall-elements/door";
 import {WallElement} from "../models/interfaces/wall-elements";
 
+
 export class AddWindowCommand extends Command {
 
   private previousDrawSate: DrawState = DrawState.None;
@@ -133,4 +134,21 @@ export class AddSnappingDoorCommand extends Command {
   override undo(): void {}
 }
 
+export class TurnDoorCommand extends Command {
 
+  constructor(
+    private door: Door
+  ) {
+    super();
+  }
+
+  override do(): void {
+    this.door.isTurnedToLeft = !this.door.isTurnedToLeft;
+    this.door.update(this.door.p1);
+  }
+
+  override undo(): void {
+    this.door.isTurnedToLeft = !this.door.isTurnedToLeft;
+    this.door.update(this.door.p1);
+  }
+}

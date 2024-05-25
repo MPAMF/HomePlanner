@@ -5,6 +5,7 @@ import {Canvas, DrawOn} from "./canvas";
 import {ActionsButtonOptions} from "./action-button-options";
 import {Clickable, ClickableState} from "./interfaces/clickable";
 import {Cloneable} from "./interfaces/cloneable";
+import {RoomNeedSwitchPoint} from "./interfaces/room-need-switch-point";
 
 export class Room extends Clickable implements Cloneable<Room> {
 
@@ -211,6 +212,7 @@ export class Room extends Clickable implements Cloneable<Room> {
         sorterDictionary[wall.getP1(this.id).id] = new SorterInformation();
         sorterDictionary[wall.getP1(this.id).id].wallsIndex[0] = index;
       }
+
       if (wall.getP2(this.id).id in sorterDictionary) {
         sorterDictionary[wall.getP2(this.id).id].counter++;
         sorterDictionary[wall.getP2(this.id).id].wallsIndex[1] = index;

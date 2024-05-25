@@ -124,7 +124,7 @@ export class SplitRoomCommand extends Command {
 
           // transfers switches from the old room to the new one
           for (const wall of list2){
-            if (wall.roomNeedSwitchPoint[room.id] && wall.roomNeedSwitchPoint[room.id].isSwitch){
+            if (wall.roomNeedSwitchPoint[room.id]){
               wall.roomNeedSwitchPoint[lastRoom.id] = new RoomNeedSwitchPoint(wall.roomNeedSwitchPoint[room.id].isSwitch);
             }
           }
@@ -141,8 +141,8 @@ export class SplitRoomCommand extends Command {
 
             list2.push(wall);
           }
-          lastRoom.walls = list2;
 
+          lastRoom.walls = list2;
           return;
         }
       }

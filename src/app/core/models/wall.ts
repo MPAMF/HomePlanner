@@ -303,15 +303,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    * @return the projection of the point
    */
   projectOrthogonallyOntoWall(point: Point): Point {
-    const segmentVector: Point = new Point(this.p2.x - this.p1.x, this.p2.y - this.p1.y);
-    const pointVector: Point = this.p1.point.getVector(point);
-
-    // Calculation of the projection of the pointVector onto the segmentVector
-    const projectionMagnitude: number = (pointVector.x * segmentVector.x + pointVector.y * segmentVector.y) / this.length() ** 2;
-    const projection: Point = new Point(segmentVector.x * projectionMagnitude, segmentVector.y * projectionMagnitude);
-
-    // Add the projection at the beginning of the segment to obtain the coordinates of the projected point
-    return new Point(this.p1.x + projection.x, this.p1.y + projection.y);
+    return Utils.projectOrthogonallyOntoSegment(this.p1.point, this.p2.point, point);
   }
 
   /**

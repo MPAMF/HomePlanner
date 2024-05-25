@@ -67,13 +67,49 @@ export class StartObjectDragCommand extends Command {
       this.board.markLinkedWalls(selectedElement.p1.point, false);
       this.board.markLinkedWalls(selectedElement.p2.point, false);
       selectedElement.isFinalized = false;
+
+      const walls = this.board.getWallsLinkedToPoint(selectedElement.p1.point);
+      walls.push(...this.board.getWallsLinkedToPoint(selectedElement.p2.point));
+
+      this.draggingApplyFn = (offset?: Point) => {
+        if (offset) {
+          walls.forEach(wall => {
+            wall.elements.forEach(element => {
+              const pointInTheNearestWall: Point = wall.projectOrthogonallyOntoWall(element.p1);
+              element.parentWallP1 = wall.p1.point;
+              element.parentWallP2 = wall.p2.point;
+              element.update(pointInTheNearestWall);
+            });
+          });
+        }
+      }
+
+      this.board.draggingApplyFn = this.draggingApplyFn;
+
     } else if (selectedElement instanceof Room) {
       this.selectedElement = selectedElement;
       this.selectedElementClone = selectedElement.clone();
       this.selectedElement.getAllPoints().forEach(point => this.board.markLinkedWalls(point, false));
+
+      this.draggingApplyFn = (offset?: Point) => {
+        if (offset) {
+          selectedElement.walls.forEach(wall => {
+            wall.elements.forEach(element => {
+              const pointInTheNearestWall: Point = wall.projectOrthogonallyOntoWall(element.p1);
+              element.parentWallP1 = wall.p1.point;
+              element.parentWallP2 = wall.p2.point;
+              element.update(pointInTheNearestWall);
+            });
+          });
+        }
+      }
+
+      this.board.draggingApplyFn = this.draggingApplyFn;
+
     } else if (selectedElement instanceof Door || selectedElement instanceof Window) {
       this.selectedElement = selectedElement;
       this.selectedElementClone = selectedElement.clone();
+      selectedElement.isFinalized = false;
     } else if (selectedElement instanceof ClickablePoint) {
       this.selectedElement = selectedElement;
       this.selectedElementClone = selectedElement.clone();
@@ -172,9 +208,9 @@ export class EndObjectDragCommand extends Command {
     } else if (selectedElement instanceof Room) {
       selectedElement.getAllPoints().forEach(point => this.board.markLinkedWalls(point, true));
     } else if (selectedElement instanceof Door) {
-      throw new Error("Not implemented");
+      selectedElement.isFinalized = true;
     } else if (selectedElement instanceof Window) {
-      throw new Error("Not implemented");
+      selectedElement.isFinalized = true;
     } else if (selectedElement instanceof ClickablePoint) {
       this.board.markLinkedWalls(selectedElement.point, true);
     }

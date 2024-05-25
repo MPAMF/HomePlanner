@@ -61,4 +61,16 @@ export class Utils {
   public static CalculateTrigonometricAngleWithUnitXVector(point1Vector1: Point, point2Vector1: Point): number {
     return this.CalculateTrigonometricAngle(point1Vector1, point2Vector1, Point.ORIGIN, Point.UNIT_X);
   }
+
+  public static projectOrthogonallyOntoSegment(segmentP1: Point, segmentP2: Point, point: Point): Point {
+    const segmentVector: Point = new Point(segmentP2.x - segmentP1.x, segmentP2.y - segmentP1.y);
+    const pointVector: Point = segmentP1.getVector(point);
+
+    // Calculation of the projection of the pointVector onto the segmentVector
+    const projectionMagnitude: number = (pointVector.x * segmentVector.x + pointVector.y * segmentVector.y) / segmentP1.distanceTo(segmentP2) ** 2;
+    const projection: Point = new Point(segmentVector.x * projectionMagnitude, segmentVector.y * projectionMagnitude);
+
+    // Add the projection at the beginning of the segment to obtain the coordinates of the projected point
+    return new Point(segmentP1.x + projection.x, segmentP1.y + projection.y);
+  }
 }

@@ -68,7 +68,9 @@ export class AddSnappingWindowCommand extends Command {
     this.board.tempDrawableElements.push(this.newWindow);
   }
 
-  override undo(): void {}
+  override undo(): void {
+    this.board.drawState = DrawState.None;
+  }
 }
 
 export class AddDoorCommand extends Command {
@@ -131,7 +133,9 @@ export class AddSnappingDoorCommand extends Command {
     this.board.tempDrawableElements.push(this.newDoor);
   }
 
-  override undo(): void {}
+  override undo(): void {
+    this.board.drawState = DrawState.None;
+  }
 }
 
 export class TurnDoorCommand extends Command {

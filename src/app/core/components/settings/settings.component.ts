@@ -12,6 +12,7 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
 import {MatSelectModule} from "@angular/material/select";
 import {MatInputModule} from "@angular/material/input";
+import {Canvas} from "../../models/canvas";
 
 @Component({
   selector: 'app-settings',
@@ -36,7 +37,7 @@ export class SettingsComponent implements OnInit {
   public selectedLanguage: string = "";
 
   constructor(private translateService: TranslateService,
-              @Inject(MAT_DIALOG_DATA) public data: any) {
+              @Inject(MAT_DIALOG_DATA) public data: { canvas: Canvas }) {
   }
 
   ngOnInit() {

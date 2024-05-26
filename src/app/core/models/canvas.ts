@@ -6,6 +6,7 @@ import {Point} from "./point";
 export interface Canvas {
   snappingLine: CanvasRenderingContext2D;
   background: CanvasRenderingContext2D; // Main canvas
+  scale: number;
 }
 
 /**

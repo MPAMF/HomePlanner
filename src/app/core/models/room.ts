@@ -2,10 +2,14 @@ import {Wall} from "./wall";
 import {Point} from "./point";
 import {Canvas, DrawOn} from "./canvas";
 
-import {ActionsButtonOptions} from "./action-button-options";
+import {ActionButtonProps, ActionsButtonOptions} from "./action-button-options";
 import {Clickable, ClickableState} from "./interfaces/clickable";
 import {Cloneable} from "./interfaces/cloneable";
-import {RoomNeedSwitchPoint} from "./interfaces/room-need-switch-point";
+import {CommandInvoker} from "../commands/command";
+import {MatDialog} from "@angular/material/dialog";
+import {
+  ModalElementPropertiesComponent
+} from "../components/editor/modal-element-properties/modal-element-properties.component";
 
 export class Room extends Clickable implements Cloneable<Room> {
 
@@ -149,7 +153,36 @@ export class Room extends Clickable implements Cloneable<Room> {
   }
 
   override getActionsButtonOptions(point: Point): ActionsButtonOptions {
-    return new ActionsButtonOptions(true, point.x, point.y)
+    const newActionButtonOptions: ActionsButtonOptions = new ActionsButtonOptions(true, point.x, point.y)
+
+    const settingsButton: ActionButtonProps = new ActionButtonProps(
+      'settings',
+      (commandInvoker?: CommandInvoker, modalElementProperties?: MatDialog) => {
+        if (commandInvoker && modalElementProperties) {
+          const dialogRef = modalElementProperties.open(ModalElementPropertiesComponent, {
+            enterAnimationDuration: '300ms',
+            exitAnimationDuration: '300ms',
+            width: '600px',
+            data: {
+              clickable: this
+            }
+          });
+
+          // Subscribe to the afterClosed event
+          dialogRef?.afterClosed().subscribe(result => {
+            // Check the result to determine which button was clicked
+            if (result === 'confirm') {
+              //commandInvoker.execute(new ResetCurrentRoomCommand(this.board.currentRoom));
+            }
+          });
+        }
+
+        newActionButtonOptions.isActionsButtonVisible = false;
+      }
+    );
+
+    newActionButtonOptions.buttonsAndActions = [settingsButton];
+    return newActionButtonOptions;
   }
 
   override onDrag(offset: Point, recursive: boolean) {
@@ -226,20 +259,21 @@ export class Room extends Clickable implements Cloneable<Room> {
   }
 
   getColor(): string | undefined {
-    throw new Error("Method not implemented.");
+    return undefined;
   }
 
   getSelectedColor(): string | undefined {
-    throw new Error("Method not implemented.");
+    return undefined;
   }
 
   setColor(color?: string): void {
-    throw new Error("Method not implemented.");
+    this.walls.forEach(wall => wall.setColor(color));
   }
 
   setSelectedColor(color?: string): void {
-    throw new Error("Method not implemented.");
+    this.walls.forEach(wall => wall.setSelectedColor(color));
   }
+
 }
 
 interface SorterDictionary {

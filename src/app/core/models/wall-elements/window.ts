@@ -1,8 +1,7 @@
 import {Canvas, DrawOn} from "../canvas";
 import {Point} from "../point";
 import {Utils} from "../../modules/utils";
-import {WallElement} from "../interfaces/wall-elements";
-import {ActionsButtonOptions} from "../action-button-options";
+import {WallElement} from "../wall-element";
 
 export class Window extends WallElement {
 

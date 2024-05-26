@@ -7,7 +7,7 @@ import {CommandInvoker} from "../commands/command";
 import {DivideWallCommand} from "../commands/wall-commands";
 import {HideClickableCommand} from "../commands/clickable-commands";
 import {Cloneable} from "./interfaces/cloneable";
-import {WallElement} from "./interfaces/wall-elements";
+import {WallElement} from "./wall-element";
 import {MatDialog} from "@angular/material/dialog";
 import {
   ModalElementPropertiesComponent
@@ -140,6 +140,16 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   }
 
   /**
+   * Normalize the wall vector
+   */
+  normalize(): void {
+    const vector: Point = this.getVector();
+    const length: number = this.length();
+    this.p2.x = this.p1.x + vector.x / length;
+    this.p2.y = this.p1.y + vector.y / length;
+  }
+
+  /**
    * Clone the wall to create a new instance with the same points
    */
   clone(): Wall {
@@ -180,16 +190,93 @@ export class Wall extends Clickable implements Cloneable<Wall> {
       ctx.beginPath();
       ctx.moveTo(this.p1.x, this.p1.y);
       ctx.lineTo(this.p2.x, this.p2.y);
+      ctx.setLineDash([]);
       ctx.lineWidth = this.getThickness();
       ctx.strokeStyle = this.getDrawColor();
       ctx.lineCap = "round";
       ctx.stroke();
+
+      // draw units if the wall is not finalized (still being drawn) and wall is selected or hovered
+      if (!this.isFinalized || this.state !== ClickableState.NONE) {
+        this.drawUnits(canvas.snappingLine, canvas.scale);
+      }
 
       this.p1.draw(canvas, on);
       this.p2.draw(canvas, on);
     }
 
     this.elements.forEach(element => element.draw(canvas, on));
+  }
+
+  private drawUnits(ctx: CanvasRenderingContext2D, scale: number) {
+    const pt = this.findPointC(this.p1.point, this.p2.point, 20, true);
+    const pt2 = this.findPointC(this.p2.point, this.p1.point, 20);
+
+    ctx.setLineDash([7, 5]);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "black";
+
+    ctx.beginPath();
+
+    ctx.moveTo(this.p1.x, this.p1.y);
+    ctx.lineTo(pt.x, pt.y);
+
+    ctx.moveTo(this.p2.x, this.p2.y);
+    ctx.lineTo(pt2.x, pt2.y);
+
+    ctx.moveTo(pt.x, pt.y);
+    ctx.lineTo(pt2.x, pt2.y);
+
+    const angle = Math.atan2(pt2.y - pt.y, pt2.x - pt.x);
+    const textX = (pt.x + pt2.x) / 2 + Math.cos(angle) * 15;
+    const textY = (pt.y + pt2.y) / 2 + Math.sin(angle) * 15;
+
+    ctx.font = "12px Arial";
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const cm = this.px2cm(this.length(), scale/100);
+
+    ctx.fillText(`${cm.toFixed(2)} m`, textX, textY);
+
+    ctx.stroke();
+  }
+
+  private normalizeVector(vec: Point, length: number): Point {
+    const norm: number = Math.sqrt(vec.x ** 2 + vec.y ** 2);
+    return new Point((vec.x / norm) * length, (vec.y / norm) * length);
+  }
+
+  /**
+   * Calculates the coordinates of a point C that lies on a line perpendicular to the line segment AB
+   * at a specified distance L from point A. The point C can be either on the same side or the opposite
+   * side of the line segment AB depending on the `sameSide` parameter.
+   *
+   * @param {Point} A - The starting point of the line segment AB. This is an object with `x` and `y` properties representing the coordinates.
+   * @param {Point} B - The ending point of the line segment AB. This is an object with `x` and `y` properties representing the coordinates.
+   * @param {number} L - The distance from point A to point C. This is a scalar value.
+   * @param {boolean} [sameSide=false] - A flag indicating whether point C should be on the same side of the line segment AB as point B. If `true`, point C will be on the same side; if `false`, it will be on the opposite side.
+   * @returns {Point} - A new `Point` object representing the coordinates of point C.
+   */
+  private findPointC(A: Point, B: Point, L: number, sameSide: boolean = false): Point {
+    const AB = new Point(B.x - A.x, B.y - A.y);
+    const CA = new Point(-AB.y, AB.x);
+    const C = this.normalizeVector(CA, L * (sameSide ? 1 : -1));
+    return new Point(C.x + A.x, C.y + A.y);
+  }
+
+  /**
+   * Convert pixels to centimeters
+   * @param px The pixels to convert
+   * @param scale The scaling factor to apply
+   * @private The centimeters
+   */
+  private px2cm(px: number, scale: number = 1) {
+    const cpi = 2.54; // centimeters per inch
+    const dpi = 96; // dots per inch
+    const ppd = window.devicePixelRatio; // pixels per dot
+    return (px * cpi / (dpi * ppd)) * scale;
   }
 
   override onSelect(): void {
@@ -326,7 +413,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    * Set the color of the wall
    * @param newColor the new color
    */
-  override setColor(newColor: string): void {
+  override setColor(newColor?: string): void {
     this.color = newColor;
   }
 
@@ -334,7 +421,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
    * Set the selected color of the wall
    * @param newColor the new color
    */
-  override setSelectedColor(newColor: string): void {
+  override setSelectedColor(newColor?: string): void {
     this.selectedColor = newColor;
   }
 

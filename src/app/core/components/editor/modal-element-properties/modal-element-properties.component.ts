@@ -6,7 +6,8 @@ import {Clickable} from "../../../models/interfaces/clickable";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
 import {Wall} from "../../../models/wall";
-import {WallElement} from "../../../models/interfaces/wall-elements";
+import {WallElement} from "../../../models/wall-element";
+import {Room} from "../../../models/room";
 
 export interface ModalElementPropertiesComponentData {
   title: string;
@@ -43,6 +44,18 @@ export class ModalElementPropertiesComponent implements OnInit {
     if (this.isWallElement()) {
       this.length = (this.data.clickable as WallElement).getLength();
     }
+
+    if (this.isRoom()) {
+      const room = this.data.clickable as Room;
+      if (room.hasAnyWalls()) {
+        // Get the first wall of the room
+        const wall = room.walls[0];
+
+        this.color = wall.getColor() ?? '#000000';
+        this.selectedColor = wall.getSelectedColor() ?? '#ff0000';
+        this.thickness = wall.getThickness();
+      }
+    }
   }
 
   onColorChange(): void {
@@ -60,6 +73,9 @@ export class ModalElementPropertiesComponent implements OnInit {
   onThicknessChange(): void {
     if (this.isWall()) {
       (this.data.clickable as Wall).setThickness(this.thickness);
+    } else if (this.isRoom()) {
+      const room = this.data.clickable as Room;
+      room.walls.forEach(wall => wall.setThickness(this.thickness));
     }
   }
 
@@ -75,6 +91,10 @@ export class ModalElementPropertiesComponent implements OnInit {
 
   isWallElement(): boolean {
     return this.data.clickable instanceof WallElement;
+  }
+
+  isRoom(): boolean {
+    return this.data.clickable instanceof Room;
   }
 
 }

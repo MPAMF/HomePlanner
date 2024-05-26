@@ -1,11 +1,11 @@
 import {Canvas, DrawOn} from "../canvas";
 import {Point} from "../point";
 import {Utils} from "../../modules/utils";
-import {WallElement} from "../interfaces/wall-elements";
 import {ActionButtonProps, ActionsButtonOptions} from "../action-button-options";
 import {CommandInvoker} from "../../commands/command";
 import {MatDialog} from "@angular/material/dialog";
 import {TurnDoorCommand} from "../../commands/wall-element-commands";
+import {WallElement} from "../wall-element";
 
 
 export class Door extends WallElement {

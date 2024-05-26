@@ -35,6 +35,9 @@ export class ToolbarComponent {
       enterAnimationDuration: '300ms',
       exitAnimationDuration: '300ms',
       width: '400px',
+      data: {
+        canvas: this.commandInvoker?.canvas
+      }
     });
   }
 }

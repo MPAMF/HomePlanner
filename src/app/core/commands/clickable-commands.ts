@@ -1,6 +1,6 @@
 import {Command} from "./command";
 import {Clickable} from "../models/interfaces/clickable";
-import {WallElement} from "../models/interfaces/wall-elements";
+import {WallElement} from "../models/wall-element";
 import {Wall} from "../models/wall";
 
 export class HideClickableCommand extends Command {

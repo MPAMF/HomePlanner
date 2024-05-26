@@ -5,7 +5,7 @@ import {Window} from "../models/wall-elements/window";
 import {Point} from "../models/point";
 import {DrawOn} from "../models/canvas";
 import {Door} from "../models/wall-elements/door";
-import {WallElement} from "../models/interfaces/wall-elements";
+import {WallElement} from "../models/wall-element";
 
 
 export class AddWindowCommand extends Command {

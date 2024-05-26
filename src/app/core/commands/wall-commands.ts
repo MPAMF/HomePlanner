@@ -53,52 +53,6 @@ export class AddWallCommand extends Command {
   }
 }
 
-export class RemoveWallCommand extends Command {
-
-  constructor(private wall: Wall) {
-    super();
-  }
-
-  override do(): void {// ToDo: We need to update the room system
-    for (const room of this.board.rooms) {
-        if(room.removeWall(this.wall)){
-          this.board.currentRoom = room;
-          break;
-        }
-      }
-    }
-
-  override undo(): void {
-    // TODO: The removed wall should have the same properties as the wall that was removed
-    if (!this.board.currentRoom) {
-      this.board.currentRoom = new Room("Room 1"); // TODO: replace hardcoded name
-    }
-    this.board.currentRoom.addWall(this.wall);
-  }
-}
-
-// export class RemoveLastWallCommand extends Command {
-//   private removedWall: Wall | null = null;
-//
-//   constructor() {
-//     super();
-//   }
-//
-//   override execute(): void {
-//     const index = this.board.walls.length - 1;
-//     if (index > -1) {
-//       this.removedWall = this.board.walls[index];
-//       this.board.walls.splice(index, 1);
-//     }
-//   }
-//
-//   override undo(): void {
-//     if (this.removedWall) {
-//       this.board.walls.push(this.removedWall);
-//     }
-//   }
-// }
-
 export class EditLastWallWithPointCommand extends Command {
 
   constructor(private p2: Point) {
@@ -140,44 +94,6 @@ export class EditLastWallWithPointCommand extends Command {
   }
 }
 
-export class FinaliseRoomCommand extends Command {
-
-  constructor() {
-    super();
-  }
-
-  override do(): void {
-    if (!this.board.currentRoom) {
-      return;
-    }
-    const currentRoom = this.board.currentRoom;
-    currentRoom.isFinalized = true;
-    const wall = currentRoom.getLastWall();
-    if (wall) {
-      wall.isFinalized = true;
-    }
-
-    this.board.rooms.push(currentRoom);
-    this.board.currentRoom = undefined;
-    this.board.drawState = DrawState.None; // When a room is finalized, the user should not be able to draw walls
-    this.board.normalisePoints();
-  }
-
-  override undo(): void {
-    const room = this.board.rooms.pop();
-    if (!room) { // Should never happen, but just in case
-      return;
-    }
-    this.board.currentRoom = room;
-    room.isFinalized = false;
-    this.board.drawState = DrawState.WallCreation;
-    const lastWall = room.getLastWall();
-    if (lastWall) {
-      lastWall.isFinalized = false;
-    }
-  }
-}
-
 export class DivideWallCommand extends Command {
   private newWall?: Wall;
 
@@ -198,6 +114,9 @@ export class DivideWallCommand extends Command {
     this.newWall.p1 = this.clickablePoint;
     this.wall.p2 = this.clickablePoint;
 
+    this.wall.cleanOuterWallElement();
+    this.newWall.cleanOuterWallElement();
+
     for (const room of this.board.rooms){
       for (const wall of room.walls) {
 
@@ -211,9 +130,18 @@ export class DivideWallCommand extends Command {
         }
       }
     }
+    this.board.normalisePoints();
   }
 
   override undo(): void {
+    if (this.newWall){
+      this.wall.p2 = this.newWall.p2;
+      const wallToDelete: Wall = this.newWall;
 
+      for (const room of this.board.rooms){
+        room.walls = room.walls.filter(wall => !wall.equals(wallToDelete));
+      }
+      this.board.normalisePoints();
+    }
   }
 }

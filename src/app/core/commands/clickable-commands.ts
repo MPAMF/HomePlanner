@@ -1,12 +1,7 @@
 import {Command} from "./command";
-import {Wall} from "../models/wall";
-import {Point} from "../models/point";
-import {Room} from "../models/room";
-import {DrawState} from "../models/draw-state";
-import {DrawOn} from "../models/canvas";
-import {Utils} from "../modules/utils";
 import {Clickable} from "../models/interfaces/clickable";
 import {WallElement} from "../models/interfaces/wall-elements";
+import {Wall} from "../models/wall";
 
 export class HideClickableCommand extends Command {
 
@@ -42,5 +37,38 @@ export class RotateWallElementCommand extends Command {
   override undo(): void {
     this.wallElement.isRotated = !this.wallElement.isRotated;
     this.wallElement.update(this.wallElement.p1);
+  }
+}
+
+export class RemoveWallElementCommand extends Command {
+  private parentWall?: Wall;
+
+  constructor(
+    private element: WallElement
+  ) {
+    super();
+  }
+
+  override do(): void {
+    for (const room of this.board.rooms){
+      for (const wall of room.walls){
+        for (const element of wall.elements){
+          if( element.equals(this.element)){
+            this.parentWall = wall;
+            break;
+          }
+        }
+      }
+    }
+
+    if(this.parentWall) {
+      this.parentWall.elements = this.parentWall.elements.filter(element => !element.equals(this.element));
+    }
+  }
+
+  override undo(): void {
+    if(this.parentWall){
+      this.parentWall.elements.push(this.element);
+    }
   }
 }

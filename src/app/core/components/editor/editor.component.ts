@@ -77,11 +77,8 @@ export class EditorComponent {
       return;
     }
 
-    this.cmdInvoker.canvas = {background: this.backgroundContext, snappingLine: this.snappingLineContext} as Canvas;
-    this.actionsCmdInvoker.canvas = {
-      background: this.backgroundContext,
-      snappingLine: this.snappingLineContext
-    } as Canvas;
+    const c = {background: this.backgroundContext, snappingLine: this.snappingLineContext, scale: 50} as Canvas;
+    this.cmdInvoker.canvas = this.actionsCmdInvoker.canvas = c;
 
     // Correction of the Zoom from responsive size
     this.backgroundCanvas.width = this.backgroundCanvas.getBoundingClientRect().width;

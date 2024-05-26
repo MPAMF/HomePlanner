@@ -198,7 +198,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
 
       // draw units if the wall is not finalized (still being drawn) and wall is selected or hovered
       if (!this.isFinalized || this.state !== ClickableState.NONE) {
-        this.drawUnits(ctx);
+        this.drawUnits(canvas.snappingLine, canvas.scale);
       }
 
       this.p1.draw(canvas, on);
@@ -208,7 +208,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     this.elements.forEach(element => element.draw(canvas, on));
   }
 
-  private drawUnits(ctx: CanvasRenderingContext2D) {
+  private drawUnits(ctx: CanvasRenderingContext2D, scale: number) {
     const pt = this.findPointC(this.p1.point, this.p2.point, 20, true);
     const pt2 = this.findPointC(this.p2.point, this.p1.point, 20);
 
@@ -228,17 +228,17 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     ctx.lineTo(pt2.x, pt2.y);
 
     const angle = Math.atan2(pt2.y - pt.y, pt2.x - pt.x);
-    const textX = (pt.x + pt2.x) / 2 + Math.cos(angle) * 10;
-    const textY = (pt.y + pt2.y) / 2 + Math.sin(angle) * 10;
+    const textX = (pt.x + pt2.x) / 2 + 10 + Math.cos(angle) * 15;
+    const textY = (pt.y + pt2.y) / 2 + 10 + Math.sin(angle) * 15;
 
     ctx.font = "12px Arial";
     ctx.fillStyle = "black";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    const cm = this.px2cm(this.length());
+    const cm = this.px2cm(this.length(), scale/100);
 
-    ctx.fillText(`${cm.toFixed(2)} cm`, textX, textY);
+    ctx.fillText(`${cm.toFixed(2)} m`, textX, textY);
 
     ctx.stroke();
   }
@@ -269,13 +269,14 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   /**
    * Convert pixels to centimeters
    * @param px The pixels to convert
+   * @param scale The scaling factor to apply
    * @private The centimeters
    */
-  private px2cm(px: number) {
+  private px2cm(px: number, scale: number = 1) {
     const cpi = 2.54; // centimeters per inch
     const dpi = 96; // dots per inch
     const ppd = window.devicePixelRatio; // pixels per dot
-    return (px * cpi / (dpi * ppd));
+    return (px * cpi / (dpi * ppd)) * scale;
   }
 
   override onSelect(): void {
@@ -423,4 +424,5 @@ export class Wall extends Clickable implements Cloneable<Wall> {
   override setSelectedColor(newColor?: string): void {
     this.selectedColor = newColor;
   }
+
 }

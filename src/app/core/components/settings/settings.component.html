@@ -21,6 +21,12 @@
     </mat-select>
   </mat-form-field>
 
+  <mat-form-field>
+    <mat-label>{{ "Choose the scale:" | translate }}</mat-label>
+      <span matTextPrefix>1/ &nbsp;</span>
+      <input type="number" [value]="data.canvas.scale" (change)="scaleChanged($event)" matInput>
+  </mat-form-field>
+
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button class="primary label-button" mat-dialog-close="confirm">Ok</button>

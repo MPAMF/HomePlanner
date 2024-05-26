@@ -90,12 +90,14 @@ export class StartObjectDragCommand extends Command {
       this.selectedElement.getAllPoints().forEach(point => this.board.markLinkedWalls(point, false));
 
       this.draggingApplyFn = () => {
-        selectedElement.walls.forEach(wall => {
-          wall.elements.forEach(element => {
-            const pointInTheNearestWall: Point = wall.projectOrthogonallyOntoWall(element.p1);
-            element.parentWallP1 = wall.p1.point;
-            element.parentWallP2 = wall.p2.point;
-            element.update(pointInTheNearestWall);
+        this.board.rooms.forEach(room => {
+          room.walls.forEach(wall => {
+            wall.elements.forEach(element => {
+              const pointInTheNearestWall: Point = wall.projectOrthogonallyOntoWall(element.p1);
+              element.parentWallP1 = wall.p1.point;
+              element.parentWallP2 = wall.p2.point;
+              element.update(pointInTheNearestWall);
+            });
           });
         });
       }
@@ -157,6 +159,7 @@ export class StartObjectDragCommand extends Command {
       this.draggingApplyFn();
     }
 
+    this.board.normalisePoints();
   }
 }
 

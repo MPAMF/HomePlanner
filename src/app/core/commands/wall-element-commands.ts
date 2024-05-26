@@ -7,6 +7,7 @@ import {DrawOn} from "../models/canvas";
 import {Door} from "../models/wall-elements/door";
 import {WallElement} from "../models/wall-element";
 
+
 export class AddWindowCommand extends Command {
 
   private previousDrawSate: DrawState = DrawState.None;
@@ -21,14 +22,15 @@ export class AddWindowCommand extends Command {
 
   override do(): void {
     this.previousDrawSate = this.board.drawState;
-    this.board.drawState = DrawState.WindowPlacement;
+    this.board.drawState = DrawState.None;
 
     const pointInTheNearestWall: Point = this.wall.projectOrthogonallyOntoWall(this.startPoint);
 
     this.newWindow = new Window(
       pointInTheNearestWall, this.wall.p1.point, this.wall.p2.point,
       this.board.boardConfig.windowLength, this.board.boardConfig.windowThickness,
-      this.board.boardConfig.windowColor, this.board.boardConfig.selectWindowColor
+      this.board.boardConfig.windowColor, this.board.boardConfig.selectWindowColor,
+      true
     )
 
     this.wall.addElement(this.newWindow);
@@ -43,71 +45,30 @@ export class AddWindowCommand extends Command {
   }
 }
 
-export class EditLastWindowCommand extends Command {
-
-  private previousPosition: Point = new Point();
+export class AddSnappingWindowCommand extends Command {
+  private newWindow: WallElement | undefined;
 
   constructor(
     private wall: Wall,
     private startPoint: Point
   ) {
-    super(DrawOn.SnappingLine);
+    super();
   }
 
   override do(): void {
     const pointInTheNearestWall: Point = this.wall.projectOrthogonallyOntoWall(this.startPoint);
 
-    const window: WallElement | undefined = this.wall.getLastWallElement();
-    if (!window || window.isFinalized) {
-      return;
-    }
+    this.newWindow = new Window(
+      pointInTheNearestWall, this.wall.p1.point, this.wall.p2.point,
+      this.board.boardConfig.windowLength, this.board.boardConfig.windowThickness,
+      this.board.boardConfig.windowColor, this.board.boardConfig.selectWindowColor,
+      true
+    )
 
-    this.previousPosition = window.p1;
-    window.update(pointInTheNearestWall);
+    this.board.tempDrawableElements.push(this.newWindow);
   }
 
-  override undo(): void {
-    const window: WallElement | undefined = this.wall.getLastWallElement();
-    if (!window) {
-      return;
-    }
-
-    window.update(this.previousPosition);
-  }
-}
-
-export class FinalizeWindowCommand extends Command {
-
-  private previousDrawSate: DrawState = DrawState.None;
-
-  constructor(
-    private wall: Wall
-  ) {
-    super();
-  }
-
-  override do(): void {
-    this.previousDrawSate = this.board.drawState;
-    this.board.drawState = DrawState.None;
-
-    const window: WallElement | undefined = this.wall.getLastWallElement();
-    if (!window) {
-      return;
-    }
-
-    window.isFinalized = true;
-  }
-
-  override undo(): void {
-    this.board.drawState = this.previousDrawSate;
-
-    const window: WallElement | undefined = this.wall.getLastWallElement();
-    if (!window) {
-      return;
-    }
-
-    window.isFinalized = false;
-  }
+  override undo(): void {}
 }
 
 export class AddDoorCommand extends Command {
@@ -124,14 +85,15 @@ export class AddDoorCommand extends Command {
 
   override do(): void {
     this.previousDrawSate = this.board.drawState;
-    this.board.drawState = DrawState.WindowPlacement;
+    this.board.drawState = DrawState.None;
 
     const pointInTheNearestWall: Point = this.wall.projectOrthogonallyOntoWall(this.startPoint);
 
     this.newDoor = new Door(
       pointInTheNearestWall, this.wall.p1.point, this.wall.p2.point,
       this.board.boardConfig.windowLength, this.board.boardConfig.windowThickness,
-      this.board.boardConfig.windowColor, this.board.boardConfig.selectWindowColor
+      this.board.boardConfig.windowColor, this.board.boardConfig.selectWindowColor,
+      true
     )
 
     this.wall.addElement(this.newDoor);
@@ -146,70 +108,47 @@ export class AddDoorCommand extends Command {
   }
 }
 
-export class EditLastDoorCommand extends Command {
-
-  private previousPosition: Point = new Point();
+export class AddSnappingDoorCommand extends Command {
+  private newDoor: WallElement | undefined;
 
   constructor(
     private wall: Wall,
     private startPoint: Point
   ) {
-    super(DrawOn.SnappingLine);
+    super();
   }
 
   override do(): void {
     const pointInTheNearestWall: Point = this.wall.projectOrthogonallyOntoWall(this.startPoint);
 
-    const door: WallElement | undefined = this.wall.getLastWallElement();
-    if (!door || door.isFinalized) {
-      return;
-    }
+    this.newDoor = new Door(
+      pointInTheNearestWall, this.wall.p1.point, this.wall.p2.point,
+      this.board.boardConfig.windowLength, this.board.boardConfig.windowThickness,
+      this.board.boardConfig.windowColor, this.board.boardConfig.selectWindowColor,
+      true
+    )
 
-    this.previousPosition = door.p1;
-    door.update(pointInTheNearestWall);
+    this.board.tempDrawableElements.push(this.newDoor);
   }
 
-  override undo(): void {
-    const door: WallElement | undefined = this.wall.getLastWallElement();
-    if (!door) {
-      return;
-    }
-
-    door.update(this.previousPosition);
-  }
+  override undo(): void {}
 }
 
-export class FinalizeDoorCommand extends Command {
-
-  private previousDrawSate: DrawState = DrawState.None;
+export class TurnDoorCommand extends Command {
 
   constructor(
-    private wall: Wall
+    private door: Door
   ) {
     super();
   }
 
   override do(): void {
-    this.previousDrawSate = this.board.drawState;
-    this.board.drawState = DrawState.None;
-
-    const door: WallElement | undefined = this.wall.getLastWallElement();
-    if (!door) {
-      return;
-    }
-
-    door.isFinalized = true;
+    this.door.isTurnedToLeft = !this.door.isTurnedToLeft;
+    this.door.update(this.door.p1);
   }
 
   override undo(): void {
-    this.board.drawState = this.previousDrawSate;
-
-    const door: WallElement | undefined = this.wall.getLastWallElement();
-    if (!door) {
-      return;
-    }
-
-    door.isFinalized = false;
+    this.door.isTurnedToLeft = !this.door.isTurnedToLeft;
+    this.door.update(this.door.p1);
   }
 }
-

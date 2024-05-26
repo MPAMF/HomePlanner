@@ -1,8 +1,11 @@
 import {Canvas, DrawOn} from "../canvas";
 import {Point} from "../point";
 import {Utils} from "../../modules/utils";
+import {ActionButtonProps, ActionsButtonOptions} from "../action-button-options";
+import {CommandInvoker} from "../../commands/command";
+import {MatDialog} from "@angular/material/dialog";
+import {TurnDoorCommand} from "../../commands/wall-element-commands";
 import {WallElement} from "../wall-element";
-import {ActionsButtonOptions} from "../action-button-options";
 
 
 export class Door extends WallElement {
@@ -17,11 +20,12 @@ export class Door extends WallElement {
     defaultThickness: number,
     defaultColor: string,
     defaultSelectedColor: string,
+    isFinalized: boolean = false,
     thickness?: number,
     color?: string,
     selectedColor?: string,
     length?: number,
-    isFinalized: boolean = false
+    public isTurnedToLeft: boolean = false
   ) {
     super(p1, p1, parentWallP1, parentWallP2, defaultLength, defaultThickness, defaultColor,
       defaultSelectedColor, thickness, color, selectedColor, length, isFinalized);
@@ -34,13 +38,16 @@ export class Door extends WallElement {
       return;
     }
     const ctx = !this.isFinalized ? canvas.snappingLine : canvas.background;
-    const angleUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(this.p1, this.p2);
+    let angleUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(this.p1, this.p2);
+    angleUnitaryVector += this.isRotated != this.isTurnedToLeft ? (-Math.PI/2) : 0;
+
     ctx.beginPath();
     ctx.moveTo(this.p3.x, this.p3.y);
     ctx.lineTo(this.p1.x, this.p1.y);
     ctx.lineTo(this.p2.x, this.p2.y);
-    ctx.moveTo(this.p2.x, this.p2.y);
-    ctx.arc(this.p1.x, this.p1.y, this.getLength(), angleUnitaryVector, angleUnitaryVector + Math.PI / 2, false);
+    this.isRotated != this.isTurnedToLeft ? ctx.moveTo(this.p3.x, this.p3.y) : ctx.moveTo(this.p2.x, this.p2.y);
+
+    ctx.arc(this.p1.x, this.p1.y, this.getLength(), angleUnitaryVector, angleUnitaryVector + Math.PI /2, false);
     ctx.lineWidth = this.getThickness();
     ctx.strokeStyle = this.getDrawColor();
     ctx.lineCap = "round";
@@ -58,10 +65,11 @@ export class Door extends WallElement {
     }
 
     let delta: number = this.getThickness();
+    const rotationMultiplier: number = this.isRotated != this.isTurnedToLeft ? -1 : 1;
     let angleUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(this.p1, this.p2);
-    const p4x: number = this.p2.x + Math.cos(Math.PI/2 + angleUnitaryVector) * this.getLength();
-    const p4y: number = this.p2.y + Math.sin(Math.PI/2 + angleUnitaryVector) * this.getLength();
-    const p4: Point = this.isRotated ? new Point(-p4x, -p4y) : new Point(p4x, p4y);
+    const p4x: number = this.p2.x + rotationMultiplier * Math.cos(Math.PI/2 + angleUnitaryVector) * this.getLength();
+    const p4y: number = this.p2.y + rotationMultiplier * Math.sin(Math.PI/2 + angleUnitaryVector) * this.getLength();
+    const p4: Point = new Point(p4x, p4y);
 
     const midPointP1: Point = this.p1.midpointTo(this.p3);
     const midPointP2: Point = this.p2.midpointTo(p4);
@@ -80,9 +88,7 @@ export class Door extends WallElement {
   }
 
   override onDrag(offset: Point, recursive: boolean): void {
-    this.p1 = this.p1.translatePoint(offset);
-    this.p2 = this.p2.translatePoint(offset);
-    this.p3 = this.p3?.translatePoint(offset);
+    this.update(this.p1.translatePoint(offset), true);
   }
 
   override onHover(): void {
@@ -99,16 +105,24 @@ export class Door extends WallElement {
 
   clone(): Door {
     return new Door(this.p1.clone(), this.parentWallP1, this.parentWallP2, this.defaultLength,
-      this.defaultThickness, this.defaultColor, this.defaultSelectedColor, this.thickness, this.color, this.selectedColor,
-      this.length, this.isFinalized);
+      this.defaultThickness, this.defaultColor, this.defaultSelectedColor, this.isFinalized,
+      this.thickness, this.color, this.selectedColor, this.length, this.isTurnedToLeft);
   }
 
   restore(element: Door): void {
-    this.p1 = element.p1;
-    this.p2 = element.p2;
+    this.parentWallP1 = element.parentWallP1;
+    this.parentWallP2 = element.parentWallP2;
+    this.update(element.p1, true);
   }
 
-  update(newOriginPoint: Point): void {
+  update(newOriginPoint: Point, needProjectOrthogonally: boolean = false): void {
+    if (needProjectOrthogonally){
+      newOriginPoint = Utils.projectOrthogonallyOntoSegment(this.parentWallP1, this.parentWallP2, newOriginPoint);
+    }
+    if(!newOriginPoint.isPointBetweenTwoPoint(this.parentWallP1, this.parentWallP2)){
+      return;
+    }
+
     this.calculatePointPositions(newOriginPoint);
   }
 
@@ -120,25 +134,42 @@ export class Door extends WallElement {
     const parentWallLength: number = this.parentWallP1.distanceTo(this.parentWallP2);
     const unitDistance: number = this.getLength() / parentWallLength;
 
-    const Cx: number = startPoint.x  + unitDistance * (this.parentWallP2.x - this.parentWallP1.x);
-    const Cy: number = startPoint.y + unitDistance * (this.parentWallP2.y - this.parentWallP1.y);
-    const C: Point = new Point(Cx, Cy);
+    let rotationMultiplier: number = this.isTurnedToLeft ? -1 : 1;
+    const Cx: number = startPoint.x  + rotationMultiplier * unitDistance * (this.parentWallP2.x - this.parentWallP1.x);
+    const Cy: number = startPoint.y + rotationMultiplier * unitDistance * (this.parentWallP2.y - this.parentWallP1.y);
+    const calculatedP2: Point = new Point(Cx, Cy);
 
     // Check if the point is on the wall
-    if(!C.isPointBetweenTwoPoint(this.parentWallP1, this.parentWallP2)){
+    if(!calculatedP2.isPointBetweenTwoPoint(this.parentWallP1, this.parentWallP2)){
       return;
     }
 
     this.p1 = startPoint;
-    this.p2 = new Point(Cx, Cy);
+    this.p2 = calculatedP2;
 
-    const angleInDegreesWithUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(startPoint, new Point(Cx, Cy));
-    const Ax: number = startPoint.x + Math.cos(ACDAngle + angleInDegreesWithUnitaryVector) * this.getLength();
-    const Ay: number = startPoint.y + Math.sin(ACDAngle + angleInDegreesWithUnitaryVector) * this.getLength();
-    this.p3 = this.isRotated ? new Point(-Ax, -Ay) : new Point(Ax, Ay);
+    rotationMultiplier *= this.isRotated ? -1 : 1;
+    const angleInDegreesWithUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(startPoint, calculatedP2);
+    const Ax: number = startPoint.x + rotationMultiplier * Math.cos(ACDAngle + angleInDegreesWithUnitaryVector) * this.getLength();
+    const Ay: number = startPoint.y + rotationMultiplier * Math.sin(ACDAngle + angleInDegreesWithUnitaryVector) * this.getLength();
+    this.p3 = new Point(Ax, Ay);
   }
 
   override setVisibleState(newState: boolean): void {
+  }
+
+  override getActionsButtonOptions(point: Point): ActionsButtonOptions {
+    const newActionButtonOptions: ActionsButtonOptions = super.getActionsButtonOptions(point);
+
+    const turnButton: ActionButtonProps = new ActionButtonProps(
+      this.isTurnedToLeft ? 'rotate_right' : 'rotate_left',
+      (commandInvoker?: CommandInvoker, modalElementProperties?: MatDialog) => {
+        commandInvoker ? commandInvoker.execute(new TurnDoorCommand(this)) : null;
+        newActionButtonOptions.isActionsButtonVisible = false;
+      }
+    );
+
+    newActionButtonOptions.buttonsAndActions.push(turnButton);
+    return newActionButtonOptions;
   }
 
 }

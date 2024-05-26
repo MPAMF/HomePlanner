@@ -1,12 +1,6 @@
 import {Command} from "./command";
-import {Wall} from "../models/wall";
-import {Point} from "../models/point";
-import {Room} from "../models/room";
-import {DrawState} from "../models/draw-state";
-import {DrawOn} from "../models/canvas";
-import {Utils} from "../modules/utils";
 import {Clickable} from "../models/interfaces/clickable";
-import {WallElement} from "../models/interfaces/wall-elements";
+import {WallElement} from "../models/wall-element";
 
 export class HideClickableCommand extends Command {
 

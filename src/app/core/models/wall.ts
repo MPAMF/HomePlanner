@@ -228,8 +228,8 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     ctx.lineTo(pt2.x, pt2.y);
 
     const angle = Math.atan2(pt2.y - pt.y, pt2.x - pt.x);
-    const textX = (pt.x + pt2.x) / 2 + 10 + Math.cos(angle) * 15;
-    const textY = (pt.y + pt2.y) / 2 + 10 + Math.sin(angle) * 15;
+    const textX = (pt.x + pt2.x) / 2 + Math.cos(angle) * 15;
+    const textY = (pt.y + pt2.y) / 2 + Math.sin(angle) * 15;
 
     ctx.font = "12px Arial";
     ctx.fillStyle = "black";

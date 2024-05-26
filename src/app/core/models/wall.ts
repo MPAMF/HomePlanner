@@ -425,4 +425,9 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     this.selectedColor = newColor;
   }
 
+  cleanOuterWallElement(): void {
+    this.elements = this.elements.filter( element =>
+      element.p1.isPointBetweenTwoPoint(this.p1.point, this.p2.point)
+    && element.p2.isPointBetweenTwoPoint(this.p1.point, this.p2.point))
+  }
 }

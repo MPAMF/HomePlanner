@@ -5,10 +5,10 @@ import {Canvas} from "./canvas";
 import {ActionButtonProps, ActionsButtonOptions} from "./action-button-options";
 import {CommandInvoker} from "../commands/command";
 import {MatDialog} from "@angular/material/dialog";
-import {RotateWallElementCommand} from "../commands/clickable-commands";
 import {
   ModalElementPropertiesComponent
 } from "../components/editor/modal-element-properties/modal-element-properties.component";
+import {RemoveWallElementCommand, RotateWallElementCommand} from "../commands/clickable-commands";
 
 
 export abstract class WallElement extends Clickable implements Cloneable<WallElement> {
@@ -110,6 +110,14 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
       }
     );
 
+    const removeButton: ActionButtonProps = new ActionButtonProps(
+      'delete',
+      (commandInvoker?: CommandInvoker, modalElementProperties?: MatDialog) => {
+        commandInvoker ? commandInvoker.execute(new RemoveWallElementCommand(this)) : null;
+        newActionButtonOptions.isActionsButtonVisible = false;
+      }
+    );
+
     const settingsButton: ActionButtonProps = new ActionButtonProps(
       'settings',
       (commandInvoker?: CommandInvoker, modalElementProperties?: MatDialog) => {
@@ -136,7 +144,7 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
       }
     );
 
-    newActionButtonOptions.buttonsAndActions = [settingsButton, rotateButton];
+    newActionButtonOptions.buttonsAndActions = [settingsButton, removeButton, rotateButton];
     return newActionButtonOptions;
   }
 }

@@ -71,17 +71,15 @@ export class StartObjectDragCommand extends Command {
       const walls = this.board.getWallsLinkedToPoint(selectedElement.p1.point);
       walls.push(...this.board.getWallsLinkedToPoint(selectedElement.p2.point));
 
-      this.draggingApplyFn = (offset?: Point) => {
-        if (offset) {
-          walls.forEach(wall => {
-            wall.elements.forEach(element => {
-              const pointInTheNearestWall: Point = wall.projectOrthogonallyOntoWall(element.p1);
-              element.parentWallP1 = wall.p1.point;
-              element.parentWallP2 = wall.p2.point;
-              element.update(pointInTheNearestWall);
-            });
+      this.draggingApplyFn = () => {
+        walls.forEach(wall => {
+          wall.elements.forEach(element => {
+            const pointInTheNearestWall: Point = wall.projectOrthogonallyOntoWall(element.p1);
+            element.parentWallP1 = wall.p1.point;
+            element.parentWallP2 = wall.p2.point;
+            element.update(pointInTheNearestWall);
           });
-        }
+        });
       }
 
       this.board.draggingApplyFn = this.draggingApplyFn;
@@ -91,9 +89,9 @@ export class StartObjectDragCommand extends Command {
       this.selectedElementClone = selectedElement.clone();
       this.selectedElement.getAllPoints().forEach(point => this.board.markLinkedWalls(point, false));
 
-      this.draggingApplyFn = (offset?: Point) => {
-        if (offset) {
-          selectedElement.walls.forEach(wall => {
+      this.draggingApplyFn = () => {
+        this.board.rooms.forEach(room => {
+          room.walls.forEach(wall => {
             wall.elements.forEach(element => {
               const pointInTheNearestWall: Point = wall.projectOrthogonallyOntoWall(element.p1);
               element.parentWallP1 = wall.p1.point;
@@ -101,7 +99,7 @@ export class StartObjectDragCommand extends Command {
               element.update(pointInTheNearestWall);
             });
           });
-        }
+        });
       }
 
       this.board.draggingApplyFn = this.draggingApplyFn;
@@ -117,17 +115,15 @@ export class StartObjectDragCommand extends Command {
       // Get linked wall elements to move them
       const walls = this.board.getWallsLinkedToPoint(selectedElement.point);
 
-      this.draggingApplyFn = (offset?: Point) => {
-        if (offset) {
-          walls.forEach(wall => {
-            wall.elements.forEach(element => {
-              const pointInTheNearestWall: Point = wall.projectOrthogonallyOntoWall(element.p1);
-              element.parentWallP1 = wall.p1.point;
-              element.parentWallP2 = wall.p2.point;
-              element.update(pointInTheNearestWall);
-            });
+      this.draggingApplyFn = () => {
+        walls.forEach(wall => {
+          wall.elements.forEach(element => {
+            const pointInTheNearestWall: Point = wall.projectOrthogonallyOntoWall(element.p1);
+            element.parentWallP1 = wall.p1.point;
+            element.parentWallP2 = wall.p2.point;
+            element.update(pointInTheNearestWall);
           });
-        }
+        });
       }
 
       this.board.markLinkedWalls(selectedElement.point, false);
@@ -163,6 +159,7 @@ export class StartObjectDragCommand extends Command {
       this.draggingApplyFn();
     }
 
+    this.board.normalisePoints();
   }
 }
 
@@ -179,7 +176,7 @@ export class DragObjectCommand extends Command {
     this.board.selectedElement.onDrag(this.offset, true);
 
     if (this.board.draggingApplyFn) {
-      this.board.draggingApplyFn(this.offset);
+      this.board.draggingApplyFn();
     }
 
   }

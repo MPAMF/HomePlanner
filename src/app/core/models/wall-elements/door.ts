@@ -65,7 +65,7 @@ export class Door extends WallElement {
     }
 
     let delta: number = this.getThickness();
-    const rotationMultiplier: number = this.isRotated ? -1 : 1;
+    const rotationMultiplier: number = this.isRotated != this.isTurnedToLeft ? -1 : 1;
     let angleUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(this.p1, this.p2);
     const p4x: number = this.p2.x + rotationMultiplier * Math.cos(Math.PI/2 + angleUnitaryVector) * this.getLength();
     const p4y: number = this.p2.y + rotationMultiplier * Math.sin(Math.PI/2 + angleUnitaryVector) * this.getLength();
@@ -88,9 +88,7 @@ export class Door extends WallElement {
   }
 
   override onDrag(offset: Point, recursive: boolean): void {
-    this.p1 = this.p1.translatePoint(offset);
-    this.p2 = this.p2.translatePoint(offset);
-    this.p3 = this.p3?.translatePoint(offset);
+    this.update(this.p1.translatePoint(offset), true);
   }
 
   override onHover(): void {
@@ -112,11 +110,19 @@ export class Door extends WallElement {
   }
 
   restore(element: Door): void {
-    this.p1 = element.p1;
-    this.p2 = element.p2;
+    this.parentWallP1 = element.parentWallP1;
+    this.parentWallP2 = element.parentWallP2;
+    this.update(element.p1, true);
   }
 
-  update(newOriginPoint: Point): void {
+  update(newOriginPoint: Point, needProjectOrthogonally: boolean = false): void {
+    if (needProjectOrthogonally){
+      newOriginPoint = Utils.projectOrthogonallyOntoSegment(this.parentWallP1, this.parentWallP2, newOriginPoint);
+    }
+    if(!newOriginPoint.isPointBetweenTwoPoint(this.parentWallP1, this.parentWallP2)){
+      return;
+    }
+
     this.calculatePointPositions(newOriginPoint);
   }
 
@@ -131,18 +137,18 @@ export class Door extends WallElement {
     let rotationMultiplier: number = this.isTurnedToLeft ? -1 : 1;
     const Cx: number = startPoint.x  + rotationMultiplier * unitDistance * (this.parentWallP2.x - this.parentWallP1.x);
     const Cy: number = startPoint.y + rotationMultiplier * unitDistance * (this.parentWallP2.y - this.parentWallP1.y);
-    const C: Point = new Point(Cx, Cy);
+    const calculatedP2: Point = new Point(Cx, Cy);
 
     // Check if the point is on the wall
-    if(!C.isPointBetweenTwoPoint(this.parentWallP1, this.parentWallP2)){
+    if(!calculatedP2.isPointBetweenTwoPoint(this.parentWallP1, this.parentWallP2)){
       return;
     }
 
     this.p1 = startPoint;
-    this.p2 = new Point(Cx, Cy);
+    this.p2 = calculatedP2;
 
     rotationMultiplier *= this.isRotated ? -1 : 1;
-    const angleInDegreesWithUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(startPoint, new Point(Cx, Cy));
+    const angleInDegreesWithUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(startPoint, calculatedP2);
     const Ax: number = startPoint.x + rotationMultiplier * Math.cos(ACDAngle + angleInDegreesWithUnitaryVector) * this.getLength();
     const Ay: number = startPoint.y + rotationMultiplier * Math.sin(ACDAngle + angleInDegreesWithUnitaryVector) * this.getLength();
     this.p3 = new Point(Ax, Ay);

@@ -75,10 +75,7 @@ export class Window extends WallElement {
   }
 
   override onDrag(offset: Point, recursive: boolean): void {
-    this.p1 = this.p1.translatePoint(offset);
-    this.p2 = this.p2.translatePoint(offset);
-    this.p3 = this.p3?.translatePoint(offset);
-    this.p4 = this.p4?.translatePoint(offset);
+    this.update(this.p1.translatePoint(offset), true);
   }
 
   override onSelect(): void {
@@ -99,8 +96,9 @@ export class Window extends WallElement {
   }
 
   restore(element: Window): void {
-    this.p1 = element.p1;
-    this.p2 = element.p2;
+    this.parentWallP1 = element.parentWallP1;
+    this.parentWallP2 = element.parentWallP2;
+    this.update(element.p1, true);
   }
 
   calculatePointPositions(startPoint: Point): void {
@@ -115,13 +113,13 @@ export class Window extends WallElement {
 
     const Cx: number = startPoint.x  + unitDistance * (this.parentWallP2.x - this.parentWallP1.x);
     const Cy: number = startPoint.y + unitDistance * (this.parentWallP2.y - this.parentWallP1.y);
-    const C: Point = new Point(Cx, Cy);
+    const calculatedP2: Point = new Point(Cx, Cy);
 
     // Check if the point is on the wall
-    if(!C.isPointBetweenTwoPoint(this.parentWallP1, this.parentWallP2)){
+    if(!calculatedP2.isPointBetweenTwoPoint(this.parentWallP1, this.parentWallP2)){
       return;
     }
-    const angleInDegreesWithUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(startPoint, new Point(Cx, Cy));
+    const angleInDegreesWithUnitaryVector: number = Utils.CalculateTrigonometricAngleWithUnitXVector(startPoint, calculatedP2);
 
     let rotationMultiplier: number = 1;
     let finalBCDAngle, finalADCAngle: number;
@@ -141,12 +139,19 @@ export class Window extends WallElement {
     const By: number = Cy + rotationMultiplier * Math.sin(finalBCDAngle) * ADLength;
 
     this.p1 = startPoint;
-    this.p2 = new Point(Cx, Cy);
+    this.p2 = calculatedP2;
     this.p3 = new Point(Ax, Ay);
     this.p4 = new Point(Bx, By);
   }
 
-  update(newOriginPoint: Point): void {
+  update(newOriginPoint: Point, needProjectOrthogonally: boolean = false): void {
+    if (needProjectOrthogonally){
+      newOriginPoint = Utils.projectOrthogonallyOntoSegment(this.parentWallP1, this.parentWallP2, newOriginPoint);
+    }
+    if(!newOriginPoint.isPointBetweenTwoPoint(this.parentWallP1, this.parentWallP2)){
+      return;
+    }
+
     this.calculatePointPositions(newOriginPoint);
   }
 

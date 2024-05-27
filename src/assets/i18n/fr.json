@@ -1,10 +1,9 @@
 {
-  "All projects": "Tous les projets",
   "Undo": "Annuler la dernière action",
   "Redo": "Refaire la dernière action",
   "Save": "Sauvegarder",
   "Import component": "Importer un composant",
-  "Export component": "Exporter un composant",
+  "Export to PNG": "Exporter en PNG",
   "Settings": "Paramètres",
   "Choose the color:": "Choisissez la couleur :",
   "Choose the selected color:": "Choisissez la couleur en état sélectionné :",

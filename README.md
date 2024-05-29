@@ -1,6 +1,7 @@
 # HomePlanner
 
 HomePlanner is a web application built with Angular that enables users to design and customize their own home layouts. With intuitive controls and a variety of features, users can create detailed floor plans, place structural elements and export their designs. HomePlanner provides the tools you need to bring your vision to life.
+![demo.png](demo.png)
 
 ## Features
 

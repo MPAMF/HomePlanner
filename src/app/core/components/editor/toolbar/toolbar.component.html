@@ -46,10 +46,11 @@
 
     <div class="flex">
       <div class="buttons-group">
-        <button title="{{'Save' | translate}}">
+        <button title="{{'Save' | translate}}" (click)="saveProjectToJson()">
           <mat-icon>save</mat-icon>
         </button>
-        <button title="{{ 'Import component' | translate}}">
+        <input type="file" accept=".json" id="fileInput" (change)="importProjectFromJson($event)" style="display: none;" />
+        <button title="{{ 'Import component' | translate}}" (click)="onSelectFile()">
           <mat-icon>save_alt</mat-icon>
         </button>
         <button title="{{'Export to PNG' | translate}}" (click)="exportToPng()">

@@ -7,7 +7,7 @@ import {Point} from "./point";
 export class ClickablePoint extends Clickable implements Cloneable<ClickablePoint> {
   private opacity: number = 0.4;
 
-  constructor(public point: Point, private readonly radius: number = 15) {
+  constructor(public point: Point, public readonly radius: number = 15) {
     super();
   }
 

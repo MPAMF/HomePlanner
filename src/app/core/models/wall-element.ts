@@ -26,7 +26,8 @@ export abstract class WallElement extends Clickable implements Cloneable<WallEle
     protected selectedColor?: string,
     protected length?: number,
     public isFinalized: boolean = false,
-    public isRotated: boolean = false
+    public isRotated: boolean = false,
+    public isTurnedToLeft: boolean = false
   ) {
     super();
   }

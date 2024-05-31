@@ -1,7 +1,5 @@
 import {Cloneable} from "./interfaces/cloneable";
-import {Clickable, ClickableState} from "./interfaces/clickable";
-import {Canvas, DrawOn} from "./canvas";
-import { ActionsButtonOptions } from "./action-button-options";
+
 
 export class Point implements Cloneable<Point> {
   static ORIGIN: Point = new Point(0, 0);

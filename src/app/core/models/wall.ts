@@ -13,7 +13,7 @@ import {
   ModalElementPropertiesComponent
 } from "../components/editor/modal-element-properties/modal-element-properties.component";
 import {ClickablePoint} from "./clickable-point";
-import {RoomNeedSwitchPointDictionary} from "./interfaces/room-need-switch-point";
+import {RoomNeedSwitchPoint, RoomNeedSwitchPointDictionary} from "./interfaces/room-need-switch-point";
 
 export class Wall extends Clickable implements Cloneable<Wall> {
 

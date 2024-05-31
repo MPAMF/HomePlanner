@@ -21,9 +21,11 @@ export class Window extends WallElement {
     color?: string,
     selectedColor?: string,
     length?: number,
+    isRotated: boolean = false,
+    isTurnedToLeft: boolean = false,
   ) {
     super(p1, p1, parentWallP1, parentWallP2, defaultLength, defaultThickness, defaultColor,
-      defaultSelectedColor, thickness, color, selectedColor, length, isFinalized);
+      defaultSelectedColor, thickness, color, selectedColor, length, isFinalized, isRotated, isTurnedToLeft);
 
     this.calculatePointPositions(p1);
   }
@@ -91,7 +93,8 @@ export class Window extends WallElement {
 
   clone(): Window {
     return new Window(this.p1.clone(), this.parentWallP1, this.parentWallP2, this.defaultLength, this.defaultThickness,
-      this.defaultColor, this.defaultSelectedColor, this.isFinalized, this.thickness, this.color, this.selectedColor, this.length);
+      this.defaultColor, this.defaultSelectedColor, this.isFinalized, this.thickness, this.color, this.selectedColor
+      , this.length, this.isRotated, this.isTurnedToLeft);
   }
 
   restore(element: Window): void {

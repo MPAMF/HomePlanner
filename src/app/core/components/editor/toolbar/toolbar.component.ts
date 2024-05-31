@@ -79,9 +79,9 @@ export class ToolbarComponent {
     const file = (event.target as HTMLInputElement).files;
     if (file && file[0]) {
       const reader = new FileReader();
-      reader.onload = (e: any) => {
-        const fileContent = e.target.result;
+      reader.onload = (e: ProgressEvent<FileReader>) => {
 
+        const fileContent = e.target && e.target.result ? e.target.result.toString() : "";
         try {
           const jsonData = JSON.parse(fileContent);
           this.loadProjectFromJson(jsonData);
@@ -131,6 +131,7 @@ export class ToolbarComponent {
     }
 
     const data = {
+      scale: this.commandInvoker.canvas?.scale,
       boardConfig: {
         wallColor: this.commandInvoker.board.boardConfig.wallColor,
         selectWallColor: this.commandInvoker.board.boardConfig.selectWallColor,
@@ -157,7 +158,7 @@ export class ToolbarComponent {
   }
 
   private loadProjectFromJson(jsonData: jsonExportClass): void {
-    if(!this.commandInvoker || !this.commandInvoker.board) return;
+    if(!this.commandInvoker || !this.commandInvoker.board || !this.commandInvoker.canvas) return;
 
     const wallCloned: WallExportDictionary = {};
     for(const wallKey in jsonData.walls){
@@ -228,6 +229,7 @@ export class ToolbarComponent {
         currentRoom.walls.push(wallCloned[wallKey]);
       }
 
+      this.commandInvoker.canvas.scale = jsonData.scale;
       this.commandInvoker.board.rooms.push(currentRoom);
       this.commandInvoker?.redraw(DrawOn.Background);
       this.commandInvoker.board.normalisePoints();
@@ -274,6 +276,7 @@ interface WallElementObject {
 }
 
 interface jsonExportClass {
+  scale: number
   boardConfig: {
     wallColor: string;
     selectWallColor: string;

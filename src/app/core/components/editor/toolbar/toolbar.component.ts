@@ -54,10 +54,19 @@ export class ToolbarComponent {
   exportToPng() {
     if (!this.commandInvoker || !this.commandInvoker.canvas) return;
     const link = document.createElement('a');
+
+    for (const room of this.commandInvoker.board.rooms){
+      for (const wall of room.walls){
+        wall.drawUnits(this.commandInvoker.canvas.background, this.commandInvoker.canvas.scale)
+      }
+    }
+
     const date = new Date();
     link.download = `HomePlanner_${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}.png`;
     link.href = this.commandInvoker?.canvas?.background.canvas.toDataURL()
     link.click();
+
+    this.commandInvoker?.redraw(DrawOn.Background);
   }
 
   saveProjectToJson(): void {

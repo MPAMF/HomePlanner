@@ -208,7 +208,7 @@ export class Wall extends Clickable implements Cloneable<Wall> {
     this.elements.forEach(element => element.draw(canvas, on));
   }
 
-  private drawUnits(ctx: CanvasRenderingContext2D, scale: number) {
+  drawUnits(ctx: CanvasRenderingContext2D, scale: number) {
     const pt = this.findPointC(this.p1.point, this.p2.point, 20, true);
     const pt2 = this.findPointC(this.p2.point, this.p1.point, 20);
 

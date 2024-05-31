@@ -37,7 +37,8 @@ HomePlanner is a web application built with Angular that enables users to design
 
 ### Export
 
-- **Export design**: export your finished floor plan under PNG format for sharing or further use.
+- **Export design**: export your finished floor plan under **JSON** or **PNG** format for sharing or further use.
+- **Import design**: import a shared or previously saved design.
 
 ## Technical
 
